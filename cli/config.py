@@ -1,4 +1,3 @@
-
 CONFIG_FILE = '.manageacloud'
 
 MAC_FILE = '.manageacloud'

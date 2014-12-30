@@ -1,6 +1,10 @@
-import os, unittest, mock
+import unittest
+
+import mock
+
 from mock_data import *
 import dao.api_auth
+
 
 class AuthTestCase(unittest.TestCase):
     @mock.patch('mac.http.send_request')
@@ -9,10 +13,3 @@ class AuthTestCase(unittest.TestCase):
         user, apiKey = dao.api_auth.get_auth(MOCK_USER, MOCK_PASSWORD)
         self.assertEqual(MOCK_USER, user)
         self.assertEqual(MOCK_APIKEY, apiKey)
-
-    @mock.patch('mac.http.send_request')
-    def test_auth_authenticate_forbidden(self, mock_get_auth):
-        mock_get_auth.return_value = 403, None
-        user, apiKey = dao.api_auth.get_auth(MOCK_USER, MOCK_PASSWORD)
-        self.assertEqual(MOCK_USER, user)
-        self.assertEqual(None, apiKey)

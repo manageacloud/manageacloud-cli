@@ -1,7 +1,14 @@
-import sys, logging, codecs, copy
+import sys
+import logging
+import codecs
+import copy
 import argparse
-import mac, parser_cli, command_cli
-from exception_cli import InternalError
+
+import service
+import parser_cli
+import command_cli
+from helper.exception import InternalError
+
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 logging.basicConfig()
@@ -10,7 +17,7 @@ logging.basicConfig()
 def initialize_parser():
     # Top parser
     parser = argparse.ArgumentParser(description="Manageacloud.com CLI", prog='mac')
-    parser.add_argument('--version', action='version', version='%(prog)s ' + mac.__version__)
+    parser.add_argument('--version', action='version', version='%(prog)s ' + service.__version__)
     # parser.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
     parser_cli.add_login_parser(subparsers)
@@ -28,7 +35,6 @@ def patch_help_option(argv=sys.argv):
 
 
 def dispatch_cmds(args):
-
     if args.cmd == 'login':
         command_cli.login()
 
@@ -51,6 +57,7 @@ def main():
     argv = patch_help_option(sys.argv)
     args = parser.parse_args(argv)
     dispatch_cmds(args)
+
 
 if __name__ == "__main__":
     main()

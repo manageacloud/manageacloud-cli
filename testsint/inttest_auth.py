@@ -1,27 +1,24 @@
-import tempfile
 import unittest
-import ConfigParser
-import mac
 
-import os
-import mock
+import service
+
+import service.auth
 from mock_data import *
 
 
 class AuthIntTestCase(unittest.TestCase):
-
     def setUp(self):
-        self.user = mac.user
-        self.apikey = mac.apikey
+        self.user = service.user
+        self.apikey = service.apikey
 
     def tearDown(self):
-        mac.user = self.user
-        mac.apikey = mac.apikey
+        service.user = self.user
+        service.apiKey = self.apikey
 
     def test_auth_authenticate(self):
-        mac.auth.authenticate(FAKE_USER, FAKE_PASSWORD)
-        self.assertEqual(FAKE_USER, mac.user)
-        self.assertEqual(FAKE_APIKEY, mac.apikey)
+        service.auth.authenticate(FAKE_USER, FAKE_PASSWORD)
+        self.assertEqual(FAKE_USER, service.user)
+        self.assertEqual(FAKE_APIKEY, service.apikey)
         self.tearDown()
 
 

@@ -1,7 +1,16 @@
 from urlparse import urljoin
+
 from requests import Request, Session
+
 from helper.exception import MacApiError, MacAuthError
 import service
+
+
+def get_auth_header():
+    if service.user and service.apikey:
+        return {'Authorization': 'ApiKey %s:%s' % (service.user, service.apikey)}
+    else:
+        return {}
 
 
 def send_request(method, path, **kwargs):
@@ -10,7 +19,7 @@ def send_request(method, path, **kwargs):
     service.logger.info("%s %s %s" % (method, url, kwargs.get('data', '')))
     # construct headers
     headers = {'Content-Type': 'application/json', 'User-Agent': 'python-manageacloud/v%s' % service.__version__}
-    headers.update(service.auth.get_auth_header())
+    headers.update(get_auth_header())
     # construct request
     s = Session()
     req = Request(method, url, headers=headers, **kwargs)
@@ -37,7 +46,7 @@ def send_request(method, path, **kwargs):
         if status_code == 403:
             raise MacAuthError("Not authorized")
         else:
-            #TODO if verbose we should print this
+            # TODO if verbose we should print this
             service.logger.warn("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
 
     service.logger.info("Response: %s", json)

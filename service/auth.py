@@ -16,13 +16,6 @@ def logout():
     service.apikey = None
 
 
-def get_auth_header():
-    if service.user and service.apikey:
-        return {'Authorization': 'apiKey %s:%s' % (service.user, service.apikey)}
-    else:
-        return {}
-
-
 def authenticate(username, password):
     """Authenticates a Manageacloud user using username and password.
 

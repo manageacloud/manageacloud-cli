@@ -1,23 +1,24 @@
 import tempfile
 import unittest
 import ConfigParser
+import os
+
+import mock
+
 import service.auth
 import dao.api_auth
-
-import os
-import mock
+import helper.http
 from mock_data import *
 
 
 class AuthTestCase(unittest.TestCase):
-
     def setUp(self):
         self.user = service.user
         self.apikey = service.apikey
 
     def tearDown(self):
         service.user = self.user
-        service.apikey = service.apikey
+        service.apiKey = self.apikey
 
     @mock.patch('dao.api_auth.get_auth')
     def test_auth_authenticate(self, mock_get_auth):
@@ -72,16 +73,16 @@ class AuthTestCase(unittest.TestCase):
     def test_auth_get_auth_header(self):
         service.user = MOCK_USER
         service.apikey = MOCK_APIKEY
-        self.assertEqual({'Authorization': 'apiKey %s:%s' % (MOCK_USER, MOCK_APIKEY)}, service.auth.get_auth_header())
+        self.assertEqual({'Authorization': 'ApiKey %s:%s' % (MOCK_USER, MOCK_APIKEY)}, helper.http.get_auth_header())
 
         service.user = None
         service.apikey = MOCK_APIKEY
-        self.assertEqual({}, service.auth.get_auth_header())
+        self.assertEqual({}, helper.http.get_auth_header())
 
         service.user = MOCK_USER
         service.apikey = None
-        self.assertEqual({}, service.auth.get_auth_header())
+        self.assertEqual({}, helper.http.get_auth_header())
 
         service.user = None
         service.apikey = None
-        self.assertEqual({}, service.auth.get_auth_header())
+        self.assertEqual({}, helper.http.get_auth_header())

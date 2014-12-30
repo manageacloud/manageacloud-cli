@@ -1,6 +1,10 @@
+import os
+import ConfigParser
+
 from requests.auth import HTTPBasicAuth
-import os,ConfigParser
+
 import helper.http
+
 
 def get_auth(username, password):
     """Returns the user's Username and ApiKey, or raises an exception if username/password incorrect
