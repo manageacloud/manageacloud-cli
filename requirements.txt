@@ -1,6 +1,5 @@
 requests
 #PyYAML
 configparser
-mock
 prettytable
 pexpect
