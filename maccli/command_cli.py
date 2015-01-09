@@ -21,7 +21,6 @@ def help():
 
 
 def login():
-
     try:
         username = raw_input("Username: ")
         password = getpass.getpass()
@@ -54,6 +53,7 @@ def instance_list():
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
 
+
 def instance_ssh(name, session_id):
     try:
         service.instance.ssh_instance(name, session_id)
@@ -64,7 +64,6 @@ def instance_ssh(name, session_id):
 
 
 def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware):
-
     if cookbook_tag is None:
         view.view_instance.show_instance_create_help()
 
@@ -93,15 +92,19 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
         show()
         view.view_hardware.show_hardwares(hardwares)
         if (len(hardwares) > 0):
-            view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment, location, servername, provider, release, branch, hardwares[0]['id'])
+            view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment, location, servername,
+                                                                   provider, release, branch, hardwares[0]['id'])
     else:
         """ Execute create instance """
-        instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware)
+        instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release,
+                                                    branch, hardware)
         if instance is not None:
             view.view_instance.show_instance(instance)
 
+
 def instance_destroy_help():
     view.view_instance.show_instance_destroy_help()
+
 
 def instance_ssh_help():
     view.view_instance.show_instance_ssh_help()
@@ -112,12 +115,15 @@ def instance_destroy(servername, session_id):
     if instance is not None:
         view.view_instance.show_instance(instance)
 
+
 def instance_help():
     view.view_instance.show_instance_help()
+
 
 def configuration_list():
     configurations = service.configuration.list_configurations()
     view.view_cookbook.show_configurations(configurations)
+
 
 def configuration_search(keywords, show_url):
     configurations = service.configuration.search_configurations(keywords)
@@ -125,6 +131,7 @@ def configuration_search(keywords, show_url):
         view.view_cookbook.show_configurations_url(configurations)
     else:
         view.view_cookbook.show_configurations(configurations)
+
 
 def configuration_help():
     view.view_cookbook.show_configurations_help()

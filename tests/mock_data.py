@@ -1,9 +1,11 @@
 import json
 
+
 class Mock_args(object):
     def __init__(self, cmd, subcmd):
         self.cmd = cmd
         self.subcmd = subcmd
+
 
 class MockInstanceCreate_args(Mock_args):
     def __init__(self, cmd, subcmd):
@@ -18,6 +20,7 @@ class MockInstanceCreate_args(Mock_args):
         self.branch = None
         self.hardware = None
 
+
 class MockInstanceDestroy_args(Mock_args):
     def __init__(self, cmd, subcmd, name, id):
         self.cmd = cmd
@@ -25,12 +28,14 @@ class MockInstanceDestroy_args(Mock_args):
         self.name = name
         self.id = id
 
+
 class MockConfiguration_Args(Mock_args):
     def __init__(self, cmd, subcmd, keyword, url):
         self.cmd = cmd
         self.subcmd = subcmd
         self.keyword = keyword
         self.url = url
+
 
 class MockInstanceSSH_args(MockInstanceDestroy_args):
     pass
@@ -55,8 +60,9 @@ MOCK_USER = 'fake_mac_user'
 MOCK_PASSWORD = 'fake_mac_password'
 MOCK_APIKEY = '5e8520c1a6a0fb6d9cea28d06b82a0573c1144ab26efcc4a66ec16b1aec9bcab'
 
-MOCK_LOGIN_JSON = json.loads(
-    '{"username":"fake_mac_user","apiKey":"5e8520c1a6a0fb6d9cea28d06b82a0573c1144ab26efcc4a66ec16b1aec9bcab"}')
+MOCK_LOGIN_JSON_RAW = '{"username":"fake_mac_user","apiKey":"5e8520c1a6a0fb6d9cea28d06b82a0573c1144ab26efcc4a66ec16b1aec9bcab"}'
+MOCK_LOGIN_JSON = json.loads(MOCK_LOGIN_JSON_RAW)
+
 MOCK_INSTANCE_LIST_JSON_RAW = '[{"servername":"mct-277","id": "serverid","status":"Ready","type":"development"}]'
 MOCK_INSTANCE_LIST_JSON = json.loads(MOCK_INSTANCE_LIST_JSON_RAW)
 
@@ -78,7 +84,6 @@ MOCK_INSTANCE_CREDENTIALS_PRIVKEY_JSON = json.loads(MOCK_INSTANCE_CREDENTIALS_PR
 MOCK_INSTANCE_CREDENTIALS_PASS_JSON_RAW = '{"ip":"104.236.164.139","port":22,"user":"root","password":"pass","privateKey":""}'
 MOCK_INSTANCE_CREDENTIALS_PASS_JSON = json.loads(MOCK_INSTANCE_CREDENTIALS_PASS_JSON_RAW)
 
-
 MOCK_CONFIGURATION_SEARCH_JSON_RAW = '[{"tag":"vaadinrest_web_client","name":"VaadinREST web client.","summary":"A simple deployment for a vaadin rest client","url":"https://manageacloud.com/configuration/vaadinrest_web_client"},{"tag":"tutanota_email_client_debian_wheezy_70","name":"Tutanota email client","summary":"Installs tutanota email client with Nginx and a self-signed certificate","url":"https://manageacloud.com/configuration/tutanota_email_client_debian_wheezy_70"},{"tag":"bolt_cms_amazon_2014032","name":"Bolt CMS","summary":"Basic bolt cms / blog installation ","url":"https://manageacloud.com/configuration/bolt_cms_amazon_2014032"},{"tag":"django_helpdesk_amazon_2014032","name":"Django Helpdesk","summary":"A Django powered ticket tracker for small enterprise","url":"https://manageacloud.com/configuration/django_helpdesk_amazon_2014032"},{"tag":"nagios_408_template","name":"Nagios 4.0.8 template","summary":"nagios 4, nagios plugins and nrpe","url":"https://manageacloud.com/configuration/nagios_408_template"},{"tag":"guacad_tomcat7","name":"guacamole server and aplication with tomcat7","summary":"guacamole server and application and tomcat7","url":"https://manageacloud.com/configuration/guacad_tomcat7"},{"tag":"redis-server-template","name":"redis-server-template","summary":"Download Redis tarball, extract, compile, configure","url":"https://manageacloud.com/configuration/redis-server-template"},{"tag":"tutanota_email_client_amazon_2014032","name":"Tutanota email client","summary":"Installs tutanota email client with Nginx and a self-signed certificate","url":"https://manageacloud.com/configuration/tutanota_email_client_amazon_2014032"},{"tag":"anchor_cms_ubuntu_trusty_tahr_1404","name":"Anchor CMS","summary":"Anchor CMS and Blog System","url":"https://manageacloud.com/configuration/anchor_cms_ubuntu_trusty_tahr_1404"}]'
 MOCK_CONFIGURATION_SEARCH_JSON = json.loads(MOCK_CONFIGURATION_SEARCH_JSON_RAW)
 
@@ -93,7 +98,6 @@ Please login in your account in https://manageacloud.com and deploy a production
 
 You just need to make this action once.
 '''
-
 
 OUTPUT_CONFIGURATION_LIST = '''
 +---------------+-------------+---------+

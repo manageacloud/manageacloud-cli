@@ -5,13 +5,12 @@ from maccli.view.view_generic import show_error
 
 
 def get_list():
-
     status_code, json, raw = maccli.helper.http.send_request("GET", "/instances")
 
     return json
 
-def credentials(servername, session_id):
 
+def credentials(servername, session_id):
     params = {
         'servername': servername,
         'session_id': session_id
@@ -63,8 +62,8 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
 
     return json_response
 
-def destroy(servername, session_id):
 
+def destroy(servername, session_id):
     params = {
         'servername': servername,
         'session_id': session_id
@@ -77,6 +76,5 @@ def destroy(servername, session_id):
 
     if status_code == 400:
         show_error("Error with parameters: %s " % raw)
-
 
     return json_response

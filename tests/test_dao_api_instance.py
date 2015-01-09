@@ -3,8 +3,8 @@ import sys
 import StringIO
 
 import mock
-import maccli.dao.api_instance
 
+import maccli.dao.api_instance
 from mock_data import *
 
 
@@ -20,21 +20,22 @@ DEFAULT_HARDWARE = "512mb"
 
 
 class AuthTestCase(unittest.TestCase):
-
     def setUp(self):
         self.stderr = sys.stderr
         sys.stderr = self.buf = StringIO.StringIO()
-        #pass
+        # pass
 
     def tearDown(self):
         sys.stderr = self.stderr
-        #pass
+        # pass
 
     @mock.patch('maccli.helper.http.send_request')
     def test_instance_create(self, mock):
         mock.return_value = (200, MOCK_RESPONSE_INSTANCE_CREATE_JSON, MOCK_RESPONSE_INSTANCE_CREATE_JSON_RAW)
-        json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION, DEFAULT_SERVERNAME,
-                                DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH, DEFAULT_HARDWARE)
+        json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION,
+                                                       DEFAULT_SERVERNAME,
+                                                       DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
+                                                       DEFAULT_HARDWARE)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
         error = self.buf.getvalue()
         self.assertEqual(' '.join("".split()), ' '.join(error.split()))
@@ -44,8 +45,10 @@ class AuthTestCase(unittest.TestCase):
     @mock.patch('maccli.helper.http.send_request')
     def test_instance_create_error(self, mock):
         mock.return_value = (400, None, "Error Response")
-        json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION, DEFAULT_SERVERNAME,
-                                DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH, DEFAULT_HARDWARE)
+        json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION,
+                                                       DEFAULT_SERVERNAME,
+                                                       DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
+                                                       DEFAULT_HARDWARE)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
         error = self.buf.getvalue()
         self.assertEqual(' '.join(MOCK_RESPONSE_INSTANCE_CREATE_ERROR.split()), ' '.join(error.split()))

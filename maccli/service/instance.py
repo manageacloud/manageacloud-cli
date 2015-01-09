@@ -2,8 +2,8 @@ import os
 import tempfile
 
 import pexpect
-import maccli.dao.api_instance
 
+import maccli.dao.api_instance
 
 
 def list_instances():
@@ -12,11 +12,12 @@ def list_instances():
     """
     return maccli.dao.api_instance.get_list()
 
+
 def ssh_instance(servername, session_id):
     """
         ssh to an existing instance
     """
-    instance = maccli.dao.api_instance.credentials(servername,session_id)
+    instance = maccli.dao.api_instance.credentials(servername, session_id)
 
     if instance is not None:
         if instance['privateKey']:
@@ -39,12 +40,13 @@ def ssh_instance(servername, session_id):
             child.interact()
 
 
-
 def create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware):
     """
         List available instances in the account
     """
-    return maccli.dao.api_instance.create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware)
+    return maccli.dao.api_instance.create(cookbook_tag, deployment, location, servername, provider, release, branch,
+                                          hardware)
+
 
 def destroy_instance(servername, session_id):
     """

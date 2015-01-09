@@ -1,5 +1,6 @@
 from prettytable import PrettyTable
 
+
 def show_hardwares(hardwares):
     pretty = PrettyTable(["Id", "RAM", "Cores", "HD"])
     pretty.align = "r"

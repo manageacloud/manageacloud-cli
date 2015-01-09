@@ -4,13 +4,12 @@ import maccli.helper.http
 
 
 def get_user_configuration():
-
     status_code, json, raw = maccli.helper.http.send_request("GET", "/configuration/list")
 
     return status_code, json
 
-def search_public_configuration(keywords):
 
+def search_public_configuration(keywords):
     params = {
         'keyword': keywords
     }

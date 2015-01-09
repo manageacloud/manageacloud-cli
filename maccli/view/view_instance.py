@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
 
-def show_instances(instances):
 
+def show_instances(instances):
     pretty = PrettyTable(["Instance name", "Instance ID", "Type", "Status"])
 
     if (len(instances)):
@@ -13,11 +13,11 @@ def show_instances(instances):
 
 
 def show_instance(instance):
-
     pretty = PrettyTable(["Instance name", "Instance ID", "Type", "Status"])
     pretty.add_row([instance['servername'], instance['id'], instance['type'], instance['status']])
     print(pretty)
-    
+
+
 def show_instance_create_locations_example(cookbook_tag, locationid):
     print("")
     print("Example:")
@@ -42,12 +42,14 @@ def show_instance_create_help():
     print("    mac instance create -c <configuration tag>")
     show_instance_help()
 
+
 def show_instance_help():
     print("")
     print("Show more help:")
     print("")
     print("    mac instance -h")
     print("")
+
 
 def show_instance_destroy_help():
     print("")
@@ -56,6 +58,7 @@ def show_instance_destroy_help():
     print("    mac instance destroy -h")
     print("")
 
+
 def show_instance_ssh_help():
     print("")
     print("Show more help:")
@@ -63,9 +66,9 @@ def show_instance_ssh_help():
     print("    mac instance destroy -h")
     print("")
 
-def show_create_example_with_parameters(cookbook_tag, deployment, location, servername, provider, release, branch, hardware):
 
-
+def show_create_example_with_parameters(cookbook_tag, deployment, location, servername, provider, release, branch,
+                                        hardware):
     output = "mac instance create "
 
     if cookbook_tag is not None and cookbook_tag != "":
@@ -91,7 +94,6 @@ def show_create_example_with_parameters(cookbook_tag, deployment, location, serv
 
     if hardware is not None and hardware != "":
         output += " -hw " + hardware
-
 
     print("")
     print("Example:")

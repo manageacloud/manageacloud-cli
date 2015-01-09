@@ -1,5 +1,6 @@
 from prettytable import PrettyTable
 
+
 def show_configurations(cookbooks):
     pretty = PrettyTable(["Tag", "Title", "Summary"])
     pretty.align = "l"
@@ -14,6 +15,7 @@ def show_configurations(cookbooks):
     else:
         print("There are not configurations available")
 
+
 def show_configurations_url(cookbooks):
     pretty = PrettyTable(["Tag", "Url"])
     pretty.align = "l"
@@ -27,6 +29,7 @@ def show_configurations_url(cookbooks):
         print("")
     else:
         print("There are not configurations available")
+
 
 def show_configurations_help():
     print("Show more help:")

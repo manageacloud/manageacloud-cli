@@ -35,7 +35,7 @@ setup(
     include_package_data=True,
     author='R3Systems Pty Ltd',
     author_email='support@manageacloud.com',
-    description='CLI for Manageacloud',
+    description='CLI for Manageacloud.com',
     license='Apache v2',
     keywords='manageacloud docker puppet chef rackspace aws digitalocean',
     url='https://manageacloud.com',
@@ -50,6 +50,6 @@ setup(
         'Operating System :: POSIX',
         'Programming Language :: Python'
 
-        ]
+    ]
 
 )
