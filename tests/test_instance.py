@@ -10,7 +10,7 @@ import cli.command_cli
 class AuthTestCase(unittest.TestCase):
     @mock.patch('helper.http.send_request')
     def test_dao_instance_list_command(self, mock_get_instance_list):
-        mock_get_instance_list.return_value = 200, MOCK_INSTANCE_LIST_JSON
+        mock_get_instance_list.return_value = 200, MOCK_INSTANCE_LIST_JSON, MOCK_INSTANCE_LIST_JSON_RAW
         json = dao.api_instance.get_list()
         self.assertEqual(MOCK_INSTANCE_LIST_JSON, json)
 

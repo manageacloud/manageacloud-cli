@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import getpass
 import ConfigParser
 import sys
@@ -8,14 +8,28 @@ from prettytable import PrettyTable
 
 import service.auth
 import service.instance
+import service.provider
+import service.configuration
+
+from view.view_generic import show_error, show
+import view.view_location
+import view.view_instance
+import view.view_cookbook
+import view.view_generic
+import view.view_hardware
+
 from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE
+
+def help():
+    view.view_generic.general_help()
 
 
 def login():
-    username = raw_input("Username: ")
-    password = getpass.getpass()
 
     try:
+        username = raw_input("Username: ")
+        password = getpass.getpass()
+
         user, api_key = service.auth.authenticate(username, password)
         if api_key is not None:
             config = ConfigParser.ConfigParser()
@@ -26,23 +40,95 @@ def login():
                 config.write(cfgfile)
             print("Login succeeded!")
 
+    except KeyboardInterrupt as e:
+        show_error("")
+        show_error("Authentication cancelled.")
+
     except Exception as e:
-        print(e, file=sys.stderr)
+        show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
 def instance_list():
     try:
         json = service.instance.list_instances()
-        pretty = PrettyTable(["Instance name", "Type", "Status"])
-
-        if (len(json)):
-            for instance in json:
-                pretty.add_row([instance['servername'], instance['type'], instance['status']])
-            print(pretty)
-        else:
-            print("There is no active instances")
+        view.view_instance.show_instances(json)
 
     except Exception as e:
-        print(e, file=sys.stderr)
+        show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
+
+def instance_ssh(name, session_id):
+    try:
+        service.instance.ssh_instance(name, session_id)
+
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware):
+
+    if cookbook_tag is None:
+        view.view_instance.show_instance_create_help()
+
+
+    elif location is None:
+        locations_json = service.provider.list_locations(cookbook_tag, provider)
+        if locations_json is not None:
+            show()
+            show("--location parameter not set. You must choose the location.")
+            show()
+            show("Available locations:")
+            show()
+            if len(locations_json):
+                view.view_location.show_locations(locations_json)
+                view.view_instance.show_instance_create_locations_example(cookbook_tag, locations_json[0]['id'])
+            else:
+                show("There is not locations available for configuration %s and provider %s" % (cookbook_tag, provider))
+
+            view.view_instance.show_instance_help()
+    elif deployment == "production" and hardware is None:
+        hardwares = service.provider.list_hardwares(provider, location)
+        show()
+        show("--hardware not found. You must choose the hardware.")
+        show()
+        show("Available hardware:")
+        show()
+        view.view_hardware.show_hardwares(hardwares)
+        if (len(hardwares) > 0):
+            view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment, location, servername, provider, release, branch, hardwares[0]['id'])
+    else:
+        """ Execute create instance """
+        instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware)
+        if instance is not None:
+            view.view_instance.show_instance(instance)
+
+def instance_destroy_help():
+    view.view_instance.show_instance_destroy_help()
+
+def instance_ssh_help():
+    view.view_instance.show_instance_ssh_help()
+
+
+def instance_destroy(servername, session_id):
+    instance = service.instance.destroy_instance(servername, session_id)
+    if instance is not None:
+        view.view_instance.show_instance(instance)
+
+def instance_help():
+    view.view_instance.show_instance_help()
+
+def configuration_list():
+    configurations = service.configuration.list_configurations()
+    view.view_cookbook.show_configurations(configurations)
+
+def configuration_search(keywords, show_url):
+    configurations = service.configuration.search_configurations(keywords)
+    if show_url:
+        view.view_cookbook.show_configurations_url(configurations)
+    else:
+        view.view_cookbook.show_configurations(configurations)
+
+def configuration_help():
+    view.view_cookbook.show_configurations_help()

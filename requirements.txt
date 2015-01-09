@@ -3,3 +3,4 @@ requests
 configparser
 mock
 prettytable
+pexpect

@@ -25,7 +25,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='mac',
-    version=find_version('mac', '__init__.py'),
+    version=find_version('cli', '__init__.py'),
     packages=find_packages(),
     install_requires=install_requires,
     entry_points={
