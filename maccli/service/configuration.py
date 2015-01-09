@@ -1,6 +1,3 @@
-import dao.api_configuration
-
-
 def list_configurations():
     """
         List available configurations for the current user

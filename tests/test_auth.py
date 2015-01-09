@@ -5,9 +5,9 @@ import os
 
 import mock
 
-import service.auth
-import dao.api_auth
-import helper.http
+import maccli.service.auth
+import maccli.dao.api_auth
+import maccli.helper.http
 from mock_data import *
 
 
@@ -23,7 +23,7 @@ class AuthTestCase(unittest.TestCase):
     @mock.patch('dao.api_auth.get_auth')
     def test_auth_authenticate(self, mock_get_auth):
         mock_get_auth.return_value = (MOCK_USER, MOCK_APIKEY)
-        service.auth.authenticate(MOCK_USER, MOCK_PASSWORD)
+        maccli.service.auth.authenticate(MOCK_USER, MOCK_PASSWORD)
         self.assertEqual(MOCK_USER, service.user)
         self.assertEqual(MOCK_APIKEY, service.apikey)
         self.tearDown()
@@ -47,25 +47,25 @@ class AuthTestCase(unittest.TestCase):
     def test_auth_is_authenticated(self):
         service.user = MOCK_USER
         service.apikey = MOCK_APIKEY
-        self.assertTrue(service.auth.is_authenticated())
+        self.assertTrue(maccli.service.auth.is_authenticated())
 
         service.user = None
         service.apikey = MOCK_APIKEY
-        self.assertFalse(service.auth.is_authenticated())
+        self.assertFalse(maccli.service.auth.is_authenticated())
 
         service.user = MOCK_USER
         service.apikey = None
-        self.assertFalse(service.auth.is_authenticated())
+        self.assertFalse(maccli.service.auth.is_authenticated())
 
         service.user = None
         service.apikey = None
-        self.assertFalse(service.auth.is_authenticated())
+        self.assertFalse(maccli.service.auth.is_authenticated())
 
 
     def test_auth_logout(self):
         service.user = MOCK_USER
         service.apikey = MOCK_APIKEY
-        service.auth.logout()
+        maccli.service.auth.logout()
         self.assertIsNone(service.user)
         self.assertIsNone(service.apikey)
 
@@ -73,16 +73,16 @@ class AuthTestCase(unittest.TestCase):
     def test_auth_get_auth_header(self):
         service.user = MOCK_USER
         service.apikey = MOCK_APIKEY
-        self.assertEqual({'Authorization': 'ApiKey %s:%s' % (MOCK_USER, MOCK_APIKEY)}, helper.http.get_auth_header())
+        self.assertEqual({'Authorization': 'ApiKey %s:%s' % (MOCK_USER, MOCK_APIKEY)}, maccli.helper.http.get_auth_header())
 
         service.user = None
         service.apikey = MOCK_APIKEY
-        self.assertEqual({}, helper.http.get_auth_header())
+        self.assertEqual({}, maccli.helper.http.get_auth_header())
 
         service.user = MOCK_USER
         service.apikey = None
-        self.assertEqual({}, helper.http.get_auth_header())
+        self.assertEqual({}, maccli.helper.http.get_auth_header())
 
         service.user = None
         service.apikey = None
-        self.assertEqual({}, helper.http.get_auth_header())
+        self.assertEqual({}, maccli.helper.http.get_auth_header())

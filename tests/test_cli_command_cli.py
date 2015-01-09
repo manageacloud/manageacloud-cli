@@ -1,9 +1,10 @@
-import unittest, sys, StringIO
+import unittest
+import sys
+import StringIO
 
 import mock
 
 from mock_data import *
-import dao.api_instance
 import cli.command_cli
 
 DEFAULT_DEPLOYMENT="testing"

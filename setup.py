@@ -25,12 +25,12 @@ with open('requirements.txt') as f:
 
 setup(
     name='mac',
-    version=find_version('cli', '__init__.py'),
+    version=find_version('maccli', '__init__.py'),
     packages=find_packages(),
     install_requires=install_requires,
     entry_points={
         'console_scripts':
-            ['mac = cli.mac_cli:main']
+            ['mac = maccli.mac_cli:main']
     },
     include_package_data=True,
     author='R3Systems Pty Ltd',
@@ -40,4 +40,16 @@ setup(
     keywords='manageacloud docker puppet chef rackspace aws digitalocean',
     url='https://manageacloud.com',
     test_suite='tests',
+    classifiers=[
+        'Development Status :: 2 - Pre-Alpha',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Intended Audience :: System Administrators',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: POSIX',
+        'Programming Language :: Python'
+
+        ]
+
 )

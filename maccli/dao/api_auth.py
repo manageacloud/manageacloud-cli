@@ -3,7 +3,7 @@ import ConfigParser
 
 from requests.auth import HTTPBasicAuth
 
-import helper.http
+import maccli.helper.http
 
 
 def get_auth(username, password):
@@ -17,7 +17,7 @@ def get_auth(username, password):
     :returns: str, str -- the Username, ApiKey to use for the given username/email
     """
     auth = HTTPBasicAuth(username, password)
-    status_code, json, raw = helper.http.send_request("GET", "/user/auth", auth=auth)
+    status_code, json, raw = maccli.helper.http.send_request("GET", "/user/auth", auth=auth)
     user = username
     apikey = None
     if json:

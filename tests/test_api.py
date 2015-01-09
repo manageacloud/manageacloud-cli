@@ -3,7 +3,6 @@ import unittest
 import mock
 
 from mock_data import *
-import dao.api_auth
 
 
 class AuthTestCase(unittest.TestCase):

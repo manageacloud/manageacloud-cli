@@ -1,11 +1,12 @@
-import helper.http
 import json
-from view.view_generic import show_error, show
+
+import maccli.helper.http
+from maccli.view.view_generic import show_error
 
 
 def get_list():
 
-    status_code, json, raw = helper.http.send_request("GET", "/instances")
+    status_code, json, raw = maccli.helper.http.send_request("GET", "/instances")
 
     return json
 
@@ -16,7 +17,7 @@ def credentials(servername, session_id):
         'session_id': session_id
     }
     json_request = json.dumps(params)
-    status_code, json_response, raw = helper.http.send_request("GET", "/credential", data=json_request)
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/credential", data=json_request)
 
     if status_code == 404:
         show_error("User not found")
@@ -55,7 +56,7 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
 
     json_request = json.dumps(params)
 
-    status_code, json_response, raw = helper.http.send_request("POST", "/instance", data=json_request)
+    status_code, json_response, raw = maccli.helper.http.send_request("POST", "/instance", data=json_request)
 
     if status_code == 400:
         show_error("Error while building request: " + raw)
@@ -69,7 +70,7 @@ def destroy(servername, session_id):
         'session_id': session_id
     }
     json_request = json.dumps(params)
-    status_code, json_response, raw = helper.http.send_request("DELETE", "/instance", data=json_request)
+    status_code, json_response, raw = maccli.helper.http.send_request("DELETE", "/instance", data=json_request)
 
     if status_code == 404:
         show_error("Server %s not found" % servername)

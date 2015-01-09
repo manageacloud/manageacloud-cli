@@ -1,15 +1,15 @@
-import helper.http
+import maccli.helper.http
 
 
 def get_locations(cookbook_tag, provider):
 
-    status_code, json, raw = helper.http.send_request("GET", "/provider/locations?cookbook_tag=%s&provider=%s" %(cookbook_tag, provider))
+    status_code, json, raw = maccli.helper.http.send_request("GET", "/provider/locations?cookbook_tag=%s&provider=%s" %(cookbook_tag, provider))
 
     return status_code, json
 
 def get_hardwares(provider, location):
 
-    status_code, json, raw = helper.http.send_request("GET", "/provider/hardware?provider=%s&location=%s" % (provider, location))
+    status_code, json, raw = maccli.helper.http.send_request("GET", "/provider/hardware?provider=%s&location=%s" % (provider, location))
 
     if status_code==400:
         if raw == "No credentials available":

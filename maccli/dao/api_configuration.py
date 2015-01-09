@@ -1,10 +1,11 @@
-import helper.http
 import json
+
+import maccli.helper.http
 
 
 def get_user_configuration():
 
-    status_code, json, raw = helper.http.send_request("GET", "/configuration/list")
+    status_code, json, raw = maccli.helper.http.send_request("GET", "/configuration/list")
 
     return status_code, json
 
@@ -15,7 +16,7 @@ def search_public_configuration(keywords):
     }
     json_request = json.dumps(params)
 
-    status_code, json_response, raw = helper.http.send_request("GET", "/configuration/search", data=json_request)
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/configuration/search", data=json_request)
 
     return status_code, json_response
 

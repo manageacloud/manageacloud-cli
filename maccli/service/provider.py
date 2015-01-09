@@ -1,6 +1,3 @@
-import dao.api_provider
-
-
 def list_locations(cookbook_tag, provider_id):
     """
         List available instances in the account

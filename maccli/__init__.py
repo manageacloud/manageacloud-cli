@@ -1,7 +1,8 @@
 import os
 import logging
 
-import dao.api_auth
+import maccli.dao.api_auth
+
 
 __version__ = '1.0a0'
 

@@ -2,23 +2,23 @@ from urlparse import urljoin
 
 from requests import Request, Session
 
-from helper.exception import MacApiError, MacAuthError
-import cli
+from maccli.helper.exception import MacApiError, MacAuthError
+import maccli
 
 
 def get_auth_header():
-    if cli.user and cli.apikey:
-        return {'Authorization': 'ApiKey %s:%s' % (cli.user, cli.apikey)}
+    if maccli.user and maccli.apikey:
+        return {'Authorization': 'ApiKey %s:%s' % (maccli.user, maccli.apikey)}
     else:
         return {}
 
 
 def send_request(method, path, **kwargs):
     json = None
-    url = urljoin(cli.base_url, path.strip("/"))
-    cli.logger.info("%s %s %s" % (method, url, kwargs.get('data', '')))
+    url = urljoin(maccli.base_url, path.strip("/"))
+    maccli.logger.info("%s %s %s" % (method, url, kwargs.get('data', '')))
     # construct headers
-    headers = {'Content-Type': 'application/json', 'User-Agent': 'python-manageacloud/v%s' % cli.__version__}
+    headers = {'Content-Type': 'application/json', 'User-Agent': 'python-manageacloud/v%s' % maccli.__version__}
     headers.update(get_auth_header())
     # construct request
     s = Session()
@@ -26,7 +26,7 @@ def send_request(method, path, **kwargs):
     # make the request
     response = s.send(req.prepare())
     status_code = getattr(response, 'status_code', None)
-    cli.logger.info("Status: %s", str(status_code))
+    maccli.logger.info("Status: %s", str(status_code))
     # handle the response
     if not status_code:
         # Most likely network trouble
@@ -47,8 +47,8 @@ def send_request(method, path, **kwargs):
             raise MacAuthError("Not authorized")
         else:
             # TODO if verbose we should print this
-            cli.logger.warn("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
+            maccli.logger.warn("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
 
     print ("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
-    cli.logger.info("Response: %s", json)
+    maccli.logger.info("Response: %s", json)
     return status_code, json, response.text

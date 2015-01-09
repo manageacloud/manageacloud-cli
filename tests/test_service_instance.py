@@ -1,18 +1,20 @@
-import unittest, sys, StringIO
+import unittest
+
 import mock
-import service.instance
-from mock import mock_open
+
+import maccli.service.instance
 from mock_data import *
+
 
 DEFAULT_SERVERNAME = "servername"
 DEFAULT_SESSIONID = "sessionid"
 
 class AuthTestCase(unittest.TestCase):
 
-    @mock.patch('dao.api_instance.get_list')
+    @mock.patch('maccli.dao.api_instance.get_list')
     def test_list_configurations(self, mock):
         mock.return_value = MOCK_INSTANCE_LIST_JSON
-        json_response = service.instance.list_instances()
+        json_response = maccli.service.instance.list_instances()
         self.assertTrue(mock.called)
         self.assertEqual(json_response, MOCK_INSTANCE_LIST_JSON)
 

@@ -1,19 +1,18 @@
-import service
-import dao.api_auth
-
+import maccli.service
+import maccli.dao.api_auth
 
 def is_authenticated():
     """Returns whether the manageacloud user and apikey are set
 
     :returns: bool -- whether the manageacloud user and apikey are set
     """
-    return service.user is not None and service.apikey is not None
+    return maccli.serviceuser is not None and maccli.serviceapikey is not None
 
 
 def logout():
     """Sets the manageacloud user and apikey to None"""
-    service.user = None
-    service.apikey = None
+    maccli.serviceuser = None
+    maccli.serviceapikey = None
 
 
 def authenticate(username, password):
@@ -25,11 +24,11 @@ def authenticate(username, password):
     :type password: str.
     :raises: MacAuthError
     """
-    user, apikey = dao.api_auth.get_auth(username, password)
+    user, apikey = maccli.dao.api_auth.api_auth.get_auth(username, password)
 
     if user:
-        service.user = user
+        maccli.serviceuser = user
     if apikey:
-        service.apikey = apikey
+        maccli.serviceapikey = apikey
 
     return user, apikey

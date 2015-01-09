@@ -7,8 +7,8 @@ import argparse
 import cli
 import parser_cli
 import cli.command_cli
-from helper.exception import InternalError
-from view.view_generic import show_error
+from maccli.helper.exception import InternalError
+from maccli.view.view_generic import show_error
 
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)

@@ -1,24 +1,20 @@
-
 import getpass
 import ConfigParser
 import sys
 from os.path import join, expanduser
 
-from prettytable import PrettyTable
-
 import service.auth
 import service.instance
 import service.provider
-import service.configuration
-
+import maccli.service.configuration
 from view.view_generic import show_error, show
 import view.view_location
 import view.view_instance
 import view.view_cookbook
 import view.view_generic
-import view.view_hardware
-
+import maccli.view.view_hardware
 from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE
+
 
 def help():
     view.view_generic.general_help()

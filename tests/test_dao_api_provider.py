@@ -1,7 +1,11 @@
-import unittest, sys, StringIO
+import unittest
+import sys
+import StringIO
+
 import mock
-import dao.api_provider
+
 from mock_data import *
+
 
 DEFAULT_CONFIGURATION = "cookbook_tag"
 DEFAULT_PROVIDER = "manageacloud"
