@@ -11,3 +11,6 @@ prepare:clean
 test:prepare
 	venv/bin/pip install mock nose
 	venv/bin/python setup.py nosetests
+
+publish-pypi:prepare
+	python setup.py sdist upload
