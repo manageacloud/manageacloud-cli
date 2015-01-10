@@ -50,7 +50,10 @@ def dispatch_cmds(args):
     if args.cmd == 'login':
         maccli.command_cli.login()
 
-    if args.cmd == 'instance':
+    elif maccli.user is None:
+        maccli.command_cli.no_credentials()
+
+    elif args.cmd == 'instance':
 
         if args.subcmd == 'create':
             maccli.command_cli.instance_create(args.configuration, args.deployment, args.location, args.name,
@@ -72,7 +75,7 @@ def dispatch_cmds(args):
             else:
                 maccli.command_cli.instance_ssh(args.name, args.id)
 
-    if args.cmd == "configuration":
+    elif args.cmd == "configuration":
         if args.subcmd == 'list':
             maccli.command_cli.configuration_list()
         elif args.subcmd == 'search':

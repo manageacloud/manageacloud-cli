@@ -44,6 +44,14 @@ def login():
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
+def no_credentials():
+    show("You need to login into Manageacloud.com")
+    show()
+    show("    mac login")
+    show()
+    show("If you do not have an account, you can register one at https://manageacloud.com/register")
+
+
 def instance_list():
     try:
         json = service.instance.list_instances()

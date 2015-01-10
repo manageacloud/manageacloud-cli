@@ -7,6 +7,10 @@ from mock_data import *
 
 
 class AuthTestCase(unittest.TestCase):
+    def setUp(self):
+        maccli.user = MOCK_USER
+        maccli.apikey = MOCK_APIKEY
+
     @mock.patch('maccli.command_cli.login')
     def test_dispatch_cmds_login(self, mock):
         args = Mock_args('login', None)
