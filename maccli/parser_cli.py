@@ -1,3 +1,6 @@
+import re
+import argparse
+
 def add_login_parser(subparsers):
     subparsers.add_parser('login', help='Login into Manageacloud.com', description='Login into Manageacloud.com')
 
@@ -56,10 +59,15 @@ def add_instance_parser(subparsers):
 
     create_parser.add_argument('-hw', '--hardware',
                                help="Choose the hardware settings. It only applies if parameter 'deployment' is 'production'. "
-                                    "If this parameter is not set, the list of available locations will be displayed.")
+                                    "If this parameter is not set, the list of the available hardware will be displayed.")
 
-    create_parser.add_argument('-t', '--lifespan', help="If deployment is 'development' choose the lifespan of the server. "
+    create_parser.add_argument('-t', '--lifespan', type=int, help="If deployment is 'development' choose the lifespan of the server. "
                                                         "In minutes (default 90)" )
+
+    create_parser.add_argument('-e', '--environment', nargs='*', type=validate_environment,
+                               help="Format KEY=VALUE. The environment variables will be available"
+                                    " in the bootstrap bash script that applies the changes." )
+
 
 
 
@@ -73,6 +81,7 @@ def add_instance_parser(subparsers):
 
     destroy_parser.add_argument('-i', '--id',
                                 help='Server ID')
+
 
 
 def add_configuration_parser(subparsers):
@@ -98,3 +107,16 @@ def add_configuration_parser(subparsers):
 
 
 
+def validate_environment(input):
+    """
+        Checks that the input parameter has the format
+        KEY=VALUE
+    """
+    a = re.compile("^[A-Z0-9\_\-]+\=\S+$", re.IGNORECASE)
+    match = a.match(input)
+    if not match:
+        msg = "'%s' environment contains invalid characters or the format KEY=VALUE is not correct" % input
+        raise argparse.ArgumentTypeError(msg)
+    key, value = input.split("=", 1)
+    to_return = {key:value}
+    return to_return

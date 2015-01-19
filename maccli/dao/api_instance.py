@@ -27,7 +27,7 @@ def credentials(servername, session_id):
     return json_response
 
 
-def create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan):
+def create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan, environments):
     """
      Creates a new instance
 
@@ -40,6 +40,7 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
     :param branch:
     :param hardware:
     :param lifespan:
+    :param environments:
     :return:
     """
 
@@ -52,10 +53,13 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
         'release': release,
         'branch': branch,
         'hardware': hardware,
-        'lifespan': lifespan
+        'lifespan': lifespan,
+        'environments': environments
     }
 
     json_request = json.dumps(params)
+
+    #print (json_request)
 
     status_code, json_response, raw = maccli.helper.http.send_request("POST", "/instance", data=json_request)
 

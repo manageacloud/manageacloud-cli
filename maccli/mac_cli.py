@@ -47,6 +47,9 @@ def patch_help_option(argv=sys.argv):
 
 
 def dispatch_cmds(args):
+
+    print (args)
+
     if args.cmd == 'login':
         maccli.command_cli.login()
 
@@ -57,7 +60,8 @@ def dispatch_cmds(args):
 
         if args.subcmd == 'create':
             maccli.command_cli.instance_create(args.configuration, args.deployment, args.location, args.name,
-                                               args.provider, args.release, args.branch, args.hardware, args.lifespan)
+                                               args.provider, args.release, args.branch, args.hardware, args.lifespan,
+                                               args.environment)
         elif args.subcmd == 'destroy':
             if args.name is None and args.id is None:
                 show_error("Parameter --name or --id is required.")
