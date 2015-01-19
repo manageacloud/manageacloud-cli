@@ -14,6 +14,8 @@ def show_configurations(cookbooks):
         print("")
     else:
         print("There are not configurations available")
+        print("")
+        print("You can create a new server configuration at https://manageacloud.com")
 
 
 def show_configurations_url(cookbooks):
@@ -29,6 +31,8 @@ def show_configurations_url(cookbooks):
         print("")
     else:
         print("There are not configurations available")
+        print("")
+        print("You can create a new server configuration at https://manageacloud.com")
 
 
 def show_configurations_help():
@@ -36,3 +40,6 @@ def show_configurations_help():
     print("")
     print("    mac configuration -h")
     print("")
+
+
+
