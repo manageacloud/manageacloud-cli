@@ -20,6 +20,7 @@ class MockInstanceCreate_args(Mock_args):
         self.branch = None
         self.hardware = None
         self.lifespan = None
+        self.environment = None
 
 
 class MockInstanceDestroy_args(Mock_args):
@@ -42,7 +43,7 @@ class MockInstanceSSH_args(MockInstanceDestroy_args):
     pass
 
 
-MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW = '{"hardware": "512mb", "cookbook_tag": "cookbook_tag", "location": "sfo1", "branch": "master", "deployment": "testing", "release": "any", "servername": "server_name", "provider": "manageacloud", "lifespan": 90}'
+MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW = '{"hardware": "512mb", "cookbook_tag": "cookbook_tag", "location": "sfo1", "branch": "master", "deployment": "testing", "release": "any", "environments": ["KEY=VALUE"], "servername": "server_name", "provider": "manageacloud", "lifespan": 90}'
 MOCK_INSTANCE_DESTROY_PARAMETERS_JSON_RAW = '{"servername": "server_name", "session_id": "serverid"}'
 
 MOCK_RESPONSE_INSTANCE_CREATE_JSON_RAW = '{"servername":"","id":"c01br5mu83hs0v3jogsetm0acj","type":"testing","status":"Creating instance"}'
