@@ -4,9 +4,15 @@ from prettytable import PrettyTable
 def show_instances(instances):
     pretty = PrettyTable(["Instance name", "Instance ID", "Type", "Status"])
 
+
+
     if (len(instances)):
         for instance in instances:
-            pretty.add_row([instance['servername'], instance['id'], instance['type'], instance['status']])
+            if instance['type'] == 'testing' and instance['status'] == "Ready":
+                status = "%s (%im left)" %(instance['status'], instance['lifespan'])
+            else:
+                status = instance['status']
+            pretty.add_row([instance['servername'], instance['id'], instance['type'], status])
         print(pretty)
     else:
         print("There is no active instances")
