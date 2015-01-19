@@ -48,8 +48,6 @@ def patch_help_option(argv=sys.argv):
 
 def dispatch_cmds(args):
 
-    print (args)
-
     if args.cmd == 'login':
         maccli.command_cli.login()
 
