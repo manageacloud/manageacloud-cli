@@ -17,7 +17,7 @@ DEFAULT_LOCATION = "sfo1"
 DEFAULT_SERVERNAME = "server_name"
 DEFAULT_SERVER_ID = "serverid"
 DEFAULT_HARDWARE = "512mb"
-
+DEFAULT_LIFESPAN = 90
 
 class AuthTestCase(unittest.TestCase):
     def setUp(self):
@@ -35,7 +35,7 @@ class AuthTestCase(unittest.TestCase):
         json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION,
                                                        DEFAULT_SERVERNAME,
                                                        DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
-                                                       DEFAULT_HARDWARE)
+                                                       DEFAULT_HARDWARE, DEFAULT_LIFESPAN)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
         error = self.buf.getvalue()
         self.assertEqual(' '.join("".split()), ' '.join(error.split()))
@@ -48,7 +48,7 @@ class AuthTestCase(unittest.TestCase):
         json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION,
                                                        DEFAULT_SERVERNAME,
                                                        DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
-                                                       DEFAULT_HARDWARE)
+                                                       DEFAULT_HARDWARE, DEFAULT_LIFESPAN)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
         error = self.buf.getvalue()
         self.assertEqual(' '.join(MOCK_RESPONSE_INSTANCE_CREATE_ERROR.split()), ' '.join(error.split()))

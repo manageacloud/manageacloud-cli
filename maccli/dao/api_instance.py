@@ -19,7 +19,7 @@ def credentials(servername, session_id):
     status_code, json_response, raw = maccli.helper.http.send_request("GET", "/credential", data=json_request)
 
     if status_code == 404:
-        show_error("User not found")
+        show_error("Server not found")
 
     if status_code == 400:
         show_error("There is a problem with the input parametrs")
@@ -27,7 +27,7 @@ def credentials(servername, session_id):
     return json_response
 
 
-def create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware):
+def create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan):
     """
      Creates a new instance
 
@@ -39,6 +39,7 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
     :param release:
     :param branch:
     :param hardware:
+    :param lifespan:
     :return:
     """
 
@@ -50,7 +51,8 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
         'provider': provider,
         'release': release,
         'branch': branch,
-        'hardware': hardware
+        'hardware': hardware,
+        'lifespan': lifespan
     }
 
     json_request = json.dumps(params)

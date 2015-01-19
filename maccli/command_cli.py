@@ -22,7 +22,7 @@ def help():
 
 def login():
     try:
-        username = raw_input("Username: ")
+        username = raw_input("Username or email: ")
         password = getpass.getpass()
 
         user, api_key = service.auth.authenticate(username, password)
@@ -71,7 +71,7 @@ def instance_ssh(name, session_id):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware):
+def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan):
     if cookbook_tag is None:
         view.view_instance.show_instance_create_help()
 
@@ -105,7 +105,7 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
     else:
         """ Execute create instance """
         instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release,
-                                                    branch, hardware)
+                                                    branch, hardware, lifespan)
         if instance is not None:
             view.view_instance.show_instance(instance)
 

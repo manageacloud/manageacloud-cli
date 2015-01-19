@@ -58,6 +58,9 @@ def add_instance_parser(subparsers):
                                help="Choose the hardware settings. It only applies if parameter 'deployment' is 'production'. "
                                     "If this parameter is not set, the list of available locations will be displayed.")
 
+    create_parser.add_argument('-t', '--lifespan', help="If deployment is 'development' choose the lifespan of the server. "
+                                                        "In minutes (default 90)" )
+
 
 
     # destroy instance
