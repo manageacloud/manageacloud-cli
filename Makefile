@@ -14,3 +14,16 @@ test:prepare
 
 publish-pypi:prepare
 	python setup.py sdist upload
+
+build-osx:prepare
+	venv/bin/pip install --upgrade pip
+	venv/bin/pip install pyinstaller
+	venv/bin/pyinstaller mac.spec -y
+	mv dist/mac mac
+	mac/mac --version
+	tar zcvf mac-Darwin-x86_64.tar.gz mac
+	rm -rf mac
+	mv mac-Darwin-x86_64.tar.gz dist/mac-Darwin-x86_64.tar.gz
+
+publish-osx:build-osx
+	echo "Done"
