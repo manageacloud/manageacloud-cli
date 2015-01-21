@@ -61,23 +61,27 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
 
     json_request = json.dumps(params)
 
-    #print (json_request)
-
     status_code, json_response, raw = maccli.helper.http.send_request("POST", "/instance", data=json_request)
 
     if status_code == 400:
         show_error("Error while building request: " + raw)
 
+    if status_code == 409:
+        show_error("Resources limit reached. If you need more resources please contact "
+                   "sales@manageacloud.com. Detailed output:" + raw)
+
     return json_response
 
 
 def destroy(servername, session_id):
-    params = {
-        'servername': servername,
-        'session_id': session_id
-    }
-    json_request = json.dumps(params)
-    status_code, json_response, raw = maccli.helper.http.send_request("DELETE", "/instance", data=json_request)
+
+    serverorid = ""
+    if servername is not None and servername != "":
+        serverorid = servername
+    elif session_id is not None and session_id != "":
+        serverorid = session_id
+
+    status_code, json_response, raw = maccli.helper.http.send_request("DELETE", "/instance/%s" % serverorid)
 
     if status_code == 404:
         show_error("Server %s not found" % servername)
