@@ -1,4 +1,4 @@
-import json
+import urllib
 
 import maccli.helper.http
 
@@ -10,12 +10,15 @@ def get_user_configuration():
 
 
 def search_public_configuration(keywords):
-    params = {
-        'keyword': keywords
-    }
-    json_request = json.dumps(params)
 
-    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/configuration/search", data=json_request)
+    querystring = ""
+    if keywords is not None and len(keywords):
+        params = {
+            'keyword': keywords
+        }
+        querystring = "?" + urllib.urlencode(params, True)
+
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/configuration/search%s" % querystring)
 
     return status_code, json_response
 
