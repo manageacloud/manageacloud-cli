@@ -11,12 +11,14 @@ def get_list():
 
 
 def credentials(servername, session_id):
-    params = {
-        'servername': servername,
-        'session_id': session_id
-    }
-    json_request = json.dumps(params)
-    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/credential", data=json_request)
+
+    serverorid = ""
+    if servername is not None and servername != "":
+        serverorid = servername
+    elif session_id is not None and session_id != "":
+        serverorid = session_id
+
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/credential/%s" % serverorid)
 
     if status_code == 404:
         show_error("Server not found")
