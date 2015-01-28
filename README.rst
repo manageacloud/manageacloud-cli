@@ -1,6 +1,8 @@
 mac
 =====
 
+NOTE: The alpha version is not released to the general public. The beta version will be announced in February 2015.
+
 Manageacloud command line interface.
 
 

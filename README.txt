@@ -7,6 +7,8 @@ Manageacloud command line interface.
 Installing the CLI
 ------------------
 
+NOTE: The alpha version is not released to the general public. The beta version will be announced in February 2015.
+
 In order to install the Manageacloud CLI, you can use pip install:
 
 
