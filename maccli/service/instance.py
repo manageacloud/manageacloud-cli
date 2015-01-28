@@ -35,7 +35,11 @@ def ssh_instance(servername, session_id):
             """ Authentication with password """
             command = "ssh %s@%s" % (instance['user'], instance['ip'])
             child = pexpect.spawn(command)
-            child.expect('.* password:', timeout=20)
+            i = child.expect(['.* password:', "yes/no"],  timeout=60)
+            if i == 1:
+                child.sendline("yes")
+                child.expect('.* password:', timeout=60)
+
             child.sendline(instance['password'])
             child.interact()
 
