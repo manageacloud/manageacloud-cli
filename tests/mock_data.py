@@ -1,4 +1,5 @@
 import json
+import maccli
 
 
 class Mock_args(object):
@@ -95,10 +96,10 @@ MOCK_LOGIN_JSON_EMPTY = json.loads("[]")
 
 OUTPUT_HARDWARES_NO_CREDENTIALS = '''There is no credentials available in your account for the provider manageacloud
 
-Please login in your account in https://manageacloud.com and deploy a production server using the supplier manageacloud
+Please login in your account in %s and deploy a production server using the supplier manageacloud
 
 You just need to make this action once.
-'''
+''' % maccli.domain
 
 OUTPUT_CONFIGURATION_LIST = '''
 +---------------+-------------+---------+
@@ -108,9 +109,9 @@ OUTPUT_CONFIGURATION_LIST = '''
 | test_server   | Test server |         |
 +---------------+-------------+---------+
 
-Search more at https://manageacloud.com/cookbooks
+Search more at %s/cookbooks
 
-'''
+''' % maccli.domain
 
 OUTPUT_CONFIGURATION_SEARCH = '''+----------------------------------------+----------------------------------------------+-------------------------------------------------------------------------+
 | Tag                                    | Title                                        | Summary                                                                 |
@@ -126,9 +127,9 @@ OUTPUT_CONFIGURATION_SEARCH = '''+----------------------------------------+-----
 | anchor_cms_ubuntu_trusty_tahr_1404     | Anchor CMS                                   | Anchor CMS and Blog System                                              |
 +----------------------------------------+----------------------------------------------+-------------------------------------------------------------------------+
 
-Search more at https://manageacloud.com/cookbooks
+Search more at %s/cookbooks
 
-'''
+''' % maccli.domain
 
 OUTPUT_CONFIGURATION_SEARCH_KEYWORDS = '''+----------------------------------------+-------------------------------------------------------------------------------+
 | Tag                                    | Url                                                                           |
@@ -144,9 +145,9 @@ OUTPUT_CONFIGURATION_SEARCH_KEYWORDS = '''+-------------------------------------
 | anchor_cms_ubuntu_trusty_tahr_1404     | https://manageacloud.com/configuration/anchor_cms_ubuntu_trusty_tahr_1404     |
 +----------------------------------------+-------------------------------------------------------------------------------+
 
-Search more at https://manageacloud.com/cookbooks
+Search more at %s/cookbooks
 
-'''
+''' % maccli.domain
 
 OUTPUT_CREATE_INSTANCE_PRODUCTION_OK = '''+---------------+----------------------------+------------+-------------------+
 | Instance name |        Instance ID         |    Type    |       Status      |

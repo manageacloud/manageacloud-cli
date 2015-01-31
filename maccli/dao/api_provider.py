@@ -19,8 +19,8 @@ def get_hardwares(provider, location):
             print ("There is no credentials available in your account for the provider %s" % (provider))
             print ("")
             print (
-                "Please login in your account in https://manageacloud.com and deploy a production server using the supplier %s" % (
-                    provider))
+                "Please login in your account in %s and deploy a production server using the supplier %s" % (
+                    maccli.domain, provider))
             print ("")
             print ("You just need to make this action once.")
             print ("")

@@ -37,8 +37,8 @@ setup(
     author_email='support@manageacloud.com',
     description='CLI for Manageacloud.com',
     license='Apache v2',
-    keywords='manageacloud docker puppet chef rackspace aws digitalocean',
-    url='https://manageacloud.com',
+    keywords='manageacloud docker puppet chef rackspace aws digitalocean gce',
+    url='https://alpha.manageacloud.com',
     test_suite='tests',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

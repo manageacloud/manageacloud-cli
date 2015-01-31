@@ -1,3 +1,4 @@
+import maccli
 from prettytable import PrettyTable
 
 
@@ -10,12 +11,12 @@ def show_configurations(cookbooks):
 
         print(pretty)
         print("")
-        print("Search more at https://manageacloud.com/cookbooks")
+        print("Search more at %s/cookbooks" % maccli.domain)
         print("")
     else:
         print("There are not configurations available")
         print("")
-        print("You can create a new server configuration at https://manageacloud.com")
+        print("You can create a new server configuration at %s" % maccli.domain)
 
 
 def show_configurations_url(cookbooks):
@@ -27,12 +28,12 @@ def show_configurations_url(cookbooks):
 
         print(pretty)
         print("")
-        print("Search more at https://manageacloud.com/cookbooks")
+        print("Search more at %s/cookbooks" % maccli.domain)
         print("")
     else:
         print("There are not configurations available")
         print("")
-        print("You can create a new server configuration at https://manageacloud.com")
+        print("You can create a new server configuration at %s" % maccli.domain)
 
 
 def show_configurations_help():

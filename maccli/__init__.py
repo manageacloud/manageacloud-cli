@@ -13,6 +13,8 @@ user = maccli.dao.api_auth.load_from_file()[0] or os.environ.get('MAC_USER', Non
 apikey = maccli.dao.api_auth.load_from_file()[1] or os.environ.get('MAC_APIKEY', None)
 
 #: The API endpoint to use
-base_url = os.environ.get('MAC_BASE_URL', "https://manageacloud.com/api/v1/")
+base_url = os.environ.get('MAC_BASE_URL', "https://alpha.manageacloud.com/api/v1/")
+
+domain = os.environ.get('MAC_DOMAIN', "https://alpha.manageacloud.com")
 
 logger = logging.getLogger("mac-cli")
