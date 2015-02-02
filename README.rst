@@ -1,9 +1,9 @@
 mac
 =====
 
-NOTE: The alpha version is not released to the general public. The beta version will be announced in February 2015.
-
 Manageacloud command line interface.
+
+NOTE: This tool is pre-alpha and it is under heavy development. You can find more information at https://alpha.manageacloud.com
 
 
 Installing the CLI
