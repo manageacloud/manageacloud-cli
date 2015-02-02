@@ -46,7 +46,7 @@ def add_instance_parser(subparsers):
                                     "(default is 'master')")
 
     create_parser.add_argument('-p', '--provider', default="manageacloud",
-                               choices=["manageacloud", "rackspaceus", "amazon", "digitalocean"],
+                               choices=["manageacloud", "rackspaceus", "amazon", "digitalocean", "gce"],
                                help="Select the public cloud provider. (default is 'manageacloud')")
 
     create_parser.add_argument('-n', '--name',
