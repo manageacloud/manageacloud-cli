@@ -7,8 +7,6 @@ def list_locations(cookbook_tag, provider_id, release):
     """
     server_status, raw_locations = maccli.dao.api_provider.get_locations(cookbook_tag, provider_id)
 
-    print raw_locations
-
     if server_status == 404:
         print("Server configuration " + cookbook_tag + " not found")
         raw_locations = None
@@ -21,8 +19,6 @@ def list_locations(cookbook_tag, provider_id, release):
                 clean_locations.append(location)
     else:
         clean_locations = raw_locations
-
-    print clean_locations
 
     return clean_locations
 
