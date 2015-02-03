@@ -77,7 +77,7 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
 
 
     elif location is None:
-        locations_json = service.provider.list_locations(cookbook_tag, provider)
+        locations_json = service.provider.list_locations(cookbook_tag, provider, release)
         if locations_json is not None:
             show()
             show("--location parameter not set. You must choose the location.")
