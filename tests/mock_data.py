@@ -65,7 +65,7 @@ MOCK_APIKEY = '5e8520c1a6a0fb6d9cea28d06b82a0573c1144ab26efcc4a66ec16b1aec9bcab'
 MOCK_LOGIN_JSON_RAW = '{"username":"fake_mac_user","apiKey":"5e8520c1a6a0fb6d9cea28d06b82a0573c1144ab26efcc4a66ec16b1aec9bcab"}'
 MOCK_LOGIN_JSON = json.loads(MOCK_LOGIN_JSON_RAW)
 
-MOCK_INSTANCE_LIST_JSON_RAW = '[{"servername":"mct-277","id": "serverid","status":"Ready","type":"development"}]'
+MOCK_INSTANCE_LIST_JSON_RAW = '[{"servername":"mct-277","ipv4":"1.2.3.4","id": "serverid","status":"Ready","type":"development"}]'
 MOCK_INSTANCE_LIST_JSON = json.loads(MOCK_INSTANCE_LIST_JSON_RAW)
 
 MOCK_LOCATION_LIST_JSON_RAW = '[{"id":"ams3","description":"9/Amsterdam 3","release":"debian"},{"id":"lon1","description":"7/London 1","release":"debian"},{"id":"nyc3","description":"8/New York 3","release":"debian"},{"id":"sfo1","description":"3/San Francisco 1","release":"debian"},{"id":"sgp1","description":"6/Singapore 1","release":"debian"},{"id":"nyc2","description":"4/New York 2","release":"debian"},{"id":"ams2","description":"5/Amsterdam 2","release":"debian"}]'
@@ -80,10 +80,10 @@ MOCK_LOCATION_LIST_RELEASES_AMAZON_JSON = json.loads(MOCK_LOCATION_LIST_RELEASES
 MOCK_HARDWARE_LIST_JSON_RAW = '[{"id":"512mb","processors":[{"cores":1.0,"speed":1.0}],"ram":512,"volumes":[{"type":"LOCAL","size":20.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}},{"id":"1gb","processors":[{"cores":1.0,"speed":1.0}],"ram":1024,"volumes":[{"type":"LOCAL","size":30.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}},{"id":"2gb","processors":[{"cores":2.0,"speed":2.0}],"ram":2048,"volumes":[{"type":"LOCAL","size":40.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}},{"id":"4gb","processors":[{"cores":2.0,"speed":2.0}],"ram":4096,"volumes":[{"type":"LOCAL","size":60.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}},{"id":"8gb","processors":[{"cores":4.0,"speed":4.0}],"ram":8192,"volumes":[{"type":"LOCAL","size":80.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}},{"id":"16gb","processors":[{"cores":8.0,"speed":8.0}],"ram":16384,"volumes":[{"type":"LOCAL","size":160.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}},{"id":"32gb","processors":[{"cores":12.0,"speed":12.0}],"ram":32768,"volumes":[{"type":"LOCAL","size":320.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}},{"id":"48gb","processors":[{"cores":16.0,"speed":16.0}],"ram":49152,"volumes":[{"type":"LOCAL","size":480.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}},{"id":"64gb","processors":[{"cores":20.0,"speed":20.0}],"ram":65536,"volumes":[{"type":"LOCAL","size":640.0,"bootDevice":false,"durable":false}],"providerZone":{"scope":"","id":"sfo1","description":"sfo1","iso3166Codes":[]}}]'
 MOCK_HARDWARE_LIST_JSON = json.loads(MOCK_HARDWARE_LIST_JSON_RAW)
 
-MOCK_INSTANCE_CREATE_TESTING_OK_JSON_RAW = '{"servername":"","id":"qse0hca2jj1di63k8bidvmffig","type":"testing","status":"Creating instance"}'
+MOCK_INSTANCE_CREATE_TESTING_OK_JSON_RAW = '{"servername":"","ipv4":"1.2.3.4","id":"qse0hca2jj1di63k8bidvmffig","type":"testing","status":"Creating instance"}'
 MOCK_INSTANCE_CREATE_TESTING_OK_JSON = json.loads(MOCK_INSTANCE_CREATE_TESTING_OK_JSON_RAW)
 
-MOCK_INSTANCE_CREATE_PRODUCTION_OK_JSON_RAW = '{"servername":"","id":"s017frnl7ah6lqljkc4omt8h4k","type":"production","status":"Creating instance"}'
+MOCK_INSTANCE_CREATE_PRODUCTION_OK_JSON_RAW = '{"servername":"","ipv4":"1.2.3.4","id":"s017frnl7ah6lqljkc4omt8h4k","type":"production","status":"Creating instance"}'
 MOCK_INSTANCE_CREATE_PRODUCTION_OK_JSON = json.loads(MOCK_INSTANCE_CREATE_PRODUCTION_OK_JSON_RAW)
 
 MOCK_INSTANCE_CREDENTIALS_PRIVKEY_JSON_RAW = '{"ip":"104.236.164.139","port":22,"user":"root","password":"","privateKey":"privkey"}'
@@ -155,17 +155,17 @@ Search more at %s/cookbooks
 
 ''' % maccli.domain
 
-OUTPUT_CREATE_INSTANCE_PRODUCTION_OK = '''+---------------+----------------------------+------------+-------------------+
-| Instance name |        Instance ID         |    Type    |       Status      |
-+---------------+----------------------------+------------+-------------------+
-|               | s017frnl7ah6lqljkc4omt8h4k | production | Creating instance |
-+---------------+----------------------------+------------+-------------------+'''
+OUTPUT_CREATE_INSTANCE_PRODUCTION_OK = '''+---------------+---------+----------------------------+------------+-------------------+
+| Instance name |    IP   |        Instance ID         |    Type    |       Status      |
++---------------+---------+----------------------------+------------+-------------------+
+|               | 1.2.3.4 | s017frnl7ah6lqljkc4omt8h4k | production | Creating instance |
++---------------+---------+----------------------------+------------+-------------------+'''
 
-OUTPUT_CREATE_INSTANCE_TESTING_OK = '''+---------------+----------------------------+---------+-------------------+
-| Instance name |        Instance ID         |   Type  |       Status      |
-+---------------+----------------------------+---------+-------------------+
-|               | qse0hca2jj1di63k8bidvmffig | testing | Creating instance |
-+---------------+----------------------------+---------+-------------------+
+OUTPUT_CREATE_INSTANCE_TESTING_OK = '''+---------------+---------+----------------------------+---------+-------------------+
+| Instance name |    IP   |        Instance ID         |   Type  |       Status      |
++---------------+---------+----------------------------+---------+-------------------+
+|               | 1.2.3.4 | qse0hca2jj1di63k8bidvmffig | testing | Creating instance |
++---------------+---------+----------------------------+---------+-------------------+
 '''
 
 OUTPUT_CREATE_INSTANCE_NO_INPUT = '''--configuration parameter is required.

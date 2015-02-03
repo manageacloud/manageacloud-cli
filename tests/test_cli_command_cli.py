@@ -19,11 +19,11 @@ class AuthTestCase(unittest.TestCase):
     def setUp(self):
         self.stdout = sys.stdout
         sys.stdout = self.buf = StringIO.StringIO()
-        # pass
+        #pass
 
     def tearDown(self):
         sys.stdout = self.stdout
-        # pass
+        #pass
 
 
     @mock.patch('maccli.service.instance.list_instances')

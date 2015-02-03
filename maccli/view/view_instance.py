@@ -2,7 +2,7 @@ from prettytable import PrettyTable
 
 
 def show_instances(instances):
-    pretty = PrettyTable(["Instance name", "Instance ID", "Type", "Status"])
+    pretty = PrettyTable(["Instance name", "IP", "Instance ID", "Type", "Status"])
 
 
 
@@ -12,15 +12,15 @@ def show_instances(instances):
                 status = "%s (%im left)" %(instance['status'], instance['lifespan'])
             else:
                 status = instance['status']
-            pretty.add_row([instance['servername'], instance['id'], instance['type'], status])
+            pretty.add_row([instance['servername'], instance['ipv4'],  instance['id'], instance['type'], status])
         print(pretty)
     else:
         print("There is no active instances")
 
 
 def show_instance(instance):
-    pretty = PrettyTable(["Instance name", "Instance ID", "Type", "Status"])
-    pretty.add_row([instance['servername'], instance['id'], instance['type'], instance['status']])
+    pretty = PrettyTable(["Instance name", "IP", "Instance ID", "Type", "Status"])
+    pretty.add_row([instance['servername'], instance['ipv4'], instance['id'], instance['type'], instance['status']])
     print(pretty)
 
 
