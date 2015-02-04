@@ -4,6 +4,7 @@ from prettytable import PrettyTable
 def show_hardwares(hardwares):
     pretty = PrettyTable(["Id", "RAM", "Cores", "HD"])
     pretty.align = "r"
+    pretty.align["Id"] = "l"
     for hardware in hardwares:
         processor_clean = ""
         for processor in hardware['processors']:
