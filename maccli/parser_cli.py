@@ -4,7 +4,6 @@ import argparse
 def add_login_parser(subparsers):
     subparsers.add_parser('login', help='Login into Manageacloud.com', description='Login into Manageacloud.com')
 
-
 def add_instance_parser(subparsers):
     instance_parser = subparsers.add_parser('instance', help='Manage testing or production server instances',
                                             description='Create, destroy, search or list server instances')
@@ -68,6 +67,9 @@ def add_instance_parser(subparsers):
                                help="Format KEY=VALUE. The environment variables will be available"
                                     " in the bootstrap bash script that applies the changes." )
 
+    create_parser.add_argument('-y', '--yaml', action='store_true', default=False,
+                               help="Prints the equivalent command in Macfile and exits.")
+
 
 
 
@@ -105,6 +107,15 @@ def add_configuration_parser(subparsers):
     search_parser.add_argument('-u', '--url',
                                help='Show Urls', action='store_true', default=False)
 
+
+def add_macfile_parser(subparsers):
+
+    macfile_parser = subparsers.add_parser('macfile', help='Load a Macfile', description='Load a Macfile and execute its contents')
+
+    # get file path
+    file_parser = macfile_parser.add_argument('file',
+                                              nargs = 1,
+                                              help='Path to Macfile')
 
 
 def validate_environment(input):

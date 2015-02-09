@@ -43,7 +43,6 @@ class MockConfiguration_Args(Mock_args):
 class MockInstanceSSH_args(MockInstanceDestroy_args):
     pass
 
-
 MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW = '{"hardware": "512mb", "cookbook_tag": "cookbook_tag", "location": "sfo1", "branch": "master", "deployment": "testing", "release": "any", "environments": ["KEY=VALUE"], "servername": "server_name", "provider": "manageacloud", "lifespan": 90}'
 
 MOCK_RESPONSE_INSTANCE_CREATE_JSON_RAW = '{"servername":"","id":"c01br5mu83hs0v3jogsetm0acj","type":"testing","status":"Creating instance"}'
@@ -251,3 +250,20 @@ Example:
     mac instance create  -c cookbook_tag -d production -l sfo1 -hw 512mb
 
 '''
+
+
+MOCK_ONE_ROLE_ROLES = {'default': {'instance create': {'environment': [{'DBNAME': 'pgbench'}, {'PGUSER': 'benchuser'}, {'IP': '104.236.167.158'}, {'BENCH_CREATION': '-i -s 70'}, {'BENCH_TEST': '-c 4 -j 2 -T 10'}], 'name': '', 'branch': 'master', 'deployment': 'testing', 'release': 'any', 'configuration': 'pgbench'}}}
+MOCK_ONE_ROLE_INFRASTRUCTURES = {'default': {'amount': 1, 'role': 'default', 'location': 'sfo1', 'provider': 'manageacloud'}}
+MOCK_ONE_ROLE_INSTANCE = {u'status': u'Creating instance', u'servername': u'', u'lifespan': 0, u'ipv4': u'', u'type': u'testing', u'id': u'kj5soodrvj4694thjd2o7cvcdc'}
+
+MOCK_TWO_ROLE_ROLES = {'pgbench': {'instance create': {'environment': [{'DBNAME': 'pgbench'}, {'PGUSER': 'benchuser'}, {'IP': 'postgres.PUBLIC_IP'}, {'BENCH_CREATION': '-i -s 70'}, {'BENCH_TEST': '-c 4 -j 2 -T 10'}], 'name': '', 'branch': 'master', 'deployment': 'testing', 'release': 'any', 'configuration': 'pgbench'}}, 'postgres': {'instance create': {'environment': [{'DBNAME': 'pgbench'}, {'PGUSER': 'benchuser'}], 'name': '', 'branch': 'master', 'deployment': 'testing', 'release': 'any', 'configuration': 'postgres_93_default'}}}
+MOCK_TWO_ROLE_INFRASTRUCTURES = {'postgresinf': {'amount': 1, 'role': 'postgres', 'location': 'sfo1', 'provider': 'manageacloud'}, 'pgbenchinf': {'amount': 1, 'role': 'pgbench', 'location': 'sfo1', 'provider': 'manageacloud'}}
+MOCK_TWO_ROLE_INSTANCE_POSTGRES = [{u'status': u'Creating instance', u'servername': u'', u'lifespan': 0, u'ipv4': u'', u'type': u'testing', u'id': u'kj5soodrvj4694thjd2o7cvcdc'}]
+
+MOCK_PARSE_ENVS_ROLE = {'name': '', 'environment': [{'DBNAME': 'pgbench'}, {'PGUSER': 'benchuser'}, {'IP': 'postgres.PUBLIC_IP'}, {'BENCH_CREATION': '-i -s 70'}, {'BENCH_TEST': '-c 4 -j 2 -T 10'}], 'branch': 'master', 'deployment': 'testing', 'release': 'any', 'configuration': 'pgbench'}
+MOCK_PARSE_ENVS_ROLE_CLEAN = {'name': '', 'environment': [{'DBNAME': 'pgbench'}, {'PGUSER': 'benchuser'}, {'IP': u'104.236.147.27'}, {'BENCH_CREATION': '-i -s 70'}, {'BENCH_TEST': '-c 4 -j 2 -T 10'}], 'branch': 'master', 'deployment': 'testing', 'release': 'any', 'configuration': 'pgbench'}
+MOCK_PARSE_ENVS_ROLE_CREATED = {'postgres': [{u'status': u'Creating instance', u'servername': u'', u'lifespan': 0, u'ipv4': u'', u'type': u'testing', u'id': u'kj5soodrvj4694thjd2o7cvcdc'}]}
+MOCK_CREDENTIALS = {u'ip': u'104.236.147.27', u'password': u'', u'privateKey': u'-----BEGIN RSA PRIVATE KEY-----\nMIIEogIBAAKCAQEAteCwNr184Aywxuh9ZIrRRztit8KqyaVUExPVuPM6wdOUTe25\n0ySnkB3dB4WgAyL0qgSYNQbWKdqxnA46P++PaXtTTFtYe3nQg7c+K6MRqwL8ijTE\n+sUMJOJxSF0JDaA76czeyVgeOzlfKSK34YFuquoFMf9ArXNkx1U2WjNJsYELOgvz\nVbjF17YriKTqH9s8TYwg19UIlw1Rh5YiA9bOEHbd0NcU9N3wwFpCACeyLnKUxf26\nqNFNxwZaTMz6vH5VLNSUL5A5bZA1aQ/mJLaVmdphky3xf6eScu1TbaYgvETaA97D\nggO0wnwzJW08JOAMNJpUAAZ8dSfexhz+jJnC+QIDAQABAoIBAEbEckwaVqhmx7Hd\nbEzepqdst/CAUiu7pIb3xMT9/vLD/ISF5zP8oyY0OHhgye3uf/xXZVHcoyAN8+Wg\ns5GFCOwmDDc9o6QHtdZKSmp4PLupodG0zqA0Y5FGeoWJjag7nJRQHq+BFeI9ZIWA\n+MNJtWHTRMo7Y1MZ/zCAO3HFWvsxbmonXnppWF2PRkYeZmp3rgqR0Kxd/tCrfX5D\nFEXED75xFnz80lAkxRJOUWFvK08cSWfII4RFK8nFHSeOoNvNopz3RRi0RqM5HjKP\niXBpda/ptfVBVvdkED7LHMrnVCDTjNmzGuMU/THgqg49UzPkyobYQFMYnwMyNNOZ\n11+dxAECgYEA6C6o0vNpdqrGgXK9LQt1jKLs0EP9oOrUsG941Plcu/Pxw7azmh8q\n80ErpgS1ARtzWHNl1saHJtLOLtJWOw+b56B+A0MjfXVK8ocsTwNH4ZN3lWfrSPi9\n8+ULQbjKcLz8hydGX9pDAXjCKzv+lMrTgX5E+KFgmU/z8Yn0WnttHVkCgYEAyIj6\n33kADUoDbFm5MQD6+/trXAAT2WkOSD/ndx3ozudiURiem5fToCQxV9aop7Hckzit\nOHM/wD5Mva7KWeS3t4f7eDox3vOTHHSa03yjxP9dUUJbjaecKREU/gJmW930nrSZ\nd7Y14BMDreQjQ8pob8VIt0FS8TO6NgVwNfE8/qECgYByVQetWU/Fr7Kwa9/cHphz\n+IbEx7ZNV1YEy9+kgGa55xZWWdF3Q4HS53Sm/Apl0S6rj6fGa1yCMax2Qf1UeAs9\ntDpZQOZpESkm5IldHzB2VDe+yr2B4XsobtFsO6L0gRuZMi3lZYU5ZE25HIHwozAj\nxBoSlOUMmeJ2PoilRcIlgQKBgEhAuotcMH2ZRkR6y3Pxk3zI6LS8PmqeJIw5oi9T\n8nbh/ZWUlkkfWhugDrtEV34cYooU6KynMbgVelb5rGTZOKyC7UMzTJa1EjM1fDdo\n+CTZkYjerNgMJQLS6cpfmPvOq/2muojceOrkTvYPdflN63UiEwIcIkNPzO775KM6\n6SwhAoGAeuaQUx4SWIIqdgPATxOJ/m5Ia49MqBzp14A7jbwDXO618koshlzcS04P\njim9FhSMpzWtgk+2kXQr3uBGTBJFZfn4DGVISMWupkWV3sCoZ94M1OW0Z5urWI1Y\n3gpqsDsitUIjTZq3b5xpMeOrGwk4aCq9wIxx/cFBBOD3Wh3pcKU=\n-----END RSA PRIVATE KEY-----\n', u'port': 22, u'user': u'root'}
+
+MOCK_PARSE_ENVS_ROLE_2 = {'environment': [{'DBNAME': 'pgbench'}, {'PGUSER': 'benchuser'}, {'IP': 'postgres.PUBLIC_IP'}, {'BENCH_CREATION': '-i -s 70'}, {'BENCH_TEST': '-c 4 -j 2 -T 10'}], 'name': '', 'branch': 'master', 'deployment': 'testing', 'release': 'any', 'configuration': 'pgbench'}
+MOCK_PARSE_ENVS_ROLE_CREATED_2 = {'postgres': [{u'status': u'Creating instance', u'servername': u'', u'lifespan': 0, u'ipv4': u'', u'type': u'testing', u'id': u'8mc7kt708kc8qn589nho8cg9tc'}]}

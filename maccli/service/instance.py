@@ -63,3 +63,13 @@ def destroy_instance(servername, session_id):
     return maccli.dao.api_instance.destroy(servername, session_id)
 
 
+def credentials(servername, session_id):
+    """
+
+    Gets the server credentials: public ip, username, password and private key
+
+    :param servername:
+    :param session_id:
+    :return:
+    """
+    return maccli.dao.api_instance.credentials(servername, session_id)

@@ -7,6 +7,7 @@ import argparse
 import maccli
 import parser_cli
 import maccli.command_cli
+
 from maccli.helper.exception import InternalError
 from maccli.view.view_generic import show_error
 
@@ -24,6 +25,7 @@ def initialize_parser():
     parser_cli.add_login_parser(subparsers)
     parser_cli.add_instance_parser(subparsers)
     parser_cli.add_configuration_parser(subparsers)
+    parser_cli.add_macfile_parser(subparsers)
     return parser
 
 
@@ -54,12 +56,18 @@ def dispatch_cmds(args):
     elif maccli.user is None:
         maccli.command_cli.no_credentials()
 
+    elif args.cmd == 'macfile':
+        maccli.command_cli.process_macfile(args.file)
+
     elif args.cmd == 'instance':
 
         if args.subcmd == 'create':
-            maccli.command_cli.instance_create(args.configuration, args.deployment, args.location, args.name,
-                                               args.provider, args.release, args.branch, args.hardware, args.lifespan,
-                                               args.environment)
+            if args.yaml:
+                maccli.command_cli.convert_to_yaml(args)
+            else:
+                maccli.command_cli.instance_create(args.configuration, args.deployment, args.location, args.name,
+                                                   args.provider, args.release, args.branch, args.hardware, args.lifespan,
+                                                   args.environment)
         elif args.subcmd == 'destroy':
             if args.name is None and args.id is None:
                 show_error("Parameter --name or --id is required.")

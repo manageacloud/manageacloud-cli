@@ -125,3 +125,19 @@ class AuthTestCase(unittest.TestCase):
     def test_instance_help(self, mock):
         maccli.command_cli.configuration_help()
         self.assertTrue(mock.called)
+
+    @mock.patch('maccli.service.macfile.load_macfile')
+    @mock.patch('maccli.facade.macfile.create_tier')
+    def test_macfile_one_infrastructure(self, mock_create_tier, mock_load_macfile):
+        mock_load_macfile.return_value = MOCK_ONE_ROLE_ROLES, MOCK_ONE_ROLE_INFRASTRUCTURES
+        mock_create_tier.return_value = MOCK_ONE_ROLE_INSTANCE, False
+        maccli.command_cli.process_macfile("/path/to/file")
+
+    @mock.patch('maccli.facade.macfile.parse_envs')
+    @mock.patch('maccli.service.macfile.load_macfile')
+    @mock.patch('maccli.facade.macfile.create_tier')
+    def test_macfile_two_infrastructures(self, mock_create_tier, mock_load_macfile, mock_parse_envs):
+        mock_parse_envs.return_value = []
+        mock_load_macfile.return_value = MOCK_TWO_ROLE_ROLES, MOCK_TWO_ROLE_INFRASTRUCTURES
+        mock_create_tier.return_value = MOCK_TWO_ROLE_INSTANCE_POSTGRES, False
+        maccli.command_cli.process_macfile("/path/to/file2")

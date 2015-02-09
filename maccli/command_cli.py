@@ -1,11 +1,13 @@
 import getpass
 import ConfigParser
-import sys
+import sys, time
 from os.path import join, expanduser
 
 import service.auth
 import service.instance
 import service.provider
+import service.macfile
+import maccli.facade.macfile
 import maccli.service.configuration
 from view.view_generic import show_error, show
 import view.view_location
@@ -144,3 +146,29 @@ def configuration_search(keywords, show_url):
 
 def configuration_help():
     view.view_cookbook.show_configurations_help()
+
+
+def convert_to_yaml(args):
+    yaml = service.macfile.convert_args_to_yaml(args)
+    view.view_generic.show(yaml)
+
+
+def process_macfile(file):
+    roles, infrastructures = maccli.service.macfile.load_macfile(file)
+
+    roles_created = {}
+    for infrastructure_key in infrastructures:
+        infrastructure = infrastructures[infrastructure_key]
+        infrastructure_role = infrastructure['role']
+        view.view_generic.show("Creating infrastructure tier %s, role %s" % (infrastructure_key, infrastructure['role']))
+        role_raw = roles[infrastructure_role]["instance create"]
+        role = maccli.facade.macfile.parse_envs(role_raw, roles_created)
+        instances, failed = maccli.facade.macfile.create_tier(role, infrastructure)
+        if failed:
+            print "ERROR: Orchestration aborted due previous errors."
+            exit(3)
+
+        roles_created[infrastructure_role] = instances
+
+    print "Task completed."
+
