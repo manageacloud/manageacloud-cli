@@ -22,6 +22,7 @@ class MockInstanceCreate_args(Mock_args):
         self.hardware = None
         self.lifespan = None
         self.environment = None
+        self.yaml = None
 
 
 class MockInstanceDestroy_args(Mock_args):
