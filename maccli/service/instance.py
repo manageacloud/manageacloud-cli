@@ -44,12 +44,13 @@ def ssh_instance(servername, session_id):
             child.interact()
 
 
-def create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan, environments):
+def create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
+                    environments, hd):
     """
         List available instances in the account
     """
     return maccli.dao.api_instance.create(cookbook_tag, deployment, location, servername, provider, release, branch,
-                                          hardware, lifespan, environments)
+                                          hardware, lifespan, environments, hd)
 
 
 def destroy_instance(servername, session_id):

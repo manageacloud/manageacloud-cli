@@ -67,7 +67,7 @@ def dispatch_cmds(args):
             else:
                 maccli.command_cli.instance_create(args.configuration, args.deployment, args.location, args.name,
                                                    args.provider, args.release, args.branch, args.hardware, args.lifespan,
-                                                   args.environment)
+                                                   args.environment, args.hd)
         elif args.subcmd == 'destroy':
             if args.name is None and args.id is None:
                 show_error("Parameter --name or --id is required.")

@@ -74,10 +74,10 @@ def instance_ssh(name, session_id):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan, environments):
+def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
+                    environments, hd):
     if cookbook_tag is None:
         view.view_instance.show_instance_create_help()
-
 
     elif location is None:
         locations_json = service.provider.list_locations(cookbook_tag, provider, release)
@@ -109,7 +109,7 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
     else:
         """ Execute create instance """
         instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release,
-                                                    branch, hardware, lifespan, environments)
+                                                    branch, hardware, lifespan, environments, hd)
         if instance is not None:
             view.view_instance.show_instance(instance)
 

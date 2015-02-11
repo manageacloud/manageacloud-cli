@@ -67,6 +67,11 @@ def add_instance_parser(subparsers):
                                help="Format KEY=VALUE. The environment variables will be available"
                                     " in the bootstrap bash script that applies the changes." )
 
+    create_parser.add_argument('-hd', nargs='*', type=validate_hd,
+                               help="Format /dev/name:SIZE where /dev/name is the name "
+                                    "of the device (example '/dev/sda') and SIZE is a number"
+                                    "that represents gigabytes. Supported providers: amazon")
+
     create_parser.add_argument('-y', '--yaml', action='store_true', default=False,
                                help="Prints the equivalent command in Macfile and exits.")
 
@@ -131,3 +136,19 @@ def validate_environment(input):
     key, value = input.split("=", 1)
     to_return = {key:value}
     return to_return
+
+def validate_hd(input):
+    """
+        checks that the input
+        /dev/name:SIZE is correct./
+    """
+    a = re.compile("^/dev/[a-zA-Z1-9]+:[0-9]+$", re.IGNORECASE)
+    match = a.match(input)
+    if not match:
+        msg = "'%s' hard-disk is invalid. Correct value /dev/<name>:<SIZE>, name are letters and " \
+              "number and SIZE is a number that represents the gigabytes." % input
+        raise argparse.ArgumentTypeError(msg)
+    key, value = input.split(":", 1)
+    to_return = {key:int(value)}
+    return to_return
+
