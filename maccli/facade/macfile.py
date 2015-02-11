@@ -1,9 +1,9 @@
 import time
 import maccli.service.instance
+from maccli.helper.exception import MacParseEnvException, MacErrorCreatingTier
+
 
 def parse_envs(role, roles_created):
-
-
     """
         Replaces the values in the environment variables for values
         that exist in this infrastructure
@@ -28,15 +28,19 @@ def parse_envs(role, roles_created):
                 Format existing_role.PROPERTY
             """
             role_name, property = val.split(".", 1)
-            if len(roles_created[role_name]) > 1:
-                ips = []
-                for instance in roles_created[role_name]:
-                    instance_credentials = maccli.service.instance.credentials(None, instance['id'])
-                    ips.append(instance_credentials['ip'])
-                envs_clean.append({key:ips})
-            else:
-                instance_credentials = maccli.service.instance.credentials(None, roles_created[role_name][0]['id'])
-                envs_clean.append({key:instance_credentials['ip']})
+            try:
+                if len(roles_created[role_name]) > 1:
+                    ips = []
+                    for instance in roles_created[role_name]:
+                        instance_credentials = maccli.service.instance.credentials(None, instance['id'])
+                        ips.append(instance_credentials['ip'])
+                    envs_clean.append({key:ips})
+                else:
+                    instance_credentials = maccli.service.instance.credentials(None, roles_created[role_name][0]['id'])
+                    envs_clean.append({key:instance_credentials['ip']})
+            except KeyError:
+                raise MacParseEnvException("Error while parsing env", key, val)
+
         else:
             envs_clean.append(en)
     role['environment'] = envs_clean
@@ -79,7 +83,6 @@ def create_tier(role, infrastructure):
         print "Instance '%s' created, status '%s'" % (instance['id'], instance['status'])
 
     wait = True
-    failed = False
     pending_instances = len(instances)
     while wait:
         time.sleep(10)
@@ -95,10 +98,9 @@ def create_tier(role, infrastructure):
                         instances_created += 1
 
                     if ie['status'].find("failed") <> -1:
-                        print "ERROR: Instance %s failed. Aborting. No automatic clean-up, please revert " \
-                              "all the changes manually."
-                        failed = True
-                        wait =False
+                        raise MacErrorCreatingTier("Instance %s failed. Aborting. No automatic clean-up, please revert " \
+                              "all the changes manually.")
+
 
         if wait:
             if pending_instances - instances_created == 0:
@@ -106,4 +108,4 @@ def create_tier(role, infrastructure):
             else:
                 print "[%s/%s] Waiting instances to be created" % (instances_created, pending_instances)
 
-    return instances, failed
+    return instances

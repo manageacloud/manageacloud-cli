@@ -16,6 +16,7 @@ import view.view_cookbook
 import view.view_generic
 import maccli.view.view_hardware
 from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE
+from maccli.helper.exception import MacParseEnvException, MacErrorCreatingTier
 
 
 def help():
@@ -157,18 +158,26 @@ def process_macfile(file):
     roles, infrastructures = maccli.service.macfile.load_macfile(file)
 
     roles_created = {}
-    for infrastructure_key in infrastructures:
-        infrastructure = infrastructures[infrastructure_key]
-        infrastructure_role = infrastructure['role']
-        view.view_generic.show("Creating infrastructure tier %s, role %s" % (infrastructure_key, infrastructure['role']))
-        role_raw = roles[infrastructure_role]["instance create"]
-        role = maccli.facade.macfile.parse_envs(role_raw, roles_created)
-        instances, failed = maccli.facade.macfile.create_tier(role, infrastructure)
-        if failed:
-            print "ERROR: Orchestration aborted due previous errors."
-            exit(3)
+    try:
+        for infrastructure_key in infrastructures:
+                infrastructure = infrastructures[infrastructure_key]
+                infrastructure_role = infrastructure['role']
+                view.view_generic.show("Creating infrastructure tier %s, role %s" % (infrastructure_key, infrastructure['role']))
+                role_raw = roles[infrastructure_role]["instance create"]
+                role = maccli.facade.macfile.parse_envs(role_raw, roles_created)
+                instances = maccli.facade.macfile.create_tier(role, infrastructure)
+                roles_created[infrastructure_role] = instances
 
-        roles_created[infrastructure_role] = instances
+        view.view_generic.show("Task completed.")
 
-    print "Task completed."
+    except MacErrorCreatingTier:
+        view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
+        view.view_generic.show("Task raised errors.")
+        exit(5)
+
+    except MacParseEnvException as e:
+        view.view_generic.show_error("ERROR: An error happened parsing environments." + str(type(e))+str(e.args))
+        view.view_generic.show("Task raised errors.")
+        exit(6)
+
 

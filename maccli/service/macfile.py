@@ -3,6 +3,7 @@ import datetime
 
 import yaml
 import yaml.representer
+from maccli.helper.unsortable import ordered_load
 
 import maccli
 from maccli.helper.unsortable import UnsortableOrderedDict
@@ -109,8 +110,8 @@ def is_unexpected(actual, expected):
 
 
 def load_macfile(path):
-    stram = open(path[0], "r")
-    raw = yaml.load(stram)
+    stram = open(path, "r")
+    raw = ordered_load(stram, yaml.SafeLoader)
 
     # validate root
     root_params = ['timestamp', 'version', 'description', 'roles', 'infrastructures']
