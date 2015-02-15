@@ -89,6 +89,17 @@ def add_instance_parser(subparsers):
     destroy_parser.add_argument('-i', '--id',
                                 help='Server ID')
 
+    # facts instance
+    facts_parser = instance_subparser.add_parser('facts',
+                                                help='Retrieves facts about the system',
+                                                description='Retrieves facts about the system')
+    facts_parser.add_argument('-n', '--name',
+                                help='Server name')
+
+    facts_parser.add_argument('-i', '--id',
+                                help='Server ID')
+
+
 
 
 def add_configuration_parser(subparsers):
@@ -140,15 +151,15 @@ def validate_environment(input):
 def validate_hd(input):
     """
         checks that the input
-        /dev/name:SIZE is correct./
+        /dev/name:SIZE[:type] is correct./
     """
-    a = re.compile("^/dev/[a-zA-Z1-9]+:[0-9]+$", re.IGNORECASE)
+    a = re.compile("^/dev/[a-zA-Z1-9]+:[0-9]+(:[a-zA-Z0-9]+(:[a-zA-Z0-9]+)?)?$", re.IGNORECASE)
     match = a.match(input)
     if not match:
         msg = "'%s' hard-disk is invalid. Correct value /dev/<name>:<SIZE>, name are letters and " \
               "number and SIZE is a number that represents the gigabytes." % input
         raise argparse.ArgumentTypeError(msg)
     key, value = input.split(":", 1)
-    to_return = {key:int(value)}
+    to_return = {key:value}
     return to_return
 

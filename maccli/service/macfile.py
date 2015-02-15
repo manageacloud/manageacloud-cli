@@ -82,19 +82,29 @@ def convert_args_to_yaml(args):
     exit(0)
 
 
-def validate_param(actual, expected):
+def validate_param(actual, expected, optional=None):
 
     unexpected = is_unexpected(actual, expected)
-    if len(unexpected):
+    if optional is not None:
+        unexpected_optional = is_unexpected(unexpected, optional)
+    else:
+        unexpected_optional = unexpected
+
+    if len(unexpected_optional):
         print "Incorrect file format. The following parameters are unexpected:"
-        for p in unexpected:
+        for p in unexpected_optional:
             print " - %s" % p
         exit(1)
 
     notpresent = is_present(actual, expected)
-    if len(notpresent):
+    if optional is not None:
+        notpresent_optional = is_unexpected(notpresent, optional)
+    else:
+        notpresent_optional = notpresent
+
+    if len(notpresent_optional):
         print "Incorrect file format. The following parameters are needed and not present:"
-        for p in notpresent:
+        for p in notpresent_optional:
             print " - %s" % p
         exit(2)
 
@@ -122,6 +132,7 @@ def load_macfile(path):
     expected_roles = []
     role_root_params = ["instance create"]
     role_params = ['environment', 'name', 'deployment', 'branch', 'release', 'configuration']
+    role_optional_params = ['hd']
     raw_role_root_keys = raw['roles'].keys()
     for key_role_root in raw_role_root_keys:
         expected_roles.append(key_role_root)
@@ -129,7 +140,7 @@ def load_macfile(path):
         validate_param(raw_role_keys, role_root_params)
         for key_role in raw_role_keys:
             raw_role = raw['roles'][key_role_root][key_role].keys()
-            validate_param(raw_role, role_params)
+            validate_param(raw_role, role_params, role_optional_params)
 
     # validate infrastructures
     infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider']

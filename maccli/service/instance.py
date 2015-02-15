@@ -74,3 +74,14 @@ def credentials(servername, session_id):
     :return:
     """
     return maccli.dao.api_instance.credentials(servername, session_id)
+
+def facts(servername, session_id):
+    """
+
+    Returns facts about the system
+
+    :param servername:
+    :param session_id:
+    :return:
+    """
+    return maccli.dao.api_instance.facts(servername, session_id)

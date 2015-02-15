@@ -106,3 +106,7 @@ def show_create_example_with_parameters(cookbook_tag, deployment, location, serv
     print("")
     print("    %s" % output)
     print("")
+
+def show_facts(facts):
+    for key, value in facts.iteritems():
+        print "%s: %s" % (key, value)

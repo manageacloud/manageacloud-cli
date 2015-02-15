@@ -49,5 +49,6 @@ def send_request(method, path, **kwargs):
             # TODO if verbose we should print this
             maccli.logger.warn("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
 
+    print ("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
     maccli.logger.info("Response: %s", json)
     return status_code, json, response.text

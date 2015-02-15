@@ -93,3 +93,23 @@ def destroy(servername, session_id):
         show_error("Error with parameters: %s " % raw)
 
     return json_response
+
+def facts(servername, session_id):
+
+    print "DAO"
+
+    serverorid = ""
+    if servername is not None and servername != "":
+        serverorid = servername
+    elif session_id is not None and session_id != "":
+        serverorid = session_id
+
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/facts/%s" % serverorid)
+
+    if status_code == 404:
+        show_error("Server not found")
+
+    if status_code == 400:
+        show_error("There is a problem with the input parametrs")
+
+    return json_response

@@ -78,6 +78,10 @@ def dispatch_cmds(args):
         elif args.subcmd == 'list':
             maccli.command_cli.instance_list()
 
+        elif args.subcmd == 'facts':
+            maccli.command_cli.instance_fact(args.name, args.id)
+
+
         elif args.subcmd == 'ssh':
             if args.name is None and args.id is None:
                 show_error("Parameter name or id is required.")

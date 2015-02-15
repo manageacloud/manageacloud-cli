@@ -180,4 +180,11 @@ def process_macfile(file):
         view.view_generic.show("Task raised errors.")
         exit(6)
 
+def instance_fact(servername, session_id):
+    try:
+        json = service.instance.facts(servername, session_id)
+        view.view_instance.show_facts(json)
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
 
