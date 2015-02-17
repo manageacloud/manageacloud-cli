@@ -96,8 +96,6 @@ def destroy(servername, session_id):
 
 def facts(servername, session_id):
 
-    print "DAO"
-
     serverorid = ""
     if servername is not None and servername != "":
         serverorid = servername

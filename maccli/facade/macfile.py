@@ -26,62 +26,66 @@ def parse_envs(role, roles_created):
     for en in envs_raw:
         key = en.keys()[0]
         val = en[key]
-        if val.endswith(".PUBLIC_IP"):
-            """
-                We substitute the value by the given role
-                Format existing_role.PROPERTY
-            """
-            role_name, property = val.split(".", 1)
-            try:
-                if len(roles_created[role_name]) > 1:
-                    ips = []
-                    for instance in roles_created[role_name]:
-                        instance_credentials = maccli.service.instance.credentials(None, instance['id'])
-                        ips.append(instance_credentials['ip'])
-                    envs_clean.append({key: ips})
-                else:
-                    instance_credentials = maccli.service.instance.credentials(None, roles_created[role_name][0]['id'])
-                    envs_clean.append({key: instance_credentials['ip']})
-            except KeyError:
-                raise MacParseEnvException("Error while parsing env PUBLIC_IP", key, val)
-        elif val.endswith(".PRIVATE_IP"):
-            role_name, property = val.split(".", 1)
-            try:
-                if len(roles_created[role_name]) > 1:
-                    ips = []
-                    for instance in roles_created[role_name]:
-                        instance_facts = maccli.service.instance.facts(None, instance['id'])
+        if isinstance(val, basestring):
+            if val.endswith(".PUBLIC_IP"):
+                """
+                    We substitute the value by the given role
+                    Format existing_role.PROPERTY
+                """
+                role_name, property = val.split(".", 1)
+                try:
+                    if len(roles_created[role_name]) > 1:
+                        ips = []
+                        for instance in roles_created[role_name]:
+                            instance_credentials = maccli.service.instance.credentials(None, instance['id'])
+                            ips.append(instance_credentials['ip'])
+                        envs_clean.append({key: ips})
+                    else:
+                        instance_credentials = maccli.service.instance.credentials(None, roles_created[role_name][0]['id'])
+                        envs_clean.append({key: instance_credentials['ip']})
+                except KeyError:
+                    raise MacParseEnvException("Error while parsing env PUBLIC_IP", key, val)
+            elif val.endswith(".PRIVATE_IP"):
+                role_name, property = val.split(".", 1)
+                try:
+                    if len(roles_created[role_name]) > 1:
+                        ips = []
+                        for instance in roles_created[role_name]:
+                            instance_facts = maccli.service.instance.facts(None, instance['id'])
+                            ip = _get_private_ip_from_fatcs(instance_facts)
+                            ips.append(ip)
+                        envs_clean.append({key: ips})
+                    else:
+                        instance_facts = maccli.service.instance.facts(None, roles_created[role_name][0]['id'])
                         ip = _get_private_ip_from_fatcs(instance_facts)
-                        ips.append(ip)
-                    envs_clean.append({key: ips})
-                else:
-                    instance_facts = maccli.service.instance.facts(None, roles_created[role_name][0]['id'])
-                    ip = _get_private_ip_from_fatcs(instance_facts)
-                    envs_clean.append({key: ip})
+                        envs_clean.append({key: ip})
 
-            except KeyError:
-                raise MacParseEnvException("Error while parsing env PRIVATE_IP", key, val)
+                except KeyError:
+                    raise MacParseEnvException("Error while parsing env PRIVATE_IP", key, val)
 
-        elif ".FACT." in val:
-            role_name, fact, property = val.split(".", 2)
-            try:
-                if len(roles_created[role_name]) > 1:
-                    properties = []
-                    for instance in roles_created[role_name]:
-                        instance_facts = maccli.service.instance.facts(None, instance['id'])
+            elif ".FACT." in val:
+                role_name, fact, property = val.split(".", 2)
+                try:
+                    if len(roles_created[role_name]) > 1:
+                        properties = []
+                        for instance in roles_created[role_name]:
+                            instance_facts = maccli.service.instance.facts(None, instance['id'])
+                            property_value = instance_facts[property.lower()]
+                            properties.append(property_value)
+                        envs_clean.append({key: properties})
+                    else:
+                        instance_facts = maccli.service.instance.facts(None, roles_created[role_name][0]['id'])
                         property_value = instance_facts[property.lower()]
-                        properties.append(property_value)
-                    envs_clean.append({key: properties})
-                else:
-                    instance_facts = maccli.service.instance.facts(None, roles_created[role_name][0]['id'])
-                    property_value = instance_facts[property.lower()]
-                    envs_clean.append({key: property_value})
+                        envs_clean.append({key: property_value})
 
-            except KeyError:
-                raise MacParseEnvException("Error while parsing env FACT", key, val)
+                except KeyError:
+                    raise MacParseEnvException("Error while parsing env FACT", key, val)
 
+            else:
+                envs_clean.append(en)
         else:
             envs_clean.append(en)
+
     role['environment'] = envs_clean
 
     return role
