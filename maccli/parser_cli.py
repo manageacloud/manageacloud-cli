@@ -24,6 +24,8 @@ def add_instance_parser(subparsers):
 
     ssh_parser.add_argument('-i', '--id', help='Server ID')
 
+    ssh_parser.add_argument('-c', '--command', help='Run a command and exit')
+
     # create instance
     create_parser = instance_subparser.add_parser('create', help='Create a new instance',
                                                   description='Creates a new instance in the cloud. You need to choose the '

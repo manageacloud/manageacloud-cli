@@ -13,27 +13,32 @@ def list_instances():
     return maccli.dao.api_instance.get_list()
 
 
-def ssh_instance(servername, session_id):
+def ssh_instance(servername, session_id, cmd = None):
     """
         ssh to an existing instance
     """
     instance = maccli.dao.api_instance.credentials(servername, session_id)
 
     if instance is not None:
+
+        command_str = ""
+        if cmd is not None:
+            command_str = "%s" % cmd
+
         if instance['privateKey']:
             """ Authentication with private key """
             tmp_fpath = tempfile.mkstemp()
             try:
                 with open(tmp_fpath[1], "wb") as f:
                     f.write(bytes(instance['privateKey']))
-                command = "ssh %s@%s -i %s" % (instance['user'], instance['ip'], f.name)
+                command = "ssh %s@%s -i %s %s" % (instance['user'], instance['ip'], f.name, command_str)
                 os.system(command)
             finally:
                 os.remove(tmp_fpath[1])
 
         else:
             """ Authentication with password """
-            command = "ssh %s@%s" % (instance['user'], instance['ip'])
+            command = "ssh %s@%s %s" % (instance['user'], instance['ip'], command_str)
             child = pexpect.spawn(command)
             i = child.expect(['.* password:', "yes/no"],  timeout=60)
             if i == 1:

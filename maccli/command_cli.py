@@ -65,9 +65,9 @@ def instance_list():
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_ssh(name, session_id):
+def instance_ssh(name, session_id, command):
     try:
-        service.instance.ssh_instance(name, session_id)
+        service.instance.ssh_instance(name, session_id, command)
 
     except Exception as e:
         show_error(e)
