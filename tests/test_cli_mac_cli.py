@@ -43,7 +43,7 @@ class AuthTestCase(unittest.TestCase):
 
     @mock.patch('maccli.command_cli.instance_ssh')
     def test_dispatch_cmds_ssh_help(self, mock):
-        args = MockInstanceSSH_args('instance', 'ssh', 'name', 'id')
+        args = MockInstanceSSH_args('instance', 'ssh', 'name', 'id', '')
         maccli.mac_cli.dispatch_cmds(args)
         self.assertTrue(mock.called)
 

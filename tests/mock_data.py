@@ -43,7 +43,13 @@ class MockConfiguration_Args(Mock_args):
 
 
 class MockInstanceSSH_args(MockInstanceDestroy_args):
-    pass
+    def __init__(self, cmd, subcmd, name, id, command):
+        self.cmd = cmd
+        self.subcmd = subcmd
+        self.name = name
+        self.id = id
+        self.command = command
+
 
 MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW = '{"servername": "server_name", "environments": ["KEY=VALUE"], "hardware": "512mb", "cookbook_tag": "cookbook_tag", "deployment": "testing", "hd": ["/dev/sda1:100"], "lifespan": 90, "location": "sfo1", "branch": "master", "provider": "manageacloud", "release": "any"}'
 
