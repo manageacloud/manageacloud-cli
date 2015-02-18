@@ -4,7 +4,7 @@ import logging
 import maccli.dao.api_auth
 
 
-__version__ = '0.1a7'
+__version__ = '0.1a8'
 
 # : The username used to authenticate with the API
 user = maccli.dao.api_auth.load_from_file()[0] or os.environ.get('MAC_USER', None)
