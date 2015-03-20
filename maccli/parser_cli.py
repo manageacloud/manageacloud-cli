@@ -155,10 +155,10 @@ def validate_hd(input):
         checks that the input
         /dev/name:SIZE[:type] is correct./
     """
-    a = re.compile("^/dev/[a-zA-Z1-9]+:[0-9]+(:[a-zA-Z0-9]+(:[a-zA-Z0-9]+)?)?$", re.IGNORECASE)
+    a = re.compile("^[/a-zA-Z1-9]+:[0-9]+(:[a-zA-Z0-9]+(:[a-zA-Z0-9]+)?)?$", re.IGNORECASE)
     match = a.match(input)
     if not match:
-        msg = "'%s' hard-disk is invalid. Correct value /dev/<name>:<SIZE>, name are letters and " \
+        msg = "'%s' hard-disk is invalid. Correct value NAME:SIZE<:TYPE<:VALUE>> name are letters and " \
               "number and SIZE is a number that represents the gigabytes." % input
         raise argparse.ArgumentTypeError(msg)
     key, value = input.split(":", 1)
