@@ -22,6 +22,8 @@ class ParserCliTestCase(unittest.TestCase):
 
     def test_validate_hd(self):
         self.assertEqual(maccli.parser_cli.validate_hd("/dev/sda1:100"), {'/dev/sda1':'100'})
+        self.assertEqual(maccli.parser_cli.validate_hd("/dev/sda1:50"), {'/dev/sda1':'50'})
+        self.assertEqual(maccli.parser_cli.validate_hd("attachment:50:ssd"), {'attachment':'50:ssd'})
         self.assertEqual(maccli.parser_cli.validate_hd("/dev/ok:100"), {'/dev/ok':'100'})
         self.assertEqual(maccli.parser_cli.validate_hd("/dev/sda1:100:ok"), {'/dev/sda1':'100:ok'})
         self.assertEqual(maccli.parser_cli.validate_hd("/dev/sda1:100:ok:1000"), {'/dev/sda1':'100:ok:1000'})
