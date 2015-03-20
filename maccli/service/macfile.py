@@ -3,10 +3,11 @@ import datetime
 
 import yaml
 import yaml.representer
-from maccli.helper.unsortable import ordered_load
 
+from maccli.helper.unsortable import ordered_load
 import maccli
 from maccli.helper.unsortable import UnsortableOrderedDict
+
 
 """ Yaml file format
 description: Manageacloud CLI
@@ -27,8 +28,9 @@ roles:
       provider: gce
       release: any
 """
-def convert_args_to_yaml(args):
 
+
+def convert_args_to_yaml(args):
     key = ""
     if args.cmd is not None and args.subcmd is not None:
         key = args.cmd + ' ' + args.subcmd
@@ -83,7 +85,6 @@ def convert_args_to_yaml(args):
 
 
 def validate_param(actual, expected, optional=None):
-
     unexpected = is_unexpected(actual, expected)
     if optional is not None:
         unexpected_optional = is_unexpected(unexpected, optional)
@@ -111,12 +112,12 @@ def validate_param(actual, expected, optional=None):
 
 def is_present(actual, expected):
     """ evaluates if all params in actual exist in expected  """
-    return filter(lambda x:x not in actual, expected)
+    return filter(lambda x: x not in actual, expected)
 
 
 def is_unexpected(actual, expected):
     """ evaluates if there is a parameter in actual that does not exist in expected  """
-    return filter(lambda x:x not in expected, actual)
+    return filter(lambda x: x not in expected, actual)
 
 
 def load_macfile(path):
@@ -131,8 +132,8 @@ def load_macfile(path):
     # validate roles
     expected_roles = []
     role_root_params = ["instance create"]
-    role_params = ['environment', 'name', 'deployment', 'branch', 'release', 'configuration']
-    role_optional_params = ['hd']
+    role_params = ['environment', 'branch', 'configuration']
+    role_optional_params = ['hd', 'lifespan']
     raw_role_root_keys = raw['roles'].keys()
     for key_role_root in raw_role_root_keys:
         expected_roles.append(key_role_root)
@@ -143,8 +144,10 @@ def load_macfile(path):
             validate_param(raw_role, role_params, role_optional_params)
 
     # validate infrastructures
-    infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider']
-    infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider']
+    infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
+                                  'release' ]
+    infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider', 'name', 'deployment',
+                                     'release']
     raw_infrastructure_root_keys = raw['infrastructures'].keys()
     actual_roles = []
     for key_infrastructure_root in raw_infrastructure_root_keys:

@@ -6,36 +6,36 @@ roles:
     instance create:
       branch: master
       configuration: postgres_93_default
-      deployment: testing
       environment:
       - DBNAME: pgbench
       - PGUSER: benchuser
-      name: ''
-      release: any
   pgbench:
     instance create:
       branch: master
       configuration: pgbench
-      deployment: testing
       environment:
       - DBNAME: pgbench
       - PGUSER: benchuser
       - IP: postgres.PUBLIC_IP
       - BENCH_CREATION: -i -s 70
       - BENCH_TEST: -c 4 -j 2 -T 10
-      name: ''
-      release: any
 infrastructures:
   postgres:
     hardware: m3.medium
     location: us-east-1
     provider: amazon
     role: postgres
+    deployment: testing
+    name: ''
+    release: any
     amount: 1
   pgbench:
     hardware: m3.medium
     location: us-east-1
     provider: amazon
+    deployment: testing
+    name: ''
+    release: any
     role: pgbench
     amount: 1
 
