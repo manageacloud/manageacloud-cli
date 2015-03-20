@@ -70,9 +70,13 @@ def add_instance_parser(subparsers):
                                     " in the bootstrap bash script that applies the changes." )
 
     create_parser.add_argument('-hd', nargs='*', type=validate_hd,
-                               help="Format /dev/name:SIZE where /dev/name is the name "
-                                    "of the device (example '/dev/sda') and SIZE is a number"
-                                    "that represents gigabytes. Supported providers: amazon")
+                               help="For provider amazon: Format /dev/NAME:SIZE[:TYPE[:VALUE]] "
+                                    "where NAME is the name of the device (example '/dev/sdb'), "
+                                    "SIZE is a number in gigabytes, TYPE is the volume type (io1, gp2 or standard)"
+                                    " and VALUE is the IOPS required if volume type is io1. \n"
+                                    "For provider gce: NAME:SIZE:TYPE. NAME is the name of the device "
+                                    "('testing' will be '/dev/disk/by-id/google-testing'), SIZE is the size "
+                                    "in gigabytes and TYPE is 'ssd' or 'standard' ")
 
     create_parser.add_argument('-y', '--yaml', action='store_true', default=False,
                                help="Prints the equivalent command in Macfile and exits.")
@@ -153,7 +157,7 @@ def validate_environment(input):
 def validate_hd(input):
     """
         checks that the input
-        /dev/name:SIZE[:type] is correct./
+        /dev/name:SIZE[:type[:value]] is correct./
     """
     a = re.compile("^[/a-zA-Z1-9]+:[0-9]+(:[a-zA-Z0-9]+(:[a-zA-Z0-9]+)?)?$", re.IGNORECASE)
     match = a.match(input)
