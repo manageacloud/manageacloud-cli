@@ -70,13 +70,15 @@ def add_instance_parser(subparsers):
                                     " in the bootstrap bash script that applies the changes." )
 
     create_parser.add_argument('-hd', nargs='*', type=validate_hd,
-                               help="For provider amazon: Format /dev/NAME:SIZE[:TYPE[:VALUE]] "
+                               help="For provider amazon: Format NAME:SIZE[:TYPE[:VALUE]] "
                                     "where NAME is the name of the device (example '/dev/sdb'), "
                                     "SIZE is a number in gigabytes, TYPE is the volume type (io1, gp2 or standard)"
                                     " and VALUE is the IOPS required if volume type is io1. \n"
                                     "For provider gce: NAME:SIZE:TYPE. NAME is the name of the device "
                                     "('testing' will be '/dev/disk/by-id/google-testing'), SIZE is the size "
-                                    "in gigabytes and TYPE is 'ssd' or 'standard' ")
+                                    "in gigabytes and TYPE is 'ssd' or 'standard'. For rackspace: Format "
+                                    "NAME:SIZE[:TYPE] where NAME is the name of the device (example '/dev/sdb')"
+                                    " SIZE is the size in gb (min 100) and TYPE is 'SSD' or 'SATA'")
 
     create_parser.add_argument('-y', '--yaml', action='store_true', default=False,
                                help="Prints the equivalent command in Macfile and exits.")
