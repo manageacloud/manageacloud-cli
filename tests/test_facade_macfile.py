@@ -41,3 +41,7 @@ class AuthTestCase(unittest.TestCase):
         mock_facts.return_value = MOCK_FACTS_PRIV_NETWORK
         clean_role = maccli.facade.macfile.parse_envs(MOCK_PARSE_ENVS_ROLE_FACT, MOCK_PARSE_ENVS_ROLE_CREATED)
         self.assertEqual(MOCK_PARSE_ENVS_ROLE_FACT_CLEAN, clean_role)
+
+    def test_parse_envs_no_envs(self):
+        clean_role = maccli.facade.macfile.parse_envs(MOCK_PARSE_ENVS_NO_ENVIRONMENT_ROLE_RAW, MOCK_PARSE_ENVS_EMPTY_ROLES_CREATED)
+        #self.assertEqual(MOCK_PARSE_ENVS_ROLE_FACT_CLEAN, clean_role)

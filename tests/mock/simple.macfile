@@ -1,0 +1,17 @@
+description: Manageacloud CLI
+version: 0.1a8
+timestamp: '2015-04-04 18:17:04'
+roles:
+  default:
+    instance create:
+      branch: master
+      configuration: postgres_93_customized
+infrastructures:
+  default:
+    deployment: testing
+    location: sfo1
+    name: ''
+    provider: manageacloud
+    release: any
+    role: default
+    amount: 1

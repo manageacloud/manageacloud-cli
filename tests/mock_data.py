@@ -291,3 +291,6 @@ MOCK_PARSE_MACFILE_AWS_INF  = OrderedDict([('postgres', OrderedDict([('hardware'
 
 MOCK_PARSE_MACFILE_AWS_NO_ORDER_INF  = OrderedDict([('postgres', OrderedDict([('location', 'us-east-1'), ('hardware', 'm3.medium'), ('provider', 'amazon'), ('role', 'postgres'), ('amount', 1), ('name', ''), ('release', 'any'), ('deployment', 'testing')])),
                                                     ('pgbench', OrderedDict([('hardware', 'm3.medium'), ('location', 'us-east-1'), ('provider', 'amazon'), ('role', 'pgbench'), ('amount', 1), ('name', ''), ('release', 'any'), ('deployment', 'testing')]))])
+
+MOCK_PARSE_ENVS_NO_ENVIRONMENT_ROLE_RAW = OrderedDict([('default', OrderedDict([('instance create', OrderedDict([('branch', 'master'), ('configuration', 'postgres_93_customized')]))]))])
+MOCK_PARSE_ENVS_EMPTY_ROLES_CREATED = {}

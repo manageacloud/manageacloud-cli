@@ -52,7 +52,7 @@ def convert_args_to_yaml(args):
             value = getattr(args, attr)
 
         if value is not None:
-            if attr in ['hardware', 'location', 'provider']:
+            if attr in ['hardware', 'location', 'provider', 'deployment', 'lifespan', 'name', 'release']:
                 params_infrastructure[attr] = value
             else:
                 params_instance[attr] = value
@@ -132,8 +132,8 @@ def load_macfile(path):
     # validate roles
     expected_roles = []
     role_root_params = ["instance create"]
-    role_params = ['environment', 'branch', 'configuration']
-    role_optional_params = ['hd', 'lifespan']
+    role_params = ['branch', 'configuration']
+    role_optional_params = ['hd', 'lifespan', 'environment']
     raw_role_root_keys = raw['roles'].keys()
     for key_role_root in raw_role_root_keys:
         expected_roles.append(key_role_root)

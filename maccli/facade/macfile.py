@@ -21,7 +21,11 @@ def parse_envs(role, roles_created):
     :return:
     """
 
-    envs_raw = role['environment']
+    try:
+        envs_raw = role['environment']
+    except KeyError:
+        envs_raw = []
+
     envs_clean = []
     for en in envs_raw:
         key = en.keys()[0]
@@ -147,10 +151,10 @@ def create_tier(role, infrastructure):
 
     instances = []
     for x in range(0, infrastructure['amount']):
-        instance = maccli.service.instance.create_instance(role["configuration"], role["deployment"],
-                                                           infrastructure["location"], role["name"],
+        instance = maccli.service.instance.create_instance(role["configuration"], infrastructure["deployment"],
+                                                           infrastructure["location"], infrastructure["name"],
                                                            infrastructure["provider"],
-                                                           role["release"], role["branch"], hardware, lifespan,
+                                                           infrastructure["release"], role["branch"], hardware, lifespan,
                                                            environment, hd)
         instances.append(instance)
         print "Instance '%s' created, status '%s'" % (instance['id'], instance['status'])
