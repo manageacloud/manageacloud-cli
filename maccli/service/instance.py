@@ -50,12 +50,12 @@ def ssh_instance(servername, session_id, cmd = None):
 
 
 def create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
-                    environments, hd):
+                    environments, hd, metadata):
     """
         List available instances in the account
     """
     return maccli.dao.api_instance.create(cookbook_tag, deployment, location, servername, provider, release, branch,
-                                          hardware, lifespan, environments, hd)
+                                          hardware, lifespan, environments, hd, metadata)
 
 
 def destroy_instance(servername, session_id):
@@ -90,3 +90,15 @@ def facts(servername, session_id):
     :return:
     """
     return maccli.dao.api_instance.facts(servername, session_id)
+
+def metadata(macfile_root, infrastructure_key, role_key, role):
+    """
+    Generate the json metadata to create an instance
+    """
+    metadata = macfile_root
+    metadata['macfile_role_name'] = role_key
+    metadata['macfile_infrastructure_name'] = infrastructure_key
+    metadata['macfile_role_name'] = role_key
+    if 'environment' in role.keys():
+        metadata['environment_raw'] = role['environment']
+    return metadata

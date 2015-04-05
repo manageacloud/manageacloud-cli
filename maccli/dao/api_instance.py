@@ -30,7 +30,7 @@ def credentials(servername, session_id):
 
 
 def create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
-           environments, hd):
+           environments, hd, metadata):
     """
      Creates a new instance
 
@@ -59,7 +59,8 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
         'hardware': hardware,
         'lifespan': lifespan,
         'environments': environments,
-        'hd': hd
+        'hd': hd,
+        'metadata': json.dumps(metadata)
     }
 
     json_request = json.dumps(params)

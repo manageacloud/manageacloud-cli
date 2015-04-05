@@ -116,7 +116,7 @@ def _get_private_ip_from_fatcs(facts):
     return ip
 
 
-def create_tier(role, infrastructure):
+def create_tier(role, infrastructure, metadata):
     """
         Creates tje instances that represents a role in a given infrastructure
 
@@ -155,7 +155,7 @@ def create_tier(role, infrastructure):
                                                            infrastructure["location"], infrastructure["name"],
                                                            infrastructure["provider"],
                                                            infrastructure["release"], role["branch"], hardware, lifespan,
-                                                           environment, hd)
+                                                           environment, hd, metadata)
         instances.append(instance)
         print "Instance '%s' created, status '%s'" % (instance['id'], instance['status'])
 

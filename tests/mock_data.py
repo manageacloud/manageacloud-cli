@@ -51,7 +51,7 @@ class MockInstanceSSH_args(MockInstanceDestroy_args):
         self.command = command
 
 
-MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW = '{"servername": "server_name", "environments": ["KEY=VALUE"], "hardware": "512mb", "cookbook_tag": "cookbook_tag", "deployment": "testing", "hd": ["/dev/sda1:100"], "lifespan": 90, "location": "sfo1", "branch": "master", "provider": "manageacloud", "release": "any"}'
+MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW = '{"servername": "server_name", "environments": ["KEY=VALUE"], "hardware": "512mb", "cookbook_tag": "cookbook_tag", "deployment": "testing", "hd": ["/dev/sda1:100"], "lifespan": 90, "location": "sfo1", "branch": "master", "provider": "manageacloud", "release": "any", "metadata": "{\\"infrastructure\\": {\\"macfile_infrastructure_name\\": \\"database_master\\", \\"macfile_role_name\\": \\"database\\", \\"version\\": \\"1.0infrastructure_version\\", \\"name\\": \\"infrastructure name\\"}}"}'
 
 MOCK_RESPONSE_INSTANCE_CREATE_JSON_RAW = '{"servername":"","id":"c01br5mu83hs0v3jogsetm0acj","type":"testing","status":"Creating instance"}'
 MOCK_RESPONSE_INSTANCE_CREATE_JSON = json.loads(MOCK_RESPONSE_INSTANCE_CREATE_JSON_RAW)
@@ -259,7 +259,7 @@ Example:
 
 '''
 
-
+MOCK_MACFILE_ROOT = {'version': '1.0', 'name': 'manageacloud'}
 MOCK_ONE_ROLE_ROLES = {'default': {'instance create': {'environment': [{'DBNAME': 'pgbench'}, {'PGUSER': 'benchuser'}, {'IP': '104.236.167.158'}, {'BENCH_CREATION': '-i -s 70'}, {'BENCH_TEST': '-c 4 -j 2 -T 10'}], 'name': '', 'branch': 'master', 'deployment': 'testing', 'release': 'any', 'configuration': 'pgbench'}}}
 MOCK_ONE_ROLE_INFRASTRUCTURES = {'default': {'amount': 1, 'role': 'default', 'location': 'sfo1', 'provider': 'manageacloud'}}
 MOCK_ONE_ROLE_INSTANCE = {u'status': u'Creating instance', u'servername': u'', u'lifespan': 0, u'ipv4': u'', u'type': u'testing', u'id': u'kj5soodrvj4694thjd2o7cvcdc'}

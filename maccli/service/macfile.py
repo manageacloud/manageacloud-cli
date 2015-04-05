@@ -178,4 +178,10 @@ def load_macfile(path):
         for p in not_existing_roles:
             print " - %s" % p
 
-    return raw['roles'], raw['infrastructures']
+    # get the root parameters
+    root = {
+        'version': raw['version'],
+        'name': raw['name'],
+        }
+
+    return root, raw['roles'], raw['infrastructures']

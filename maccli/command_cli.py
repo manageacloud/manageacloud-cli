@@ -155,7 +155,7 @@ def convert_to_yaml(args):
 
 
 def process_macfile(file):
-    roles, infrastructures = maccli.service.macfile.load_macfile(file)
+    root, roles, infrastructures = maccli.service.macfile.load_macfile(file)
 
     roles_created = {}
     try:
@@ -165,7 +165,8 @@ def process_macfile(file):
                 view.view_generic.show("Creating infrastructure tier %s, role %s" % (infrastructure_key, infrastructure['role']))
                 role_raw = roles[infrastructure_role]["instance create"]
                 role = maccli.facade.macfile.parse_envs(role_raw, roles_created)
-                instances = maccli.facade.macfile.create_tier(role, infrastructure)
+                metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role)
+                instances = maccli.facade.macfile.create_tier(role, infrastructure, metadata)
                 roles_created[infrastructure_role] = instances
 
         view.view_generic.show("Task completed.")
