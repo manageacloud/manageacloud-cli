@@ -72,9 +72,10 @@ def convert_args_to_yaml(args):
 
     # general structure
     data = UnsortableOrderedDict()
+    data["mac"] = maccli.__version__
     data["description"] = "Manageacloud CLI"
-    data["version"] = maccli.__version__
-    data["timestamp"] = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+    data["name"] = "manageacloud.com"
+    data["version"] = "1.0"
     data["roles"] = roles
     data["infrastructures"] = infrastructures
 
@@ -125,7 +126,7 @@ def load_macfile(path):
     raw = ordered_load(stram, yaml.SafeLoader)
 
     # validate root
-    root_params = ['timestamp', 'version', 'description', 'roles', 'infrastructures']
+    root_params = ['mac', 'version', 'name',  'description', 'roles', 'infrastructures']
     raw_root_keys = raw.keys()
     validate_param(raw_root_keys, root_params)
 

@@ -1,6 +1,7 @@
 description: Manageacloud CLI
-version: 0.1a7
-timestamp: '2015-02-09 17:45:44'
+mac: 0.1a7
+name: manageacloud.com
+version: 0.1
 roles:
   postgres:
     instance create:

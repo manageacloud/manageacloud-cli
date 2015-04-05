@@ -19,7 +19,6 @@ class AuthTestCase(unittest.TestCase):
             self.mock_path = "tests/mock"
 
     def test_open_file(self):
-
         roles, infrastructures = maccli.service.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
