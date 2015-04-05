@@ -50,7 +50,7 @@ def ssh_instance(servername, session_id, cmd = None):
 
 
 def create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
-                    environments, hd, metadata):
+                    environments, hd, metadata = None):
     """
         List available instances in the account
     """
