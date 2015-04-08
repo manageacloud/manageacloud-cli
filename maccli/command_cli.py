@@ -89,7 +89,9 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
             show()
             if len(locations_json):
                 view.view_location.show_locations(locations_json)
-                view.view_instance.show_instance_create_locations_example(cookbook_tag, locations_json[0]['id'])
+                view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment, locations_json[0]['id'], servername,
+                                                                       provider, release, branch, hardware)
+
             else:
                 show("There is not locations available for configuration %s and provider %s" % (cookbook_tag, provider))
 
@@ -173,6 +175,7 @@ def process_macfile(file):
 
     except MacErrorCreatingTier:
         view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
+        view.view_generic.show_error("HINT: Use 'mac instance log -i <instance id>' for details")
         view.view_generic.show("Task raised errors.")
         exit(5)
 
@@ -185,6 +188,14 @@ def instance_fact(servername, session_id):
     try:
         json = service.instance.facts(servername, session_id)
         view.view_instance.show_facts(json)
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+def instance_log(servername, session_id):
+    try:
+        json = service.instance.log(servername, session_id)
+        view.view_instance.show_logs(json)
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
