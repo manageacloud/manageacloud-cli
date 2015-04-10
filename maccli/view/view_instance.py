@@ -110,3 +110,25 @@ def show_create_example_with_parameters(cookbook_tag, deployment, location, serv
 def show_facts(facts):
     for key, value in facts.iteritems():
         print "%s: %s" % (key, value)
+
+def show_logs(logs):
+    print ("")
+    print ("")
+    if len(logs['cloudServerLogs']) > 0:
+        print "Server creation logs"
+        print "--------------------"
+        for log in logs['cloudServerLogs']:
+            print (log['text'])
+    else:
+        print "No creation logs available"
+
+    print ("")
+    print ("")
+    if len(logs['cloudServerBlockLogs']) > 0:
+        print "Apply configuration logs"
+        print "------------------------"
+        for log in logs['cloudServerBlockLogs']:
+            print (log['text'])
+    else:
+        print "No logs available for applying configuration"
+

@@ -107,6 +107,18 @@ def add_instance_parser(subparsers):
     facts_parser.add_argument('-i', '--id',
                                 help='Server ID')
 
+    # logs
+    logs_parser = instance_subparser.add_parser('log',
+                                                help='Show server logs',
+                                                description='Show server output when creating the server and '
+                                                            'applying the configuration')
+
+    logs_parser.add_argument('-n', '--name',
+                              help='Server name')
+
+    logs_parser.add_argument('-i', '--id',
+                              help='Server ID')
+
 
 
 

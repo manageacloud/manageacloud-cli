@@ -109,6 +109,24 @@ def facts(servername, session_id):
         show_error("Server not found")
 
     if status_code == 400:
-        show_error("There is a problem with the input parametrs")
+        show_error("There is a problem with the input parameters")
+
+    return json_response
+
+def log(servername, session_id):
+
+    serverorid = ""
+    if servername is not None and servername != "":
+        serverorid = servername
+    elif session_id is not None and session_id != "":
+        serverorid = session_id
+
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/log/%s" % serverorid)
+
+    if status_code == 404:
+        show_error("Server not found")
+
+    if status_code == 400:
+        show_error("There is a problem with the input parameters")
 
     return json_response

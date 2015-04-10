@@ -91,6 +91,18 @@ def facts(servername, session_id):
     """
     return maccli.dao.api_instance.facts(servername, session_id)
 
+def log(servername, session_id):
+    """
+
+    Returns server logs
+
+    :param servername:
+    :param session_id:
+    :return:
+    """
+    return maccli.dao.api_instance.log(servername, session_id)
+
+
 def metadata(macfile_root, infrastructure_key, role_key, role):
     """
     Generate the json metadata to create an instance
