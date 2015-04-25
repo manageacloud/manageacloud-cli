@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 
 import maccli.service.instance
@@ -157,7 +158,7 @@ def create_tier(role, infrastructure, metadata):
                                                            infrastructure["release"], role["branch"], hardware, lifespan,
                                                            environment, hd, metadata)
         instances.append(instance)
-        print "Instance '%s' created, status '%s'" % (instance['id'], instance['status'])
+        print ("Instance '%s' created, status '%s'" % (instance['id'], instance['status']))
 
     wait = True
     pending_instances = len(instances)
@@ -169,7 +170,7 @@ def create_tier(role, infrastructure, metadata):
             for ie in instance_status:
                 if ie['id'] == instance['id']:
 
-                    print "Instance '%s' status '%s'" % (ie['id'], ie['status'])
+                    print ("Instance '%s' status '%s'" % (ie['id'], ie['status']))
 
                     if ie['status'].find("Ready") <> -1:
                         instances_created += 1
@@ -182,6 +183,6 @@ def create_tier(role, infrastructure, metadata):
             if pending_instances - instances_created == 0:
                 wait = False
             else:
-                print "[%s/%s] Waiting instances to be created" % (instances_created, pending_instances)
+                print ("[%s/%s] Waiting instances to be created" % (instances_created, pending_instances))
 
     return instances

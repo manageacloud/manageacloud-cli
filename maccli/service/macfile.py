@@ -1,5 +1,4 @@
-import time
-import datetime
+from __future__ import print_function
 
 import yaml
 import yaml.representer
@@ -80,7 +79,7 @@ def convert_args_to_yaml(args):
     data["infrastructures"] = infrastructures
 
     yaml.add_representer(UnsortableOrderedDict, yaml.representer.SafeRepresenter.represent_dict)
-    print yaml.dump(data, default_flow_style=False)
+    print (yaml.dump(data, default_flow_style=False))
 
     exit(0)
 
@@ -93,9 +92,9 @@ def validate_param(actual, expected, optional=None):
         unexpected_optional = unexpected
 
     if len(unexpected_optional):
-        print "Incorrect file format. The following parameters are unexpected:"
+        print ("Incorrect file format. The following parameters are unexpected:")
         for p in unexpected_optional:
-            print " - %s" % p
+            print (" - %s" % p)
         exit(1)
 
     notpresent = is_present(actual, expected)
@@ -105,9 +104,9 @@ def validate_param(actual, expected, optional=None):
         notpresent_optional = notpresent
 
     if len(notpresent_optional):
-        print "Incorrect file format. The following parameters are needed and not present:"
+        print ("Incorrect file format. The following parameters are needed and not present:")
         for p in notpresent_optional:
-            print " - %s" % p
+            print (" - %s" % p)
         exit(2)
 
 
@@ -166,17 +165,17 @@ def load_macfile(path):
     # check the values of infrastructures > default > role
     not_existing_roles = is_unexpected(actual_roles, expected_roles)
     if len(not_existing_roles):
-        print "The following roles are used under 'infrastructures' but are never defined:"
+        print ("The following roles are used under 'infrastructures' but are never defined:")
         for p in not_existing_roles:
-            print " - %s" % p
+            print (" - %s" % p)
         exit(3)
 
     # check the values of infrastructures > default > role
     not_existing_roles = is_present(actual_roles, expected_roles)
     if len(not_existing_roles):
-        print "WARNING! The following roles are defined but never user:"
+        print ("WARNING! The following roles are defined but never user:")
         for p in not_existing_roles:
-            print " - %s" % p
+            print (" - %s" % p)
 
     # get the root parameters
     root = {
