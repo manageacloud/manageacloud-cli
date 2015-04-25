@@ -1,37 +1,36 @@
 mac
-=====
-
-Manageacloud command line interface.
+===
 
 NOTE: This tool is pre-alpha and it is under heavy development. You can find more information at https://alpha.manageacloud.com
+
+Manageacloud is a multi-cloud orchestration platform completely that works
+ in any configuration management system: Puppet, Chef, Saltstack, Ansible,
+ Docker and even Bash.
+
+Mangeacloud simplifies tasks such:
+ - Continuous Integration
+ - Continuous Development
+ - Cloud benchmarking
+ - Management of geographically disperse infrastructures (static and dynamic services)
+
+Manageacloud is designed to use the existing automation to leverage the orchestration.
 
 
 Installing the CLI
 ------------------
 
-In order to install the Manageacloud CLI, you can use ``pip install``:
+An automatic installation can be performed with the following command:
+
+.. sourcecode:: bash
+    curl -sSL https://alpha.manageacloud.com/mac | sh
+
+For a manual installation you can use ``pip install``:
 
 .. sourcecode:: bash
 
-    pip install mac
+    pip install mac --pre
 
 
-Now you can start using it:
-
-.. sourcecode:: bash
-
-    mac -h
-
-    usage: mac [-h] [--version] {login,instance,configuration} ...
-
-    Manageacloud.com CLI
-
-    optional arguments:
-      -h, --help            show this help message and exit
-      --version             show program's version number and exit
-
-    mac's CLI commands:
-      {login,instance,configuration}
-        login               Login into Manageacloud.com
-        instance            Manage testing or production server instances
-        configuration       Manage configurations
+Usage
+-----
+Documentation is available at https://alpha.manageacloud.com/docs

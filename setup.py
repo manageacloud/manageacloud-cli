@@ -35,13 +35,14 @@ setup(
     include_package_data=True,
     author='R3Systems Pty Ltd',
     author_email='support@manageacloud.com',
-    description='CLI for Manageacloud.com',
+    description='Multi-cloud orchestration platform for servers and infrastructures',
     license='Apache v2',
-    keywords='manageacloud docker puppet chef rackspace aws digitalocean gce',
+    keywords='manageacloud docker puppet chef saltstack ansible bash rackspace aws digitalocean '
+             'gce multicloud multi-cloud orchestration ci cd continuous integration deployment',
     url='https://alpha.manageacloud.com',
     test_suite='tests',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
