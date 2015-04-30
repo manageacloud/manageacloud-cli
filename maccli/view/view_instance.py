@@ -1,19 +1,19 @@
 from __future__ import print_function
+import sys
+
 from prettytable import PrettyTable
 
 
 def show_instances(instances):
     pretty = PrettyTable(["Instance name", "IP", "Instance ID", "Type", "Status"])
 
-
-
-    if (len(instances)):
+    if len(instances):
         for instance in instances:
             if instance['type'] == 'testing' and instance['status'] == "Ready":
-                status = "%s (%im left)" %(instance['status'], instance['lifespan'])
+                status = "%s (%im left)" % (instance['status'], instance['lifespan'])
             else:
                 status = instance['status']
-            pretty.add_row([instance['servername'], instance['ipv4'],  instance['id'], instance['type'], status])
+            pretty.add_row([instance['servername'], instance['ipv4'], instance['id'], instance['type'], status])
         print(pretty)
     else:
         print("There is no active instances")
@@ -108,28 +108,46 @@ def show_create_example_with_parameters(cookbook_tag, deployment, location, serv
     print("    %s" % output)
     print("")
 
+
 def show_facts(facts):
     for key, value in facts.iteritems():
-        print ("%s: %s" % (key, value))
+        print("%s: %s" % (key, value))
+
 
 def show_logs(logs):
-    print ("")
-    print ("")
+    print("")
+    print("")
     if len(logs['cloudServerLogs']) > 0:
-        print ("Server creation logs")
-        print ("--------------------")
+        print("Server creation logs")
+        print("--------------------")
         for log in logs['cloudServerLogs']:
-            print (log['text'])
+            print(log['text'])
     else:
-        print ("No creation logs available")
+        print("No creation logs available")
 
-    print ("")
-    print ("")
+    print("")
+    print("")
     if len(logs['cloudServerBlockLogs']) > 0:
-        print ("Apply configuration logs")
-        print ("------------------------")
+        print("Apply configuration logs")
+        print("------------------------")
         for log in logs['cloudServerBlockLogs']:
-            print (log['text'])
+            print(log['text'])
     else:
-        print ("No logs available for applying configuration")
+        print("No logs available for applying configuration")
 
+
+def show_processing_instances(instances):
+    instances_statuses = {}
+    for instance in instances:
+
+        if instance['status'] not in instances_statuses:
+            instances_statuses[instance['status']] = 1
+        else:
+            instances_statuses[instance['status']] = instances_statuses[instance['status']] + 1
+
+    sys.stdout.write("\033[K")
+    sys.stdout.write("Progress: ")
+    for key in instances_statuses:
+        sys.stdout.write("%s: %s " % (key, instances_statuses[key]))
+    sys.stdout.write(" \r")
+    sys.stdout.flush()

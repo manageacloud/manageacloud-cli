@@ -27,6 +27,7 @@ DEFAULT_METADATA = {'infrastructure': {
                        'macfile_infrastructure_name': 'database_master',
                      }
                    }
+DEFAULT_APPLYCHANGES = True
 
 class AuthTestCase(unittest.TestCase):
     def setUp(self):
@@ -45,7 +46,7 @@ class AuthTestCase(unittest.TestCase):
                                                        DEFAULT_SERVERNAME,
                                                        DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
                                                        DEFAULT_HARDWARE, DEFAULT_LIFESPAN, DEFAULT_ENVIRONMENT,
-                                                       DEFAULT_HD, DEFAULT_METADATA)
+                                                       DEFAULT_HD, DEFAULT_METADATA, DEFAULT_APPLYCHANGES)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
         error = self.buf.getvalue()
         self.assertEqual(' '.join("".split()), ' '.join(error.split()))
@@ -59,7 +60,7 @@ class AuthTestCase(unittest.TestCase):
                                                        DEFAULT_SERVERNAME,
                                                        DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
                                                        DEFAULT_HARDWARE, DEFAULT_LIFESPAN, DEFAULT_ENVIRONMENT,
-                                                       DEFAULT_HD, DEFAULT_METADATA)
+                                                       DEFAULT_HD, DEFAULT_METADATA, DEFAULT_APPLYCHANGES)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
         error = self.buf.getvalue()
         self.assertEqual(' '.join(MOCK_RESPONSE_INSTANCE_CREATE_ERROR.split()), ' '.join(error.split()))

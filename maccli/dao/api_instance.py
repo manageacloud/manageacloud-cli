@@ -11,7 +11,6 @@ def get_list():
 
 
 def credentials(servername, session_id):
-
     serverorid = ""
     if servername is not None and servername != "":
         serverorid = servername
@@ -30,7 +29,7 @@ def credentials(servername, session_id):
 
 
 def create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
-           environments, hd, metadata):
+           environments, hd, metadata, applyChanges):
     """
      Creates a new instance
 
@@ -60,7 +59,8 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
         'lifespan': lifespan,
         'environments': environments,
         'hd': hd,
-        'metadata': json.dumps(metadata)
+        'metadata': json.dumps(metadata),
+        'apply_changes': applyChanges
     }
 
     json_request = json.dumps(params)
@@ -77,8 +77,38 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
     return json_response
 
 
-def destroy(servername, session_id):
+def update_configuration(cookbook_tag, instance_id, new_metadata):
+    """
+     Creates a new instance
 
+    :param cookbook_tag:
+    :param instance_id:
+    :return:
+    """
+
+    params = {
+        'cookbook_tag': cookbook_tag,
+        'instance_id': instance_id,
+        'metadata': new_metadata
+    }
+
+    json_request = json.dumps(params)
+
+    status_code, json_response, raw = maccli.helper.http.send_request("PUT", "/instance", data=json_request)
+
+    if status_code == 400:
+        show_error("Error while building request: " + raw)
+
+    if status_code == 404:
+        show_error("Error while building request: " + raw)
+
+    if status_code == 401:
+        show_error("Error while building request: " + raw)
+
+    return json_response
+
+
+def destroy(servername, session_id):
     serverorid = ""
     if servername is not None and servername != "":
         serverorid = servername
@@ -95,8 +125,8 @@ def destroy(servername, session_id):
 
     return json_response
 
-def facts(servername, session_id):
 
+def facts(servername, session_id):
     serverorid = ""
     if servername is not None and servername != "":
         serverorid = servername
@@ -113,8 +143,8 @@ def facts(servername, session_id):
 
     return json_response
 
-def log(servername, session_id):
 
+def log(servername, session_id):
     serverorid = ""
     if servername is not None and servername != "":
         serverorid = servername

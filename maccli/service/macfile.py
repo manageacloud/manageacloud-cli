@@ -79,7 +79,7 @@ def convert_args_to_yaml(args):
     data["infrastructures"] = infrastructures
 
     yaml.add_representer(UnsortableOrderedDict, yaml.representer.SafeRepresenter.represent_dict)
-    print (yaml.dump(data, default_flow_style=False))
+    print(yaml.dump(data, default_flow_style=False))
 
     exit(0)
 
@@ -92,9 +92,9 @@ def validate_param(actual, expected, optional=None):
         unexpected_optional = unexpected
 
     if len(unexpected_optional):
-        print ("Incorrect file format. The following parameters are unexpected:")
+        print("Incorrect file format. The following parameters are unexpected:")
         for p in unexpected_optional:
-            print (" - %s" % p)
+            print(" - %s" % p)
         exit(1)
 
     notpresent = is_present(actual, expected)
@@ -104,9 +104,9 @@ def validate_param(actual, expected, optional=None):
         notpresent_optional = notpresent
 
     if len(notpresent_optional):
-        print ("Incorrect file format. The following parameters are needed and not present:")
+        print("Incorrect file format. The following parameters are needed and not present:")
         for p in notpresent_optional:
-            print (" - %s" % p)
+            print(" - %s" % p)
         exit(2)
 
 
@@ -125,7 +125,7 @@ def load_macfile(path):
     raw = ordered_load(stram, yaml.SafeLoader)
 
     # validate root
-    root_params = ['mac', 'version', 'name',  'description', 'roles', 'infrastructures']
+    root_params = ['mac', 'version', 'name', 'description', 'roles', 'infrastructures']
     raw_root_keys = raw.keys()
     validate_param(raw_root_keys, root_params)
 
@@ -144,10 +144,11 @@ def load_macfile(path):
             validate_param(raw_role, role_params, role_optional_params)
 
     # validate infrastructures
+    infrastructure_optional_params = ['lifespan']
     infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
-                                  'release' ]
+                                  'release']
     infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider', 'name', 'deployment',
-                                     'release']
+                                      'release']
     raw_infrastructure_root_keys = raw['infrastructures'].keys()
     actual_roles = []
     for key_infrastructure_root in raw_infrastructure_root_keys:
@@ -157,30 +158,30 @@ def load_macfile(path):
         except:
             provider = ""
         if provider == "manageacloud":
-            validate_param(raw_infrastructure_keys, infrastructure_root_params_mac)
+            validate_param(raw_infrastructure_keys, infrastructure_root_params_mac, infrastructure_optional_params)
         else:
-            validate_param(raw_infrastructure_keys, infrastructure_root_params)
+            validate_param(raw_infrastructure_keys, infrastructure_root_params, infrastructure_optional_params)
         actual_roles.append(raw['infrastructures'][key_infrastructure_root]["role"])
 
     # check the values of infrastructures > default > role
     not_existing_roles = is_unexpected(actual_roles, expected_roles)
     if len(not_existing_roles):
-        print ("The following roles are used under 'infrastructures' but are never defined:")
+        print("The following roles are used under 'infrastructures' but are never defined:")
         for p in not_existing_roles:
-            print (" - %s" % p)
+            print(" - %s" % p)
         exit(3)
 
     # check the values of infrastructures > default > role
     not_existing_roles = is_present(actual_roles, expected_roles)
     if len(not_existing_roles):
-        print ("WARNING! The following roles are defined but never user:")
+        print("WARNING! The following roles are defined but never user:")
         for p in not_existing_roles:
-            print (" - %s" % p)
+            print(" - %s" % p)
 
     # get the root parameters
     root = {
         'version': raw['version'],
         'name': raw['name'],
-        }
+    }
 
     return root, raw['roles'], raw['infrastructures']

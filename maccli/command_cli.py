@@ -1,6 +1,7 @@
 import getpass
 import ConfigParser
-import sys, time
+import sys
+import time
 from os.path import join, expanduser
 
 import service.auth
@@ -89,7 +90,8 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
             show()
             if len(locations_json):
                 view.view_location.show_locations(locations_json)
-                view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment, locations_json[0]['id'], servername,
+                view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment,
+                                                                       locations_json[0]['id'], servername,
                                                                        provider, release, branch, hardware)
 
             else:
@@ -159,19 +161,33 @@ def convert_to_yaml(args):
 def process_macfile(file):
     root, roles, infrastructures = maccli.service.macfile.load_macfile(file)
 
+    existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
+
+    if len(existing_instances) > 0:
+        view.view_generic.show()
+        view.view_generic.show()
+        view.view_generic.show_error(
+            "There are active instances for infrastructure %s and version %s" % (root['name'], root['version']))
+        view.view_generic.show()
+        view.view_generic.show()
+        view.view_instance.show_instances(existing_instances)
+        view.view_generic.show()
+        view.view_generic.show()
+        exit(7)
+
+    view.view_generic.header("Infrastructure %s version %s" % (root['name'], root['version']), "=")
+
     roles_created = {}
     try:
+        """ Create all the servers """
         for infrastructure_key in infrastructures:
-                infrastructure = infrastructures[infrastructure_key]
-                infrastructure_role = infrastructure['role']
-                view.view_generic.show("Creating infrastructure tier %s, role %s" % (infrastructure_key, infrastructure['role']))
-                role_raw = roles[infrastructure_role]["instance create"]
-                role = maccli.facade.macfile.parse_envs(role_raw, roles_created)
-                metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role)
-                instances = maccli.facade.macfile.create_tier(role, infrastructure, metadata)
-                roles_created[infrastructure_role] = instances
-
-        view.view_generic.show("Task completed.")
+            infrastructure = infrastructures[infrastructure_key]
+            infrastructure_role = infrastructure['role']
+            view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
+            role_raw = roles[infrastructure_role]["instance create"]
+            metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw)
+            instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata)
+            roles_created[infrastructure_role] = instances
 
     except MacErrorCreatingTier:
         view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
@@ -180,9 +196,24 @@ def process_macfile(file):
         exit(5)
 
     except MacParseEnvException as e:
-        view.view_generic.show_error("ERROR: An error happened parsing environments." + str(type(e))+str(e.args))
+        view.view_generic.show_error("ERROR: An error happened parsing environments." + str(type(e)) + str(e.args))
         view.view_generic.show("Task raised errors.")
         exit(6)
+
+    finish = False
+    while not finish:
+        processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
+        view.view_instance.show_processing_instances(processing_instances)
+        maccli.facade.macfile.apply_infrastructure_changes(processing_instances)
+        finish = True
+        for instance in processing_instances:
+            if not instance['status'].startswith("Ready"):
+                finish = False
+        if not finish:
+            time.sleep(3)
+
+    print("Infrastructure created. Task finish.")
+
 
 def instance_fact(servername, session_id):
     try:
@@ -191,6 +222,7 @@ def instance_fact(servername, session_id):
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
+
 
 def instance_log(servername, session_id):
     try:

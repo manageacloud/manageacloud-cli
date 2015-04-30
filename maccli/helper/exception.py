@@ -15,7 +15,9 @@ class MacErrorCreatingTier(Exception):
     """Error while parsing variables in a macfile"""
     pass
 
-
+class FactError(Exception):
+    """ Error in the Fact  """
+    pass
 
 class InternalError(RuntimeError):
     pass

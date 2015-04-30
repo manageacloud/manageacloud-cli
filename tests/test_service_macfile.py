@@ -26,3 +26,4 @@ class AuthTestCase(unittest.TestCase):
     def test_open_file_no_order(self):
         root, roles, infrastructures = maccli.service.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
         self.assertNotEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_NO_ORDER_INF, default_flow_style=False))
+

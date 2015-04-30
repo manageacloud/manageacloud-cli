@@ -18,3 +18,11 @@ def general_help():
     print("")
     print("    mac -h")
     print("")
+
+
+def header(text, char=None):
+    if char is None:
+        char = "-"
+    print(text)
+    print(char * len(text))
+    print()
