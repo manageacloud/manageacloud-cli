@@ -20,7 +20,7 @@ Installing the CLI
 
 An automatic installation can be performed with the following command:
 
-    curl -sSL https://alpha.manageacloud.com/mac | sh
+    curl -sSL https://alpha.manageacloud.com/mac | bash
 
 A manual installation can be performed using pip directly:
 
