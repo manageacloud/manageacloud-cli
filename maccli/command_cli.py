@@ -206,7 +206,7 @@ def process_macfile(file, resume):
         processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
         view.view_generic.clear()
         view.view_instance.show_instances(processing_instances)
-        maccli.facade.macfile.apply_infrastructure_changes(processing_instances)
+        maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'])
         finish = True
         for instance in processing_instances:
             if not instance['status'].startswith("Ready"):

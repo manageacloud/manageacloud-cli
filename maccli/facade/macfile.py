@@ -1,9 +1,11 @@
 from __future__ import print_function
 import time
+import maccli
 
 import pprint
-
 import maccli.service.instance
+import maccli.view.view_generic
+import maccli.view.view_instance
 from maccli.helper.network import is_ip_private, is_local
 from maccli.helper.exception import MacParseEnvException, FactError
 
@@ -170,12 +172,12 @@ def parse_instance_envs(env_raws, instances):
                 except KeyError:
                     raise MacParseEnvException("Error while parsing env PRIVATE_IP", key, val)
 
-        else:
-            envs_clean[key] = val
+            else:
+                envs_clean[key] = val
 
     return envs_clean, all_processed
 
-def apply_infrastructure_changes(instances):
+def apply_infrastructure_changes(instances, infrastructure_name, version):
     """
     Make sure that all instances in a infrastructure are processed
     :param instances:
@@ -193,18 +195,31 @@ def apply_infrastructure_changes(instances):
 
     action = False
     for instance in configuration_pending:
+            maccli.logger.debug("[%s] Checking instance " % instance['servername'])
             cookbook_tag = instance['metadata']['system']['role']['cookbook_tag']
             instance_id = instance['id']
             if 'environment_raw' in instance['metadata']['infrastructure']:
                 environment_raws = instance['metadata']['infrastructure']['environment_raw']
+                maccli.logger.debug("[%s] Environment raw: %s" % (instance['servername'], environment_raws))
                 environment_clean, processed = parse_instance_envs(environment_raws, other_instances)
+                maccli.logger.debug("[%s] Environment clean: %s" % (instance['servername'], environment_raws))
                 metadata_new = {'system': {'role': {'environment': environment_clean}}}
+                maccli.logger.debug("[%s] Process %s" % (instance['servername'], processed))
                 if processed:
                     action = True
                     maccli.service.instance.update_configuration(cookbook_tag, instance_id, metadata_new)
+                    processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
+                    maccli.view.view_generic.clear()
+                    maccli.view.view_instance.show_instances(processing_instances)
+
             else:
                 action = True
+                maccli.logger.debug("[%s] Processing " )
                 maccli.service.instance.update_configuration(cookbook_tag, instance_id)
+                processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
+                maccli.view.view_generic.clear()
+                maccli.view.view_instance.show_instances(processing_instances)
+
 
     if action:
         """ Allow all tasks to start """

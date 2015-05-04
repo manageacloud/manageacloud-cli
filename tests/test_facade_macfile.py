@@ -51,6 +51,12 @@ class AuthTestCase(unittest.TestCase):
         self.assertTrue(processed)
         self.assertEqual(env_clean, {u'SHARED_MEMCACHE_IP': [u'trusty']})
 
+    def test_parse_env_ok(self):
+        ENV_RAWS = [{u'SHARED_MEMCACHE_IP': u'127.0.0.1'}]
+        env_clean, processed = maccli.facade.macfile.parse_instance_envs(ENV_RAWS, [])
+        self.assertTrue(processed)
+        self.assertEqual(env_clean, {u'SHARED_MEMCACHE_IP': u'127.0.0.1'})
+
     @mock.patch('maccli.service.instance.facts')
     def test_parse_env_facts_ko(self, mock_facts):
         ENV_RAWS = [{u'SHARED_MEMCACHE_IP': u'shared_memcache.FACT.lsbdistcodename'}]
