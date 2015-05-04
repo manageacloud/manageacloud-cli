@@ -26,4 +26,4 @@ build-osx:prepare
 	mv mac-Darwin-x86_64.tar.gz dist/mac-Darwin-x86_64.tar.gz
 
 publish-osx:build-osx
-	echo "Done"
+	scp dist/mac-Darwin-x86_64.tar.gz root@alpha.manageacloud.com:/var/www/downloads/
