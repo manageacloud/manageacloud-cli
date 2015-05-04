@@ -7,6 +7,11 @@ class MacAuthError(MacApiError):
     """An 401 Unauthorized status code was returned when querying the API"""
     pass
 
+class MacParamValidationError(MacApiError):
+    """There is an error when validating params for infrastructures"""
+    pass
+
+
 class MacParseEnvException(Exception):
     """Error while parsing variables in a macfile"""
     pass

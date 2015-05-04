@@ -149,10 +149,8 @@ def add_macfile_parser(subparsers):
     macfile_parser = subparsers.add_parser('macfile', help='Load a Macfile', description='Load a Macfile and execute its contents')
 
     # get file path
-    file_parser = macfile_parser.add_argument('file',
-                                              nargs = 1,
-                                              help='Path to Macfile')
-
+    macfile_parser.add_argument('file', nargs = 1, help='Path to Macfile')
+    macfile_parser.add_argument('--resume', action='store_true', help="Resume infrastructure creation")
 
 def validate_environment(input):
     """

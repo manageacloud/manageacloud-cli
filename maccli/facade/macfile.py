@@ -184,9 +184,11 @@ def apply_infrastructure_changes(instances):
     configuration_pending = []
     other_instances = []
     for instance in instances:
+
         if instance['status'] == "Instance completed":
             configuration_pending.append(instance)
-        else:
+
+        if instance['ipv4'] is not None:
             other_instances.append(instance)
 
     action = False

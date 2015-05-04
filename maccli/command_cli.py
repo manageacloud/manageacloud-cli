@@ -158,52 +158,54 @@ def convert_to_yaml(args):
     view.view_generic.show(yaml)
 
 
-def process_macfile(file):
+def process_macfile(file, resume):
     root, roles, infrastructures = maccli.service.macfile.load_macfile(file)
 
-    existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
+    if not resume:
+        existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
 
-    if len(existing_instances) > 0:
-        view.view_generic.show()
-        view.view_generic.show()
-        view.view_generic.show_error(
-            "There are active instances for infrastructure %s and version %s" % (root['name'], root['version']))
-        view.view_generic.show()
-        view.view_generic.show()
-        view.view_instance.show_instances(existing_instances)
-        view.view_generic.show()
-        view.view_generic.show()
-        exit(7)
+        if len(existing_instances) > 0:
+            view.view_generic.show()
+            view.view_generic.show()
+            view.view_generic.show_error(
+                "There are active instances for infrastructure %s and version %s" % (root['name'], root['version']))
+            view.view_generic.show()
+            view.view_generic.show()
+            view.view_instance.show_instances(existing_instances)
+            view.view_generic.show()
+            view.view_generic.show()
+            exit(7)
 
-    view.view_generic.header("Infrastructure %s version %s" % (root['name'], root['version']), "=")
+        view.view_generic.header("Infrastructure %s version %s" % (root['name'], root['version']), "=")
 
-    roles_created = {}
-    try:
-        """ Create all the servers """
-        for infrastructure_key in infrastructures:
-            infrastructure = infrastructures[infrastructure_key]
-            infrastructure_role = infrastructure['role']
-            view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
-            role_raw = roles[infrastructure_role]["instance create"]
-            metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw)
-            instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata)
-            roles_created[infrastructure_role] = instances
+        roles_created = {}
+        try:
+            """ Create all the servers """
+            for infrastructure_key in infrastructures:
+                infrastructure = infrastructures[infrastructure_key]
+                infrastructure_role = infrastructure['role']
+                view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
+                role_raw = roles[infrastructure_role]["instance create"]
+                metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw)
+                instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata)
+                roles_created[infrastructure_role] = instances
 
-    except MacErrorCreatingTier:
-        view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
-        view.view_generic.show_error("HINT: Use 'mac instance log -i <instance id>' for details")
-        view.view_generic.show("Task raised errors.")
-        exit(5)
+        except MacErrorCreatingTier:
+            view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
+            view.view_generic.show_error("HINT: Use 'mac instance log -i <instance id>' for details")
+            view.view_generic.show("Task raised errors.")
+            exit(5)
 
-    except MacParseEnvException as e:
-        view.view_generic.show_error("ERROR: An error happened parsing environments." + str(type(e)) + str(e.args))
-        view.view_generic.show("Task raised errors.")
-        exit(6)
+        except MacParseEnvException as e:
+            view.view_generic.show_error("ERROR: An error happened parsing environments." + str(type(e)) + str(e.args))
+            view.view_generic.show("Task raised errors.")
+            exit(6)
 
     finish = False
     while not finish:
         processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
-        view.view_instance.show_processing_instances(processing_instances)
+        view.view_generic.clear()
+        view.view_instance.show_instances(processing_instances)
         maccli.facade.macfile.apply_infrastructure_changes(processing_instances)
         finish = True
         for instance in processing_instances:

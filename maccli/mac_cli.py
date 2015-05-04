@@ -13,13 +13,13 @@ from maccli.view.view_generic import show_error
 
 
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-logging.basicConfig()
 
 
 def initialize_parser():
     # Top parser
     parser = argparse.ArgumentParser(description="Manageacloud.com CLI", prog='mac')
     parser.add_argument('--version', action='version', version='%(prog)s ' + maccli.__version__)
+    parser.add_argument('-v', '--verbose', action='store_true', help="Show verbose information")
     parser.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
     parser_cli.add_login_parser(subparsers)
@@ -50,6 +50,14 @@ def patch_help_option(argv=sys.argv):
 
 def dispatch_cmds(args):
 
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    elif args.verbose:
+        logging.basicConfig(level=logging.INFO)
+    else:
+        logging.basicConfig(level=logging.WARN)
+
+
     if args.cmd == 'login':
         maccli.command_cli.login()
 
@@ -57,7 +65,7 @@ def dispatch_cmds(args):
         maccli.command_cli.no_credentials()
 
     elif args.cmd == 'macfile':
-        maccli.command_cli.process_macfile(args.file[0])
+        maccli.command_cli.process_macfile(args.file[0], args.resume)
 
     elif args.cmd == 'instance':
 

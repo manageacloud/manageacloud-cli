@@ -18,3 +18,4 @@ base_url = os.environ.get('MAC_BASE_URL', "https://alpha.manageacloud.com/api/v1
 domain = os.environ.get('MAC_DOMAIN', "https://alpha.manageacloud.com")
 
 logger = logging.getLogger("mac-cli")
+

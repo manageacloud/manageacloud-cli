@@ -3,6 +3,8 @@ from __future__ import print_function
 import yaml
 import yaml.representer
 
+from maccli.view.view_generic import show_error
+from maccli.helper.exception import MacParamValidationError
 from maccli.helper.unsortable import ordered_load
 import maccli
 from maccli.helper.unsortable import UnsortableOrderedDict
@@ -92,10 +94,10 @@ def validate_param(actual, expected, optional=None):
         unexpected_optional = unexpected
 
     if len(unexpected_optional):
-        print("Incorrect file format. The following parameters are unexpected:")
+        error = "Incorrect file format. The following parameters are unexpected:\n"
         for p in unexpected_optional:
-            print(" - %s" % p)
-        exit(1)
+            error += " - %s" % p
+        raise MacParamValidationError(error)
 
     notpresent = is_present(actual, expected)
     if optional is not None:
@@ -104,11 +106,10 @@ def validate_param(actual, expected, optional=None):
         notpresent_optional = notpresent
 
     if len(notpresent_optional):
-        print("Incorrect file format. The following parameters are needed and not present:")
+        error = "Incorrect file format. The following parameters are needed and not present:\n"
         for p in notpresent_optional:
-            print(" - %s" % p)
-        exit(2)
-
+            error += " - %s" % p
+        raise MacParamValidationError(error)
 
 def is_present(actual, expected):
     """ evaluates if all params in actual exist in expected  """
@@ -127,7 +128,11 @@ def load_macfile(path):
     # validate root
     root_params = ['mac', 'version', 'name', 'description', 'roles', 'infrastructures']
     raw_root_keys = raw.keys()
-    validate_param(raw_root_keys, root_params)
+    try:
+        validate_param(raw_root_keys, root_params)
+    except MacParamValidationError, e:
+        show_error(e.message)
+        exit(1)
 
     # validate roles
     expected_roles = []
@@ -138,12 +143,17 @@ def load_macfile(path):
     for key_role_root in raw_role_root_keys:
         expected_roles.append(key_role_root)
         raw_role_keys = raw['roles'][key_role_root].keys()
-        validate_param(raw_role_keys, role_root_params)
-        for key_role in raw_role_keys:
-            raw_role = raw['roles'][key_role_root][key_role].keys()
-            validate_param(raw_role, role_params, role_optional_params)
+        try:
+            validate_param(raw_role_keys, role_root_params)
+            for key_role in raw_role_keys:
+                raw_role = raw['roles'][key_role_root][key_role].keys()
+                validate_param(raw_role, role_params, role_optional_params)
+        except MacParamValidationError, e:
+            show_error(e.message)
+            exit(1)
 
-    # validate infrastructures
+
+        # validate infrastructures
     infrastructure_optional_params = ['lifespan']
     infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
                                   'release']
@@ -157,10 +167,16 @@ def load_macfile(path):
             provider = raw['infrastructures'][key_infrastructure_root]['provider']
         except:
             provider = ""
-        if provider == "manageacloud":
-            validate_param(raw_infrastructure_keys, infrastructure_root_params_mac, infrastructure_optional_params)
-        else:
-            validate_param(raw_infrastructure_keys, infrastructure_root_params, infrastructure_optional_params)
+
+        try:
+            if provider == "manageacloud":
+                validate_param(raw_infrastructure_keys, infrastructure_root_params_mac, infrastructure_optional_params)
+            else:
+                validate_param(raw_infrastructure_keys, infrastructure_root_params, infrastructure_optional_params)
+        except MacParamValidationError, e:
+            show_error(e.message)
+            exit(1)
+
         actual_roles.append(raw['infrastructures'][key_infrastructure_root]["role"])
 
     # check the values of infrastructures > default > role
