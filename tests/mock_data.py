@@ -2,6 +2,46 @@ import json
 import maccli
 from collections import OrderedDict
 
+class Mock_yaml_args(object):
+    def __init__(self):
+        self.branch='master'
+        self.cmd='instance'
+        self.configuration='database'
+        self.debug=True
+        self.deployment='testing'
+        self.environment=None
+        self.hardware=None
+        self.hd=None
+        self.lifespan=None
+        self.location='us-central1-c'
+        self.name=None
+        self.port=None
+        self.provider='manageacloud'
+        self.release='any'
+        self.subcmd='create'
+        self.verbose=False
+        self.yaml=True
+
+MOCK_YAML = """mac: 0.4a1\n"
+description: Manageacloud CLI
+name: manageacloud.com
+version: '1.0'
+roles:
+  default:
+    instance create:
+      branch: master
+      configuration: database
+infrastructures:
+  default:
+    deployment: testing
+    location: us-central1-c
+    name: ''
+    provider: manageacloud
+    release: any
+    role: default
+    amount: 1
+"""
+
 class Mock_args(object):
     def __init__(self, cmd, subcmd):
         self.debug = False

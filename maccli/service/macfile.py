@@ -32,6 +32,7 @@ roles:
 
 
 def convert_args_to_yaml(args):
+    maccli.logger.debug("Converting options %s: " % args)
     key = ""
     if args.cmd is not None and args.subcmd is not None:
         key = args.cmd + ' ' + args.subcmd
@@ -39,7 +40,7 @@ def convert_args_to_yaml(args):
         key = args.cmd
 
     attributes = filter(
-        lambda a: not a.startswith('_') and a not in ["cmd", "subcmd", "yaml", "debug"], dir(args))
+        lambda a: not a.startswith('_') and a not in ["cmd", "subcmd", "yaml", "debug", "verbose"], dir(args))
 
     # defines the parameter that must exist, even if empty
     empty_parameters = ['name']
