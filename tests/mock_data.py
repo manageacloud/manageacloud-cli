@@ -27,6 +27,7 @@ class MockInstanceCreate_args(Mock_args):
         self.lifespan = None
         self.environment = None
         self.hd = None
+        self.port = None
         self.yaml = None
 
 
@@ -61,7 +62,7 @@ class MockInstanceSSH_args(MockInstanceDestroy_args):
         self.command = command
 
 
-MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW = '{"servername": "server_name", "environments": ["KEY=VALUE"], "hardware": "512mb", "cookbook_tag": "cookbook_tag", "deployment": "testing", "hd": ["/dev/sda1:100"], "lifespan": 90, "apply_changes": true, "location": "sfo1", "branch": "master", "provider": "manageacloud", "release": "any", "metadata": "{\\"infrastructure\\": {\\"macfile_infrastructure_name\\": \\"database_master\\", \\"macfile_role_name\\": \\"database\\", \\"version\\": \\"1.0infrastructure_version\\", \\"name\\": \\"infrastructure name\\"}}"}'
+MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW = '{"servername": "server_name", "environments": ["KEY=VALUE"], "hardware": "512mb", "cookbook_tag": "cookbook_tag", "deployment": "testing", "port": [22], "hd": ["/dev/sda1:100"], "lifespan": 90, "apply_changes": true, "location": "sfo1", "branch": "master", "provider": "manageacloud", "release": "any", "metadata": "{\\"infrastructure\\": {\\"macfile_infrastructure_name\\": \\"database_master\\", \\"macfile_role_name\\": \\"database\\", \\"version\\": \\"1.0infrastructure_version\\", \\"name\\": \\"infrastructure name\\"}}"}'
 
 MOCK_RESPONSE_INSTANCE_CREATE_JSON_RAW = '{"servername":"","id":"c01br5mu83hs0v3jogsetm0acj","type":"testing","status":"Creating instance"}'
 MOCK_RESPONSE_INSTANCE_CREATE_JSON = json.loads(MOCK_RESPONSE_INSTANCE_CREATE_JSON_RAW)

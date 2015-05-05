@@ -68,13 +68,20 @@ def create_tier(role, infrastructure, metadata):
     except KeyError:
         pass
 
+    port = None
+    try:
+        port = infrastructure["port"]
+    except KeyError:
+        pass
+
+
     instances = []
     for x in range(0, infrastructure['amount']):
         instance = maccli.service.instance.create_instance(role["configuration"], infrastructure["deployment"],
                                                            infrastructure["location"], infrastructure["name"],
                                                            infrastructure["provider"],
                                                            infrastructure["release"], role["branch"], hardware, lifespan,
-                                                           environment, hd, metadata, False)
+                                                           environment, hd, port, metadata, False)
         instances.append(instance)
         print ("Creating instance '%s'" % (instance['id']))
     print()

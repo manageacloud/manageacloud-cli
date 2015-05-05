@@ -1,8 +1,10 @@
 import re
 import argparse
 
+
 def add_login_parser(subparsers):
     subparsers.add_parser('login', help='Login into Manageacloud.com', description='Login into Manageacloud.com')
+
 
 def add_instance_parser(subparsers):
     instance_parser = subparsers.add_parser('instance', help='Manage testing or production server instances',
@@ -62,12 +64,13 @@ def add_instance_parser(subparsers):
                                help="Choose the hardware settings. It only applies if parameter 'deployment' is 'production'. "
                                     "If this parameter is not set, the list of the available hardware will be displayed.")
 
-    create_parser.add_argument('-t', '--lifespan', type=int, help="If deployment is 'development' choose the lifespan of the server. "
-                                                        "In minutes (default 90)" )
+    create_parser.add_argument('-t', '--lifespan', type=int,
+                               help="If deployment is 'development' choose the lifespan of the server. "
+                                    "In minutes (default 90)")
 
     create_parser.add_argument('-e', '--environment', nargs='*', type=validate_environment,
                                help="Format KEY=VALUE. The environment variables will be available"
-                                    " in the bootstrap bash script that applies the changes." )
+                                    " in the bootstrap bash script that applies the changes.")
 
     create_parser.add_argument('-hd', nargs='*', type=validate_hd,
                                help="For provider amazon: Format NAME:SIZE[:TYPE[:VALUE]] "
@@ -80,6 +83,10 @@ def add_instance_parser(subparsers):
                                     "NAME:SIZE[:TYPE] where NAME is the name of the device (example '/dev/sdb')"
                                     " SIZE is the size in gb (min 100) and TYPE is 'SSD' or 'SATA'")
 
+    create_parser.add_argument('--port', type=validate_port,
+                               help="List of ports that are opened. "
+                                    "The port 22 (SSH) must be in the list. "
+                                    "Example: 22,80,8020")
     create_parser.add_argument('-y', '--yaml', action='store_true', default=False,
                                help="Prints the equivalent command in Macfile and exits.")
 
@@ -99,13 +106,13 @@ def add_instance_parser(subparsers):
 
     # facts instance
     facts_parser = instance_subparser.add_parser('facts',
-                                                help='Retrieves facts about the system',
-                                                description='Retrieves facts about the system')
+                                                 help='Retrieves facts about the system',
+                                                 description='Retrieves facts about the system')
     facts_parser.add_argument('-n', '--name',
-                                help='Server name')
+                              help='Server name')
 
     facts_parser.add_argument('-i', '--id',
-                                help='Server ID')
+                              help='Server ID')
 
     # logs
     logs_parser = instance_subparser.add_parser('log',
@@ -114,12 +121,10 @@ def add_instance_parser(subparsers):
                                                             'applying the configuration')
 
     logs_parser.add_argument('-n', '--name',
-                              help='Server name')
+                             help='Server name')
 
     logs_parser.add_argument('-i', '--id',
-                              help='Server ID')
-
-
+                             help='Server ID')
 
 
 def add_configuration_parser(subparsers):
@@ -145,12 +150,13 @@ def add_configuration_parser(subparsers):
 
 
 def add_macfile_parser(subparsers):
-
-    macfile_parser = subparsers.add_parser('macfile', help='Load a Macfile', description='Load a Macfile and execute its contents')
+    macfile_parser = subparsers.add_parser('macfile', help='Load a Macfile',
+                                           description='Load a Macfile and execute its contents')
 
     # get file path
-    macfile_parser.add_argument('file', nargs = 1, help='Path to Macfile')
+    macfile_parser.add_argument('file', nargs=1, help='Path to Macfile')
     macfile_parser.add_argument('--resume', action='store_true', help="Resume infrastructure creation")
+
 
 def validate_environment(input):
     """
@@ -163,8 +169,9 @@ def validate_environment(input):
         msg = "'%s' environment contains invalid characters or the format KEY=VALUE is not correct" % input
         raise argparse.ArgumentTypeError(msg)
     key, value = input.split("=", 1)
-    to_return = {key:value}
+    to_return = {key: value}
     return to_return
+
 
 def validate_hd(input):
     """
@@ -178,6 +185,33 @@ def validate_hd(input):
               "number and SIZE is a number that represents the gigabytes." % input
         raise argparse.ArgumentTypeError(msg)
     key, value = input.split(":", 1)
-    to_return = {key:value}
+    to_return = {key: value}
     return to_return
 
+def validate_port(port_input):
+    """
+        checks that the input 22,80,2020 is correct
+    """
+    ports_raw = port_input.split(',')
+    ports = []
+    ssh_port = False
+    for port_raw in ports_raw:
+        try:
+            port = int(port_raw)
+            if port == 22:
+                ssh_port = True
+            if port < 1 or port > 65535:
+                msg = "'%s' doesn't look valid. The value %s should be between 1 and 65535" % (port_raw, port_input)
+                raise argparse.ArgumentTypeError(msg)
+
+        except ValueError:
+            msg = "'%s' doesn't look valid. The value %s is not an integer" % (port_raw, port_input)
+            raise argparse.ArgumentTypeError(msg)
+        ports.append(port)
+
+    if not ssh_port:
+        msg = "'%s' doesn't look valid. You need to allow access to the port 22" % port_input
+        raise argparse.ArgumentTypeError(msg)
+
+
+    return ports

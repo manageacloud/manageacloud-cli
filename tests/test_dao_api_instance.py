@@ -20,6 +20,7 @@ DEFAULT_HARDWARE = "512mb"
 DEFAULT_LIFESPAN = 90
 DEFAULT_ENVIRONMENT = ["KEY=VALUE"]
 DEFAULT_HD = ["/dev/sda1:100"]
+DEFAULT_PORT = [22]
 DEFAULT_METADATA = {'infrastructure': {
                        'version': '1.0infrastructure_version',
                        'name': 'infrastructure name',
@@ -46,7 +47,7 @@ class AuthTestCase(unittest.TestCase):
                                                        DEFAULT_SERVERNAME,
                                                        DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
                                                        DEFAULT_HARDWARE, DEFAULT_LIFESPAN, DEFAULT_ENVIRONMENT,
-                                                       DEFAULT_HD, DEFAULT_METADATA, DEFAULT_APPLYCHANGES)
+                                                       DEFAULT_HD, DEFAULT_PORT, DEFAULT_METADATA, DEFAULT_APPLYCHANGES)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
         error = self.buf.getvalue()
         self.assertEqual(' '.join("".split()), ' '.join(error.split()))
@@ -60,7 +61,7 @@ class AuthTestCase(unittest.TestCase):
                                                        DEFAULT_SERVERNAME,
                                                        DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
                                                        DEFAULT_HARDWARE, DEFAULT_LIFESPAN, DEFAULT_ENVIRONMENT,
-                                                       DEFAULT_HD, DEFAULT_METADATA, DEFAULT_APPLYCHANGES)
+                                                       DEFAULT_HD, DEFAULT_PORT, DEFAULT_METADATA, DEFAULT_APPLYCHANGES)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
         error = self.buf.getvalue()
         self.assertEqual(' '.join(MOCK_RESPONSE_INSTANCE_CREATE_ERROR.split()), ' '.join(error.split()))

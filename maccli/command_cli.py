@@ -76,7 +76,7 @@ def instance_ssh(name, session_id, command):
 
 
 def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
-                    environments, hd):
+                    environments, hd, port):
     if cookbook_tag is None:
         view.view_instance.show_instance_create_help()
 
@@ -113,7 +113,7 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
     else:
         """ Execute create instance """
         instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release,
-                                                    branch, hardware, lifespan, environments, hd)
+                                                    branch, hardware, lifespan, environments, hd, port)
         if instance is not None:
             view.view_instance.show_instance(instance)
 
