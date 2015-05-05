@@ -35,11 +35,11 @@ def list_by_infrastructure(name, version):
     return filtered_instances
 
 
-def ssh_instance(servername, session_id, cmd=None):
+def ssh_instance(instance_id, cmd=None):
     """
         ssh to an existing instance
     """
-    instance = maccli.dao.api_instance.credentials(servername, session_id)
+    instance = maccli.dao.api_instance.credentials(instance_id)
 
     if instance is not None:
 
@@ -80,7 +80,7 @@ def create_instance(cookbook_tag, deployment, location, servername, provider, re
                                           hardware, lifespan, environments, hd, port, metadata, applyChanges)
 
 
-def destroy_instance(servername, session_id):
+def destroy_instance(instanceid):
     """
 
     Destroy the server
@@ -88,7 +88,7 @@ def destroy_instance(servername, session_id):
     :param servername:
     :return:
     """
-    return maccli.dao.api_instance.destroy(servername, session_id)
+    return maccli.dao.api_instance.destroy(instanceid)
 
 
 def credentials(servername, session_id):
@@ -96,35 +96,32 @@ def credentials(servername, session_id):
 
     Gets the server credentials: public ip, username, password and private key
 
-    :param servername:
-    :param session_id:
+    :param instance_id;
     :return:
     """
     return maccli.dao.api_instance.credentials(servername, session_id)
 
 
-def facts(servername, session_id):
+def facts(instance_id):
     """
 
     Returns facts about the system
 
-    :param servername:
-    :param session_id:
+    :param instance_id;
     :return:
     """
-    return maccli.dao.api_instance.facts(servername, session_id)
+    return maccli.dao.api_instance.facts(instance_id)
 
 
-def log(servername, session_id):
+def log(instance_id):
     """
 
     Returns server logs
 
-    :param servername:
-    :param session_id:
+    :param instance_id;
     :return:
     """
-    return maccli.dao.api_instance.log(servername, session_id)
+    return maccli.dao.api_instance.log(instance_id)
 
 
 def metadata(macfile_root, infrastructure_key, role_key, role):

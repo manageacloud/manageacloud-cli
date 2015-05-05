@@ -70,7 +70,7 @@ class AuthTestCase(unittest.TestCase):
     @mock.patch('maccli.helper.http.send_request')
     def test_instance_destroy_error(self, mock):
         mock.return_value = (400, None, "Error Response")
-        json_response = maccli.dao.api_instance.destroy(None, DEFAULT_SERVER_ID)
+        json_response = maccli.dao.api_instance.destroy(DEFAULT_SERVER_ID)
         mock.assert_called_once_with("DELETE", "/instance/%s" % DEFAULT_SERVER_ID)
         error = self.buf.getvalue()
         self.assertEqual(' '.join(MOCK_RESPONSE_INSTANCE_DESTROY_ERROR.split()), ' '.join(error.split()))
@@ -79,7 +79,7 @@ class AuthTestCase(unittest.TestCase):
     @mock.patch('maccli.helper.http.send_request')
     def test_instance_destroy_error_not_found(self, mock):
         mock.return_value = (404, None, "Error Response")
-        json_response = maccli.dao.api_instance.destroy(DEFAULT_SERVERNAME, None)
+        json_response = maccli.dao.api_instance.destroy(DEFAULT_SERVERNAME)
         mock.assert_called_once_with("DELETE", "/instance/%s" % DEFAULT_SERVERNAME)
         error = self.buf.getvalue()
         self.assertEqual(' '.join(MOCK_RESPONSE_INSTANCE_DESTROY_NOT_FOUND.split()), ' '.join(error.split()))
@@ -88,7 +88,7 @@ class AuthTestCase(unittest.TestCase):
     @mock.patch('maccli.helper.http.send_request')
     def test_instance_destroy_ok(self, mock):
         mock.return_value = (200, MOCK_RESPONSE_INSTANCE_DESTROY_JSON, MOCK_RESPONSE_INSTANCE_DESTROY_JSON_RAW)
-        json_response = maccli.dao.api_instance.destroy(DEFAULT_SERVERNAME, DEFAULT_SERVER_ID)
+        json_response = maccli.dao.api_instance.destroy(DEFAULT_SERVERNAME)
         mock.assert_called_once_with("DELETE", "/instance/%s" % DEFAULT_SERVERNAME)
         self.assertEqual(json_response, MOCK_RESPONSE_INSTANCE_DESTROY_JSON)
 

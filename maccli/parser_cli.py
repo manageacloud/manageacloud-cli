@@ -22,9 +22,7 @@ def add_instance_parser(subparsers):
                                                help='Connect via SSH',
                                                description='Connect via SSH to the server')
 
-    ssh_parser.add_argument('-n', '--name', help='Server name')
-
-    ssh_parser.add_argument('-i', '--id', help='Server ID')
+    ssh_parser.add_argument('id', help='Server ID or server name')
 
     ssh_parser.add_argument('-c', '--command', help='Run a command and exit')
 
@@ -98,21 +96,14 @@ def add_instance_parser(subparsers):
                                                    help='Destroy an existing instance',
                                                    description='Destroy an existing instance')
 
-    destroy_parser.add_argument('-n', '--name',
-                                help='Server name')
-
-    destroy_parser.add_argument('-i', '--id',
-                                help='Server ID')
+    destroy_parser.add_argument('id', nargs='*',
+                                help='Server ID or server name')
 
     # facts instance
     facts_parser = instance_subparser.add_parser('facts',
                                                  help='Retrieves facts about the system',
                                                  description='Retrieves facts about the system')
-    facts_parser.add_argument('-n', '--name',
-                              help='Server name')
-
-    facts_parser.add_argument('-i', '--id',
-                              help='Server ID')
+    facts_parser.add_argument('id', help='Server ID or server name')
 
     # logs
     logs_parser = instance_subparser.add_parser('log',
@@ -120,11 +111,7 @@ def add_instance_parser(subparsers):
                                                 description='Show server output when creating the server and '
                                                             'applying the configuration')
 
-    logs_parser.add_argument('-n', '--name',
-                             help='Server name')
-
-    logs_parser.add_argument('-i', '--id',
-                             help='Server ID')
+    logs_parser.add_argument('id', help='Server ID or server name')
 
 
 def add_configuration_parser(subparsers):

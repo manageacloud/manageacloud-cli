@@ -66,9 +66,9 @@ def instance_list():
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_ssh(name, session_id, command):
+def instance_ssh(instance_id, command):
     try:
-        service.instance.ssh_instance(name, session_id, command)
+        service.instance.ssh_instance(instance_id, command)
 
     except Exception as e:
         show_error(e)
@@ -126,10 +126,16 @@ def instance_ssh_help():
     view.view_instance.show_instance_ssh_help()
 
 
-def instance_destroy(servername, session_id):
-    instance = service.instance.destroy_instance(servername, session_id)
-    if instance is not None:
-        view.view_instance.show_instance(instance)
+def instance_destroy(ids):
+    maccli.logger.debug("Destroying instances %s " % ids)
+    instances = []
+    for instanceid in ids:
+        maccli.logger.debug("Destroying instance %s " % ids)
+        instance = service.instance.destroy_instance(instanceid)
+        instances.append(instance)
+
+    if instances is not None:
+        view.view_instance.show_instances(instances)
 
 
 def instance_help():
@@ -217,18 +223,18 @@ def process_macfile(file, resume):
     print("Infrastructure created. Task finish.")
 
 
-def instance_fact(servername, session_id):
+def instance_fact(instance_id):
     try:
-        json = service.instance.facts(servername, session_id)
+        json = service.instance.facts(instance_id)
         view.view_instance.show_facts(json)
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_log(servername, session_id):
+def instance_log(instance_id):
     try:
-        json = service.instance.log(servername, session_id)
+        json = service.instance.log(instance_id)
         view.view_instance.show_logs(json)
     except Exception as e:
         show_error(e)

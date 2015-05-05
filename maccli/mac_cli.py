@@ -57,6 +57,7 @@ def dispatch_cmds(args):
     else:
         logging.basicConfig(level=logging.WARN)
 
+    maccli.logger.debug("Args options %s: " % args)
 
     if args.cmd == 'login':
         maccli.command_cli.login()
@@ -77,28 +78,28 @@ def dispatch_cmds(args):
                                                    args.provider, args.release, args.branch, args.hardware, args.lifespan,
                                                    args.environment, args.hd, args.port)
         elif args.subcmd == 'destroy':
-            if args.name is None and args.id is None:
-                show_error("Parameter --name or --id is required.")
+            if args.id is None:
+                show_error("Parameter 'id' is required.")
                 maccli.command_cli.instance_destroy_help()
             else:
-                maccli.command_cli.instance_destroy(args.name, args.id)
+                maccli.command_cli.instance_destroy(args.id)
 
         elif args.subcmd == 'list':
             maccli.command_cli.instance_list()
 
         elif args.subcmd == 'facts':
-            maccli.command_cli.instance_fact(args.name, args.id)
+            maccli.command_cli.instance_fact(args.id)
 
         elif args.subcmd == 'log':
-            maccli.command_cli.instance_log(args.name, args.id)
+            maccli.command_cli.instance_log(args.id)
 
 
         elif args.subcmd == 'ssh':
-            if args.name is None and args.id is None:
-                show_error("Parameter name or id is required.")
+            if args.id is None:
+                show_error("Parameter 'id' is required.")
                 maccli.command_cli.instance_ssh_help()
             else:
-                maccli.command_cli.instance_ssh(args.name, args.id, args.command)
+                maccli.command_cli.instance_ssh(args.id, args.command)
 
     elif args.cmd == "configuration":
         if args.subcmd == 'list':

@@ -10,14 +10,9 @@ def get_list():
     return json
 
 
-def credentials(servername, session_id):
-    serverorid = ""
-    if servername is not None and servername != "":
-        serverorid = servername
-    elif session_id is not None and session_id != "":
-        serverorid = session_id
+def credentials(instance_id):
 
-    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/credential/%s" % serverorid)
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/credential/%s" % instance_id)
 
     if status_code == 404:
         show_error("Server not found")
@@ -109,17 +104,12 @@ def update_configuration(cookbook_tag, instance_id, new_metadata):
     return json_response
 
 
-def destroy(servername, session_id):
-    serverorid = ""
-    if servername is not None and servername != "":
-        serverorid = servername
-    elif session_id is not None and session_id != "":
-        serverorid = session_id
+def destroy(instanceid):
 
-    status_code, json_response, raw = maccli.helper.http.send_request("DELETE", "/instance/%s" % serverorid)
+    status_code, json_response, raw = maccli.helper.http.send_request("DELETE", "/instance/%s" % instanceid)
 
     if status_code == 404:
-        show_error("Server %s not found" % servername)
+        show_error("Server %s not found" % instanceid)
 
     if status_code == 400:
         show_error("Error with parameters: %s " % raw)
@@ -127,14 +117,9 @@ def destroy(servername, session_id):
     return json_response
 
 
-def facts(servername, session_id):
-    serverorid = ""
-    if servername is not None and servername != "":
-        serverorid = servername
-    elif session_id is not None and session_id != "":
-        serverorid = session_id
+def facts(instance_id):
 
-    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/facts/%s" % serverorid)
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/facts/%s" % instance_id)
 
     if status_code == 404:
         show_error("Server not found")
@@ -145,14 +130,9 @@ def facts(servername, session_id):
     return json_response
 
 
-def log(servername, session_id):
-    serverorid = ""
-    if servername is not None and servername != "":
-        serverorid = servername
-    elif session_id is not None and session_id != "":
-        serverorid = session_id
+def log(instance_id):
 
-    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/log/%s" % serverorid)
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/log/%s" % instance_id)
 
     if status_code == 404:
         show_error("Server not found")
