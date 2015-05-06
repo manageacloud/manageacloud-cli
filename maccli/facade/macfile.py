@@ -7,7 +7,7 @@ import maccli.service.instance
 import maccli.view.view_generic
 import maccli.view.view_instance
 from maccli.helper.network import is_ip_private, is_local
-from maccli.helper.exception import MacParseEnvException, FactError
+from maccli.helper.exception import MacParseEnvException, FactError, MacApiError
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -46,7 +46,7 @@ def create_tier(role, infrastructure, metadata):
 
     lifespan = None
     try:
-        lifespan = role['lifespan']
+        lifespan = infrastructure['lifespan']
     except KeyError:
         pass
 
@@ -74,19 +74,20 @@ def create_tier(role, infrastructure, metadata):
     except KeyError:
         pass
 
-
     instances = []
     for x in range(0, infrastructure['amount']):
         instance = maccli.service.instance.create_instance(role["configuration"], infrastructure["deployment"],
                                                            infrastructure["location"], infrastructure["name"],
                                                            infrastructure["provider"],
-                                                           infrastructure["release"], role["branch"], hardware, lifespan,
+                                                           infrastructure["release"], role["branch"], hardware,
+                                                           lifespan,
                                                            environment, hd, port, metadata, False)
         instances.append(instance)
-        print ("Creating instance '%s'" % (instance['id']))
+        print("Creating instance '%s'" % (instance['id']))
     print()
     print()
     return instances
+
 
 def parse_instance_envs(env_raws, instances):
     """
@@ -141,10 +142,12 @@ def parse_instance_envs(env_raws, instances):
 
                         if instance_role_name == role_name:
                             try:
-                                instance_facts = maccli.service.instance.facts(None, instance['id'])
+                                instance_facts = maccli.service.instance.facts(instance['id'])
                                 ip = _get_private_ip_from_fatcs(instance_facts)
                                 ips.append(ip)
                             except FactError:
+                                pass
+                            except MacApiError:
                                 pass
 
                     if len(ips) > 0:
@@ -165,10 +168,12 @@ def parse_instance_envs(env_raws, instances):
 
                         if instance_role_name == role_name:
                             try:
-                                instance_facts = maccli.service.instance.facts(None, instance['id'])
+                                instance_facts = maccli.service.instance.facts(instance['id'])
                                 property_value = instance_facts[property.lower()]
                                 facts.append(property_value)
                             except FactError:
+                                pass
+                            except MacApiError:
                                 pass
 
                     if len(facts) > 0:
@@ -183,6 +188,7 @@ def parse_instance_envs(env_raws, instances):
                 envs_clean[key] = val
 
     return envs_clean, all_processed
+
 
 def apply_infrastructure_changes(instances, infrastructure_name, version):
     """
@@ -202,31 +208,30 @@ def apply_infrastructure_changes(instances, infrastructure_name, version):
 
     action = False
     for instance in configuration_pending:
-            maccli.logger.debug("[%s] Checking instance " % instance['servername'])
-            cookbook_tag = instance['metadata']['system']['role']['cookbook_tag']
-            instance_id = instance['id']
-            if 'environment_raw' in instance['metadata']['infrastructure']:
-                environment_raws = instance['metadata']['infrastructure']['environment_raw']
-                maccli.logger.debug("[%s] Environment raw: %s" % (instance['servername'], environment_raws))
-                environment_clean, processed = parse_instance_envs(environment_raws, other_instances)
-                maccli.logger.debug("[%s] Environment clean: %s" % (instance['servername'], environment_raws))
-                metadata_new = {'system': {'role': {'environment': environment_clean}}}
-                maccli.logger.debug("[%s] Process %s" % (instance['servername'], processed))
-                if processed:
-                    action = True
-                    maccli.service.instance.update_configuration(cookbook_tag, instance_id, metadata_new)
-                    processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
-                    maccli.view.view_generic.clear()
-                    maccli.view.view_instance.show_instances(processing_instances)
-
-            else:
+        maccli.logger.debug("[%s] Checking instance " % instance['servername'])
+        cookbook_tag = instance['metadata']['system']['role']['cookbook_tag']
+        instance_id = instance['id']
+        if 'environment_raw' in instance['metadata']['infrastructure']:
+            environment_raws = instance['metadata']['infrastructure']['environment_raw']
+            maccli.logger.debug("[%s] Environment raw: %s" % (instance['servername'], environment_raws))
+            environment_clean, processed = parse_instance_envs(environment_raws, other_instances)
+            maccli.logger.debug("[%s] Environment clean: %s" % (instance['servername'], environment_raws))
+            metadata_new = {'system': {'role': {'environment': environment_clean}}}
+            maccli.logger.debug("[%s] Process %s" % (instance['servername'], processed))
+            if processed:
                 action = True
-                maccli.logger.debug("[%s] Processing " )
-                maccli.service.instance.update_configuration(cookbook_tag, instance_id)
+                maccli.service.instance.update_configuration(cookbook_tag, instance_id, metadata_new)
                 processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
                 maccli.view.view_generic.clear()
                 maccli.view.view_instance.show_instances(processing_instances)
 
+        else:
+            action = True
+            maccli.logger.debug("[%s] Processing ")
+            maccli.service.instance.update_configuration(cookbook_tag, instance_id)
+            processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
+            maccli.view.view_generic.clear()
+            maccli.view.view_instance.show_instances(processing_instances)
 
     if action:
         """ Allow all tasks to start """
