@@ -69,7 +69,8 @@ def instance_list():
 def instance_ssh(instance_id, command):
     try:
         service.instance.ssh_instance(instance_id, command)
-
+    except KeyboardInterrupt:
+        show_error("Aborting")
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
@@ -77,51 +78,57 @@ def instance_ssh(instance_id, command):
 
 def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
                     environments, hd, port):
-    if cookbook_tag is None:
-        view.view_instance.show_instance_create_help()
+    try:
+        if cookbook_tag is None:
+            view.view_instance.show_instance_create_help()
 
-    elif location is None:
-        locations_json = service.provider.list_locations(cookbook_tag, provider, release)
-        if locations_json is not None:
+        elif location is None:
+            locations_json = service.provider.list_locations(cookbook_tag, provider, release)
+            if locations_json is not None:
+                show()
+                show("--location parameter not set. You must choose the location.")
+                show()
+                show("Available locations:")
+                show()
+                if len(locations_json):
+                    view.view_location.show_locations(locations_json)
+                    view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment,
+                                                                           locations_json[0]['id'], servername,
+                                                                           provider, release, branch, hardware)
+
+                else:
+                    show("There is not locations available for configuration %s and provider %s" % (cookbook_tag, provider))
+
+                view.view_instance.show_instance_help()
+        elif deployment == "production" and hardware is None or \
+                                        deployment == "testing" and provider is not "manageacloud" and hardware is None:
+            hardwares = service.provider.list_hardwares(provider, location)
             show()
-            show("--location parameter not set. You must choose the location.")
+            show("--hardware not found. You must choose the hardware.")
             show()
-            show("Available locations:")
+            show("Available hardware:")
             show()
-            if len(locations_json):
-                view.view_location.show_locations(locations_json)
-                view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment,
-                                                                       locations_json[0]['id'], servername,
-                                                                       provider, release, branch, hardware)
+            view.view_hardware.show_hardwares(hardwares)
+            if (len(hardwares) > 0):
+                view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment, location, servername,
+                                                                       provider, release, branch, hardwares[0]['id'])
+        else:
+            """ Execute create instance """
+            instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release,
+                                                        branch, hardware, lifespan, environments, hd, port)
+            if instance is not None:
+                view.view_instance.show_instance(instance)
 
-            else:
-                show("There is not locations available for configuration %s and provider %s" % (cookbook_tag, provider))
-
-            view.view_instance.show_instance_help()
-    elif deployment == "production" and hardware is None or \
-                                    deployment == "testing" and provider is not "manageacloud" and hardware is None:
-        hardwares = service.provider.list_hardwares(provider, location)
-        show()
-        show("--hardware not found. You must choose the hardware.")
-        show()
-        show("Available hardware:")
-        show()
-        view.view_hardware.show_hardwares(hardwares)
-        if (len(hardwares) > 0):
-            view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment, location, servername,
-                                                                   provider, release, branch, hardwares[0]['id'])
-    else:
-        """ Execute create instance """
-        instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release,
-                                                    branch, hardware, lifespan, environments, hd, port)
-        if instance is not None:
-            view.view_instance.show_instance(instance)
-
-        view.view_generic.show("")
-        view.view_generic.show("To monitor the creation progress:")
-        view.view_generic.show("")
-        view.view_generic.show("watch mac instance list")
-        view.view_generic.show("")
+            view.view_generic.show("")
+            view.view_generic.show("To monitor the creation progress:")
+            view.view_generic.show("")
+            view.view_generic.show("watch mac instance list")
+            view.view_generic.show("")
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
 
 
 
@@ -134,15 +141,22 @@ def instance_ssh_help():
 
 
 def instance_destroy(ids):
-    maccli.logger.debug("Destroying instances %s " % ids)
-    instances = []
-    for instanceid in ids:
-        maccli.logger.debug("Destroying instance %s " % ids)
-        instance = service.instance.destroy_instance(instanceid)
-        instances.append(instance)
+    try:
+        maccli.logger.debug("Destroying instances %s " % ids)
+        instances = []
+        for instanceid in ids:
+            maccli.logger.debug("Destroying instance %s " % ids)
+            instance = service.instance.destroy_instance(instanceid)
+            instances.append(instance)
 
-    if instances is not None:
-        view.view_instance.show_instances(instances)
+        if instances is not None:
+            view.view_instance.show_instances(instances)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
 
 
 def instance_help():
@@ -150,16 +164,28 @@ def instance_help():
 
 
 def configuration_list():
-    configurations = service.configuration.list_configurations()
-    view.view_cookbook.show_configurations(configurations)
+    try:
+        configurations = service.configuration.list_configurations()
+        view.view_cookbook.show_configurations(configurations)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
 
 
 def configuration_search(keywords, show_url):
-    configurations = service.configuration.search_configurations(keywords)
-    if show_url:
-        view.view_cookbook.show_configurations_url(configurations)
-    else:
-        view.view_cookbook.show_configurations(configurations)
+    try:
+        configurations = service.configuration.search_configurations(keywords)
+        if show_url:
+            view.view_cookbook.show_configurations_url(configurations)
+        else:
+            view.view_cookbook.show_configurations(configurations)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
 
 
 def configuration_help():
@@ -172,68 +198,76 @@ def convert_to_yaml(args):
 
 
 def process_macfile(file, resume):
-    root, roles, infrastructures = maccli.service.macfile.load_macfile(file)
+    try:
+        root, roles, infrastructures = maccli.service.macfile.load_macfile(file)
 
-    if not resume:
-        existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
+        if not resume:
+            existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
 
-        if len(existing_instances) > 0:
-            view.view_generic.show()
-            view.view_generic.show()
-            view.view_generic.show_error(
-                "There are active instances for infrastructure %s and version %s" % (root['name'], root['version']))
-            view.view_generic.show()
-            view.view_generic.show()
-            view.view_instance.show_instances(existing_instances)
-            view.view_generic.show()
-            view.view_generic.show()
-            exit(7)
+            if len(existing_instances) > 0:
+                view.view_generic.show()
+                view.view_generic.show()
+                view.view_generic.show_error(
+                    "There are active instances for infrastructure %s and version %s" % (root['name'], root['version']))
+                view.view_generic.show()
+                view.view_generic.show()
+                view.view_instance.show_instances(existing_instances)
+                view.view_generic.show()
+                view.view_generic.show()
+                exit(7)
 
-        view.view_generic.header("Infrastructure %s version %s" % (root['name'], root['version']), "=")
+            view.view_generic.header("Infrastructure %s version %s" % (root['name'], root['version']), "=")
 
-        roles_created = {}
-        try:
-            """ Create all the servers """
-            for infrastructure_key in infrastructures:
-                infrastructure = infrastructures[infrastructure_key]
-                infrastructure_role = infrastructure['role']
-                view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
-                role_raw = roles[infrastructure_role]["instance create"]
-                metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw)
-                instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata)
-                roles_created[infrastructure_role] = instances
+            roles_created = {}
+            try:
+                """ Create all the servers """
+                for infrastructure_key in infrastructures:
+                    infrastructure = infrastructures[infrastructure_key]
+                    infrastructure_role = infrastructure['role']
+                    view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
+                    role_raw = roles[infrastructure_role]["instance create"]
+                    metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw)
+                    instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata)
+                    roles_created[infrastructure_role] = instances
 
-        except MacErrorCreatingTier:
-            view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
-            view.view_generic.show_error("HINT: Use 'mac instance log -i <instance id>' for details")
-            view.view_generic.show("Task raised errors.")
-            exit(5)
+            except MacErrorCreatingTier:
+                view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
+                view.view_generic.show_error("HINT: Use 'mac instance log -i <instance id>' for details")
+                view.view_generic.show("Task raised errors.")
+                exit(5)
 
-        except MacParseEnvException as e:
-            view.view_generic.show_error("ERROR: An error happened parsing environments." + str(type(e)) + str(e.args))
-            view.view_generic.show("Task raised errors.")
-            exit(6)
+            except MacParseEnvException as e:
+                view.view_generic.show_error("ERROR: An error happened parsing environments." + str(type(e)) + str(e.args))
+                view.view_generic.show("Task raised errors.")
+                exit(6)
 
-    finish = False
-    while not finish:
-        processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
-        view.view_generic.clear()
-        view.view_instance.show_instances(processing_instances)
-        maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'])
-        finish = True
-        for instance in processing_instances:
-            if not instance['status'].startswith("Ready"):
-                finish = False
-        if not finish:
-            time.sleep(3)
+        finish = False
+        while not finish:
+            processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
+            view.view_generic.clear()
+            view.view_instance.show_instances(processing_instances)
+            maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'])
+            finish = True
+            for instance in processing_instances:
+                if not instance['status'].startswith("Ready"):
+                    finish = False
+            if not finish:
+                time.sleep(3)
 
-    print("Infrastructure created. Task finish.")
+        print("Infrastructure created. Task finish.")
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
 
 
 def instance_fact(instance_id):
     try:
         json = service.instance.facts(instance_id)
         view.view_instance.show_facts(json)
+    except KeyboardInterrupt:
+        show_error("Aborting")
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
@@ -243,6 +277,8 @@ def instance_log(instance_id):
     try:
         json = service.instance.log(instance_id)
         view.view_instance.show_logs(json)
+    except KeyboardInterrupt:
+        show_error("Aborting")
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
