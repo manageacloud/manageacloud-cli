@@ -117,6 +117,13 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
         if instance is not None:
             view.view_instance.show_instance(instance)
 
+        view.view_generic.show("")
+        view.view_generic.show("To monitor the creation progress:")
+        view.view_generic.show("")
+        view.view_generic.show("watch mac instance list")
+        view.view_generic.show("")
+
+
 
 def instance_destroy_help():
     view.view_instance.show_instance_destroy_help()
