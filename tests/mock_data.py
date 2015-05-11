@@ -22,10 +22,54 @@ class Mock_yaml_args(object):
         self.verbose=False
         self.yaml=True
 
-MOCK_YAML = """mac: 0.4a1\n"
+MOCK_MACFILE = """mac: 0.4a1
 description: Manageacloud CLI
 name: manageacloud.com
 version: '1.0'
+roles:
+  default:
+    instance create:
+      branch: master
+      configuration: database
+infrastructures:
+  default:
+    deployment: testing
+    location: us-central1-c
+    name: ''
+    provider: manageacloud
+    release: any
+    role: default
+    amount: 1
+"""
+
+MACFILE_PARAMS_INVALID = ['NOTEXIST=0', 'PARAM2=VALUE2']
+MACFILE_PARAMS_VALID = ['VERSION=1.0', 'LOCATION=us-central1-c', 'AMOUNT=1']
+MACFILE_PARAMS_ONE_MISSING = ['VERSION=1.0', 'LOCATION=us-central1-c']
+
+MOCK_MACFILE_PARAMS = """mac: 0.4a1
+description: Manageacloud CLI
+name: manageacloud.com
+version: {VERSION}
+roles:
+  default:
+    instance create:
+      branch: master
+      configuration: database
+infrastructures:
+  default:
+    deployment: testing
+    location: {LOCATION}
+    name: ''
+    provider: manageacloud
+    release: any
+    role: default
+    amount: {AMOUNT}
+"""
+
+MOCK_MACFILE_PARAMS_VALID = """mac: 0.4a1
+description: Manageacloud CLI
+name: manageacloud.com
+version: 1.0
 roles:
   default:
     instance create:
@@ -220,13 +264,24 @@ OUTPUT_CREATE_INSTANCE_PRODUCTION_OK = '''+---------------+---------+-----------
 | Instance name |    IP   |        Instance ID         |    Type    |       Status      |
 +---------------+---------+----------------------------+------------+-------------------+
 |               | 1.2.3.4 | s017frnl7ah6lqljkc4omt8h4k | production | Creating instance |
-+---------------+---------+----------------------------+------------+-------------------+'''
++---------------+---------+----------------------------+------------+-------------------+
+
+To monitor the creation progress:
+
+watch mac instance list
+
+'''
 
 OUTPUT_CREATE_INSTANCE_TESTING_OK = '''+---------------+---------+----------------------------+---------+-------------------+
 | Instance name |    IP   |        Instance ID         |   Type  |       Status      |
 +---------------+---------+----------------------------+---------+-------------------+
 |               | 1.2.3.4 | qse0hca2jj1di63k8bidvmffig | testing | Creating instance |
 +---------------+---------+----------------------------+---------+-------------------+
+
+To monitor the creation progress:
+
+watch mac instance list
+
 '''
 
 OUTPUT_CREATE_INSTANCE_NO_INPUT = '''--configuration parameter is required.

@@ -143,6 +143,7 @@ def add_macfile_parser(subparsers):
     # get file path
     macfile_parser.add_argument('file', nargs=1, help='Path to Macfile')
     macfile_parser.add_argument('--resume', action='store_true', help="Resume infrastructure creation")
+    macfile_parser.add_argument('-p', '--param', nargs='*', help="Add parameters to be replaced in the macfile")
 
 
 def validate_environment(input):

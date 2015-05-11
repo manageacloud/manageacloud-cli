@@ -1,0 +1,22 @@
+mac: 0.4a1
+description: Manageacloud CLI
+name: manageacloud.com
+version: '1.0'
+roles:
+  default:
+    instance create:
+      branch: master
+      configuration: application
+      environment:
+      - APP_BRANCH: origin/version_2
+      port:
+      - 22
+infrastructures:
+  default:
+    deployment: testing
+    location: us-central1-c
+    name: ''
+    provider: manageacloud
+    release: any
+    role: default
+    amount: 1

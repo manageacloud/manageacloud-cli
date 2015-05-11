@@ -2,9 +2,10 @@ from __future__ import print_function
 
 import yaml
 import yaml.representer
+import re
 
 from maccli.view.view_generic import show_error
-from maccli.helper.exception import MacParamValidationError
+from maccli.helper.exception import MacParamValidationError, MacParseParamException
 from maccli.helper.unsortable import ordered_load
 import maccli
 from maccli.helper.unsortable import UnsortableOrderedDict
@@ -82,9 +83,7 @@ def convert_args_to_yaml(args):
     data["infrastructures"] = infrastructures
 
     yaml.add_representer(UnsortableOrderedDict, yaml.representer.SafeRepresenter.represent_dict)
-    print(yaml.dump(data, default_flow_style=False))
-
-    exit(0)
+    return yaml.dump(data, default_flow_style=False)
 
 
 def validate_param(actual, expected, optional=None):
@@ -121,11 +120,45 @@ def is_unexpected(actual, expected):
     """ evaluates if there is a parameter in actual that does not exist in expected  """
     return filter(lambda x: x not in expected, actual)
 
+def parse_params(raw, params_raw):
+    """
+    The content of macfiles might have parameters to parse.
+    """
+
+    clean = raw
+    if params_raw is not None:
+        for param in params_raw:
+            key, value = param.split("=", 1)
+            clean_tmp = clean.replace("{%s}" % key, value)
+            if clean == clean_tmp:
+                raise MacParseParamException("Variable %s cloud not be found in macfile" % key)
+            clean = clean_tmp
+
+    if re.search(r'{(.*?)}', clean,  re.MULTILINE):
+        raise MacParseParamException("MACFILE contains parameters that were not available:\n"
+                                     "\n"
+                                     "%s"
+                                     "\n"
+                                     "Available parameters %s" % (clean,  str(params_raw)))
+    return clean
+
 
 def load_macfile(path):
-    stram = open(path, "r")
-    raw = ordered_load(stram, yaml.SafeLoader)
+    stream = open(path, "r")
+    return stream.read()
 
+
+def parse_macfile(string):
+
+    raw = ordered_load(string, yaml.SafeLoader)
+
+    """
+
+    Parse and validates the macfile and returns structured contents
+
+    :param raw: R
+    :return: root, role and infrastructure contents
+    """
     # validate root
     root_params = ['mac', 'version', 'name', 'description', 'roles', 'infrastructures']
     raw_root_keys = raw.keys()
@@ -154,7 +187,7 @@ def load_macfile(path):
             exit(1)
 
 
-        # validate infrastructures
+    # validate infrastructures
     infrastructure_optional_params = ['lifespan']
     infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
                                   'release']

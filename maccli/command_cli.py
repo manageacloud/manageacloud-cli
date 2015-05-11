@@ -17,7 +17,7 @@ import view.view_cookbook
 import view.view_generic
 import maccli.view.view_hardware
 from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE
-from maccli.helper.exception import MacParseEnvException, MacErrorCreatingTier
+from maccli.helper.exception import MacParseEnvException, MacErrorCreatingTier, MacParseParamException
 
 
 def help():
@@ -197,9 +197,17 @@ def convert_to_yaml(args):
     view.view_generic.show(yaml)
 
 
-def process_macfile(file, resume):
+def process_macfile(file, resume, params):
     try:
-        root, roles, infrastructures = maccli.service.macfile.load_macfile(file)
+
+        raw = maccli.service.macfile.load_macfile(file)
+        try:
+            raw = maccli.service.macfile.parse_params(raw, params)
+        except MacParseParamException, e:
+            view.view_generic.show_error(e.message)
+            exit(11)
+
+        root, roles, infrastructures = maccli.service.macfile.parse_macfile(raw)
 
         if not resume:
             existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])

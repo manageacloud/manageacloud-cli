@@ -11,10 +11,14 @@ class MacParamValidationError(MacApiError):
     """There is an error when validating params for infrastructures"""
     pass
 
-
 class MacParseEnvException(Exception):
     """Error while parsing variables in a macfile"""
     pass
+
+class MacParseParamException(Exception):
+    """Error while parsing params in a macfile"""
+    pass
+
 
 class MacErrorCreatingTier(Exception):
     """Error while parsing variables in a macfile"""
