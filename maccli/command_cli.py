@@ -197,7 +197,7 @@ def convert_to_yaml(args):
     view.view_generic.show(yaml)
 
 
-def process_macfile(file, resume, params):
+def process_macfile(file, resume, params, quiet):
     try:
 
         raw = maccli.service.macfile.load_macfile(file)
@@ -224,7 +224,10 @@ def process_macfile(file, resume, params):
                 view.view_generic.show()
                 exit(7)
 
-            view.view_generic.header("Infrastructure %s version %s" % (root['name'], root['version']), "=")
+            if quiet:
+                view.view_generic.show("Infrastructure %s version %s" % (root['name'], root['version']))
+            else:
+                view.view_generic.header("Infrastructure %s version %s" % (root['name'], root['version']), "=")
 
             roles_created = {}
             try:
@@ -232,10 +235,13 @@ def process_macfile(file, resume, params):
                 for infrastructure_key in infrastructures:
                     infrastructure = infrastructures[infrastructure_key]
                     infrastructure_role = infrastructure['role']
-                    view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
+                    if quiet:
+                        view.view_generic.show("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
+                    else:
+                        view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
                     role_raw = roles[infrastructure_role]["instance create"]
                     metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw)
-                    instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata)
+                    instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata, quiet)
                     roles_created[infrastructure_role] = instances
 
             except MacErrorCreatingTier:
@@ -252,15 +258,21 @@ def process_macfile(file, resume, params):
         finish = False
         while not finish:
             processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
-            view.view_generic.clear()
-            view.view_instance.show_instances(processing_instances)
-            maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'])
+            if not quiet:
+                view.view_generic.clear()
+                view.view_instance.show_instances(processing_instances)
+            maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'], quiet)
             finish = True
             for instance in processing_instances:
                 if not instance['status'].startswith("Ready"):
                     finish = False
             if not finish:
                 time.sleep(3)
+
+        instances_processed = service.instance.list_by_infrastructure(root['name'], root['version'])
+        if not quiet:
+            view.view_generic.clear()
+        view.view_instance.show_instances(instances_processed)
 
         print("Infrastructure created. Task finish.")
     except KeyboardInterrupt:

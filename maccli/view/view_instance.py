@@ -70,7 +70,7 @@ def show_instance_ssh_help():
     print("")
     print("Show more help:")
     print("")
-    print("    mac instance ssh -h")
+    print("    mac ssh -h")
     print("")
 
 

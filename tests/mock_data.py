@@ -22,7 +22,7 @@ class Mock_yaml_args(object):
         self.verbose=False
         self.yaml=True
 
-MOCK_MACFILE = """mac: 0.4a1
+MOCK_MACFILE = """mac: 0.5a1
 description: Manageacloud CLI
 name: manageacloud.com
 version: '1.0'
@@ -46,7 +46,7 @@ MACFILE_PARAMS_INVALID = ['NOTEXIST=0', 'PARAM2=VALUE2']
 MACFILE_PARAMS_VALID = ['VERSION=1.0', 'LOCATION=us-central1-c', 'AMOUNT=1']
 MACFILE_PARAMS_ONE_MISSING = ['VERSION=1.0', 'LOCATION=us-central1-c']
 
-MOCK_MACFILE_PARAMS = """mac: 0.4a1
+MOCK_MACFILE_PARAMS = """mac: 0.5a1
 description: Manageacloud CLI
 name: manageacloud.com
 version: {VERSION}
@@ -66,7 +66,7 @@ infrastructures:
     amount: {AMOUNT}
 """
 
-MOCK_MACFILE_PARAMS_VALID = """mac: 0.4a1
+MOCK_MACFILE_PARAMS_VALID = """mac: 0.5a1
 description: Manageacloud CLI
 name: manageacloud.com
 version: 1.0
@@ -136,13 +136,11 @@ class MockConfiguration_Args(Mock_args):
 
 
 class MockInstanceSSH_args(MockInstanceDestroy_args):
-    def __init__(self, cmd, subcmd, name, id, command):
+    def __init__(self, cmd, instance_id, command):
         self.debug = False
         self.verbose = False
         self.cmd = cmd
-        self.subcmd = subcmd
-        self.name = name
-        self.id = id
+        self.id = instance_id
         self.command = command
 
 

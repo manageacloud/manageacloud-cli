@@ -17,15 +17,6 @@ def add_instance_parser(subparsers):
                                                 help='List testing and production server instances',
                                                 description='List testing and production server instances available in your account')
 
-    # ssh instance
-    ssh_parser = instance_subparser.add_parser('ssh',
-                                               help='Connect via SSH',
-                                               description='Connect via SSH to the server')
-
-    ssh_parser.add_argument('id', help='Server ID or server name')
-
-    ssh_parser.add_argument('-c', '--command', help='Run a command and exit')
-
     # create instance
     create_parser = instance_subparser.add_parser('create', help='Create a new instance',
                                                   description='Creates a new instance in the cloud. You need to choose the '
@@ -114,6 +105,17 @@ def add_instance_parser(subparsers):
     logs_parser.add_argument('id', help='Server ID or server name')
 
 
+def add_ssh_parser(subparsers):
+    # ssh instance
+    ssh_parser = subparsers.add_parser('ssh',
+                                       help='Connect via SSH',
+                                       description='Connect via SSH to the server')
+
+    ssh_parser.add_argument('id', help='Server ID or server name')
+
+    ssh_parser.add_argument('-c', '--command', help='Run a command and exit')
+
+
 def add_configuration_parser(subparsers):
     configuration_parser = subparsers.add_parser('configuration', help='Manage configurations',
                                                  description='Search public and private configurations')
@@ -176,6 +178,7 @@ def validate_hd(input):
     to_return = {key: value}
     return to_return
 
+
 def validate_port(port_input):
     """
         checks that the input 22,80,2020 is correct
@@ -200,6 +203,5 @@ def validate_port(port_input):
     if not ssh_port:
         msg = "'%s' doesn't look valid. You need to allow access to the port 22" % port_input
         raise argparse.ArgumentTypeError(msg)
-
 
     return ports

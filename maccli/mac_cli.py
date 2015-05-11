@@ -20,10 +20,12 @@ def initialize_parser():
     parser = argparse.ArgumentParser(description="Manageacloud.com CLI", prog='mac')
     parser.add_argument('--version', action='version', version='%(prog)s ' + maccli.__version__)
     parser.add_argument('-v', '--verbose', action='store_true', help="Show verbose information")
+    parser.add_argument('-q', '--quiet', action='store_true', help="Enable loggable output")
     parser.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
     parser_cli.add_login_parser(subparsers)
     parser_cli.add_instance_parser(subparsers)
+    parser_cli.add_ssh_parser(subparsers)
     parser_cli.add_configuration_parser(subparsers)
     parser_cli.add_macfile_parser(subparsers)
     return parser
@@ -66,7 +68,7 @@ def dispatch_cmds(args):
         maccli.command_cli.no_credentials()
 
     elif args.cmd == 'macfile':
-        maccli.command_cli.process_macfile(args.file[0], args.resume, args.param)
+        maccli.command_cli.process_macfile(args.file[0], args.resume, args.param, args.quiet)
 
     elif args.cmd == 'instance':
 
@@ -94,12 +96,12 @@ def dispatch_cmds(args):
             maccli.command_cli.instance_log(args.id)
 
 
-        elif args.subcmd == 'ssh':
-            if args.id is None:
-                show_error("Parameter 'id' is required.")
-                maccli.command_cli.instance_ssh_help()
-            else:
-                maccli.command_cli.instance_ssh(args.id, args.command)
+    elif args.cmd == 'ssh':
+        if args.id is None:
+            show_error("Parameter 'id' is required.")
+            maccli.command_cli.instance_ssh_help()
+        else:
+            maccli.command_cli.instance_ssh(args.id, args.command)
 
     elif args.cmd == "configuration":
         if args.subcmd == 'list':

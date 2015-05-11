@@ -35,7 +35,7 @@ def _get_private_ip_from_fatcs(facts):
     return ip
 
 
-def create_tier(role, infrastructure, metadata):
+def create_tier(role, infrastructure, metadata, quiet):
     """
         Creates tje instances that represents a role in a given infrastructure
 
@@ -84,8 +84,10 @@ def create_tier(role, infrastructure, metadata):
                                                            environment, hd, port, metadata, False)
         instances.append(instance)
         print("Creating instance '%s'" % (instance['id']))
-    print()
-    print()
+
+    if not quiet:
+        print()
+        print()
     return instances
 
 
@@ -190,7 +192,7 @@ def parse_instance_envs(env_raws, instances):
     return envs_clean, all_processed
 
 
-def apply_infrastructure_changes(instances, infrastructure_name, version):
+def apply_infrastructure_changes(instances, infrastructure_name, version, quiet):
     """
     Make sure that all instances in a infrastructure are processed
     :param instances:
@@ -222,16 +224,22 @@ def apply_infrastructure_changes(instances, infrastructure_name, version):
                 action = True
                 maccli.service.instance.update_configuration(cookbook_tag, instance_id, metadata_new)
                 processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
-                maccli.view.view_generic.clear()
-                maccli.view.view_instance.show_instances(processing_instances)
+                if quiet:
+                    maccli.view.view_generic.show("Applying configuration to %s" % instance['servername'])
+                else:
+                    maccli.view.view_generic.clear()
+                    maccli.view.view_instance.show_instances(processing_instances)
 
         else:
             action = True
             maccli.logger.debug("[%s] Processing ")
             maccli.service.instance.update_configuration(cookbook_tag, instance_id)
             processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
-            maccli.view.view_generic.clear()
-            maccli.view.view_instance.show_instances(processing_instances)
+            if quiet:
+                maccli.view.view_generic.show("Applying configuration to %s" % instance['servername'])
+            else:
+                maccli.view.view_generic.clear()
+                maccli.view.view_instance.show_instances(processing_instances)
 
     if action:
         """ Allow all tasks to start """

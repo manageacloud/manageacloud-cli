@@ -12,7 +12,7 @@ import maccli.service.macfile
 from maccli.helper.exception import MacParseEnvException, MacParseParamException
 
 
-class AuthTestCase(unittest.TestCase):
+class MacfileServiceTestCase(unittest.TestCase):
 
 
     def setUp(self):
