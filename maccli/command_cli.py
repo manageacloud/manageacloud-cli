@@ -264,7 +264,7 @@ def process_macfile(file, resume, params, quiet):
             maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'], quiet)
             finish = True
             for instance in processing_instances:
-                if not instance['status'].startswith("Ready"):
+                if not (instance['status'].startswith("Ready") or instance['status'] == "Creation failed" or instance['status'] == "Configuration Error"):
                     finish = False
             if not finish:
                 time.sleep(3)
