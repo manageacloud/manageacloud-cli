@@ -41,7 +41,7 @@ def convert_args_to_yaml(args):
         key = args.cmd
 
     attributes = filter(
-        lambda a: not a.startswith('_') and a not in ["cmd", "subcmd", "yaml", "debug", "verbose"], dir(args))
+        lambda a: not a.startswith('_') and a not in ["cmd", "subcmd", "yaml", "debug", "verbose", "quiet"], dir(args))
 
     # defines the parameter that must exist, even if empty
     empty_parameters = ['name']
