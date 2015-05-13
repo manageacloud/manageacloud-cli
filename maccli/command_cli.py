@@ -197,7 +197,8 @@ def convert_to_yaml(args):
     view.view_generic.show(yaml)
 
 
-def process_macfile(file, resume, params, quiet):
+def process_macfile(file, resume, params, quiet, on_failure):
+
     try:
 
         raw = maccli.service.macfile.load_macfile(file)
@@ -266,6 +267,9 @@ def process_macfile(file, resume, params, quiet):
             for instance in processing_instances:
                 if not (instance['status'].startswith("Ready") or instance['status'] == "Creation failed" or instance['status'] == "Configuration Error"):
                     finish = False
+                if on_failure is not None and (instance['status'] == "Creation failed" or instance['status'] == "Configuration Error"):
+                    finish = True
+
             if not finish:
                 time.sleep(3)
 
@@ -274,7 +278,14 @@ def process_macfile(file, resume, params, quiet):
             view.view_generic.clear()
         view.view_instance.show_instances(instances_processed)
 
-        print("Infrastructure created. Task finish.")
+        # Clean up if failure
+        failed = maccli.facade.macfile.clean_up(instances_processed, on_failure)
+
+        if failed:
+            view.view_generic.show("Infrastructure failed.")
+            exit(12)
+        else:
+            view.view_generic.show("Infrastructure created successfully.")
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:

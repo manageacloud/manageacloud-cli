@@ -1,5 +1,6 @@
 import re
 import argparse
+from maccli.config import MACFILE_ON_FAILURE_DESTROY_ALL, MACFILE_ON_FAILURE_DESTROY_OTHERS
 
 
 def add_login_parser(subparsers):
@@ -146,6 +147,12 @@ def add_macfile_parser(subparsers):
     macfile_parser.add_argument('file', nargs=1, help='Path to Macfile')
     macfile_parser.add_argument('--resume', action='store_true', help="Resume infrastructure creation")
     macfile_parser.add_argument('-p', '--param', nargs='*', help="Add parameters to be replaced in the macfile")
+    macfile_parser.add_argument('--on_failure', choices=[MACFILE_ON_FAILURE_DESTROY_ALL, MACFILE_ON_FAILURE_DESTROY_OTHERS],
+                                help="Action to be taken a server fails. 'destroy_all' "
+                                     "will completely remove every server created. "
+                                     "To allow debugging, 'destroy_others' will destroy "
+                                     "all the servers that did not fail (this allows to debug)")
+
 
 
 def validate_environment(input):

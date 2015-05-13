@@ -1,13 +1,16 @@
 import unittest
+import sys
+import StringIO
 
 import mock
+from maccli.config import MACFILE_ON_FAILURE_DESTROY_ALL, MACFILE_ON_FAILURE_DESTROY_OTHERS
 
 from mock_data import *
 import maccli.facade.macfile
 from maccli.helper.exception import MacParseEnvException
 
 
-class AuthTestCase(unittest.TestCase):
+class TestFacadeMacfileTestCase(unittest.TestCase):
     @mock.patch('maccli.service.instance.facts')
     def test_parse_env_private_ip_ok(self, mock_facts):
         ENV_RAWS = [{u'SHARED_MEMCACHE_IP': u'shared_memcache.PRIVATE_IP'}]
@@ -65,6 +68,47 @@ class AuthTestCase(unittest.TestCase):
         env_clean, processed = maccli.facade.macfile.parse_instance_envs(ENV_RAWS, OTHER_INSTANCES)
         self.assertFalse(processed)
 
+    def test_clean_up_ok(self):
+        failed =  maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_JSON, None)
+        self.assertFalse(failed)
+
+    @mock.patch('maccli.service.instance.destroy_instance')
+    def test_clean_up_creation_failed_destroy_all(self, mock):
+        self.stderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
+        failed =  maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_CREATION_FAILED_JSON, MACFILE_ON_FAILURE_DESTROY_ALL)
+        mock.assert_any_call("id1")
+        mock.assert_any_call("id2")
+        self.assertTrue(failed)
+        sys.stderr = self.stderr
+
+    @mock.patch('maccli.service.instance.destroy_instance')
+    def test_clean_up_configuration_error_destroy_all(self, mock):
+        self.stderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
+        failed =  maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_CONFIGURATION_ERROR_JSON, MACFILE_ON_FAILURE_DESTROY_ALL)
+        mock.assert_any_call("id1")
+        mock.assert_any_call("id2")
+        self.assertTrue(failed)
+        sys.stderr = self.stderr
+
+    @mock.patch('maccli.service.instance.destroy_instance')
+    def test_clean_up_creation_failed_destroy_others(self, mock):
+        self.stderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
+        failed =  maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_CREATION_FAILED_JSON, MACFILE_ON_FAILURE_DESTROY_OTHERS)
+        mock.assert_any_call("id1")
+        self.assertTrue(failed)
+        sys.stderr = self.stderr
+
+    @mock.patch('maccli.service.instance.destroy_instance')
+    def test_clean_up_configuration_error_destroy_others(self, mock):
+        self.stderr = sys.stderr
+        sys.stderr = StringIO.StringIO()
+        failed =  maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_CONFIGURATION_ERROR_JSON, MACFILE_ON_FAILURE_DESTROY_OTHERS)
+        mock.assert_any_call("id1")
+        self.assertTrue(failed)
+        sys.stderr = self.stderr
 
     # @mock.patch('maccli.service.instance.facts')
     # def test_apply_infrastructure_changes_replace_private_ip_ok(self, mock_facts):

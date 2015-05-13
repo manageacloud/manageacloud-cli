@@ -3,6 +3,7 @@ import time
 import maccli
 
 import pprint
+from maccli.config import MACFILE_ON_FAILURE_DESTROY_OTHERS, MACFILE_ON_FAILURE_DESTROY_ALL
 import maccli.service.instance
 import maccli.view.view_generic
 import maccli.view.view_instance
@@ -244,3 +245,25 @@ def apply_infrastructure_changes(instances, infrastructure_name, version, quiet)
     if action:
         """ Allow all tasks to start """
         time.sleep(3)
+
+
+def clean_up(instances, on_failure):
+    failed = False
+    for instance in instances:
+        if instance['status'] == "Creation failed" or instance['status'] == "Configuration Error":
+            failed = True
+
+    if failed and on_failure is not None:
+        maccli.view.view_generic.show_error("Cleaning up")
+        for instance in instances:
+            if on_failure == MACFILE_ON_FAILURE_DESTROY_OTHERS:
+                if not (instance['status'] == "Creation failed" or instance['status'] == "Configuration Error"):
+                    maccli.view.view_generic.show_error("Destroying instance %s " % instance['id'])
+                    maccli.service.instance.destroy_instance(instance['id'])
+            elif on_failure == MACFILE_ON_FAILURE_DESTROY_ALL:
+                maccli.view.view_generic.show_error("Destroying instance %s " % instance['id'])
+                maccli.service.instance.destroy_instance(instance['id'])
+            else:
+                maccli.view.view_generic.show_error("ERROR: clean up %s not implemented" % on_failure)
+
+    return failed

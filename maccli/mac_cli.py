@@ -68,7 +68,7 @@ def dispatch_cmds(args):
         maccli.command_cli.no_credentials()
 
     elif args.cmd == 'macfile':
-        maccli.command_cli.process_macfile(args.file[0], args.resume, args.param, args.quiet)
+        maccli.command_cli.process_macfile(args.file[0], args.resume, args.param, args.quiet, args.on_failure)
 
     elif args.cmd == 'instance':
 

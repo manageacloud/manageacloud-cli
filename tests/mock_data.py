@@ -22,7 +22,7 @@ class Mock_yaml_args(object):
         self.verbose=False
         self.yaml=True
 
-MOCK_MACFILE = """mac: 0.5a1
+MOCK_MACFILE = """mac: %s
 description: Manageacloud CLI
 name: manageacloud.com
 version: '1.0'
@@ -40,7 +40,7 @@ infrastructures:
     release: any
     role: default
     amount: 1
-"""
+""" % maccli.__version__
 
 MACFILE_PARAMS_INVALID = ['NOTEXIST=0', 'PARAM2=VALUE2']
 MACFILE_PARAMS_VALID = ['VERSION=1.0', 'LOCATION=us-central1-c', 'AMOUNT=1']
@@ -157,6 +157,14 @@ MOCK_RESPONSE_INSTANCE_DESTROY_NOT_FOUND = 'Server server_name not found'
 
 MOCK_RESPONSE_INSTANCE_LIST_JSON_RAW = '[{"servername":"mct-f2c","id":"vpeuf8gdv76v8feu40icklm9h2","type":"testing","status":"Ready"}]'
 MOCK_RESPONSE_INSTANCE_LIST_JSON = json.loads(MOCK_RESPONSE_INSTANCE_LIST_JSON_RAW)
+
+MOCK_RESPONSE_INSTANCE_LIST_CREATION_FAILED_JSON_RAW = '[{"servername":"name1","id":"id1","type":"testing","status":"Ready"}, {"servername":"name2","id":"id2","type":"testing","status":"Creation failed"}]'
+MOCK_RESPONSE_INSTANCE_LIST_CREATION_FAILED_JSON = json.loads(MOCK_RESPONSE_INSTANCE_LIST_CREATION_FAILED_JSON_RAW)
+
+MOCK_RESPONSE_INSTANCE_LIST_CONFIGURATION_ERROR_JSON_RAW = '[{"servername":"name1","id":"id1","type":"testing","status":"Ready"}, {"servername":"name2","id":"id2","type":"testing","status":"Configuration Error"}]'
+MOCK_RESPONSE_INSTANCE_LIST_CONFIGURATION_ERROR_JSON = json.loads(MOCK_RESPONSE_INSTANCE_LIST_CONFIGURATION_ERROR_JSON_RAW)
+
+
 
 MOCK_USER = 'fake_mac_user'
 MOCK_PASSWORD = 'fake_mac_password'
