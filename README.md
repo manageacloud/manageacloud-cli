@@ -1,13 +1,15 @@
 # mac
-[Manageacloud](https://alpha.manageacloud.com) is a multi-cloud orchestration platform completely that works
- in any configuration management system: Puppet, Chef, Saltstack, Ansible,
+[Manageacloud](https://alpha.manageacloud.com) is a multi-cloud orchestration platform compatible
+ with any configuration management system: Puppet, Chef, Saltstack, Ansible,
  Docker and even Bash.
 
 [Manageacloud](https://alpha.manageacloud.com) simplifies tasks such:
+ - Orchestration of infrastructures
  - Continuous Integration
  - Continuous Development
+ - Application Deployment
  - Cloud benchmarking
- - Management of geographically disperse infrastructures (static and dynamic services)
+ - Management of geographically disperse infrastructures (static and dynamic)
 
 Manageacloud is designed to use the existing automation to leverage the orchestration.
 
