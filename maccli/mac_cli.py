@@ -27,7 +27,7 @@ def initialize_parser():
     parser_cli.add_instance_parser(subparsers)
     parser_cli.add_ssh_parser(subparsers)
     parser_cli.add_configuration_parser(subparsers)
-    parser_cli.add_macfile_parser(subparsers)
+    parser_cli.add_infrastructure_parser(subparsers)
     return parser
 
 
@@ -67,9 +67,6 @@ def dispatch_cmds(args):
     elif maccli.user is None:
         maccli.command_cli.no_credentials()
 
-    elif args.cmd == 'macfile':
-        maccli.command_cli.process_macfile(args.file[0], args.resume, args.param, args.quiet, args.on_failure)
-
     elif args.cmd == 'instance':
 
         if args.subcmd == 'create':
@@ -95,7 +92,6 @@ def dispatch_cmds(args):
         elif args.subcmd == 'log':
             maccli.command_cli.instance_log(args.id)
 
-
     elif args.cmd == 'ssh':
         if args.id is None:
             show_error("Parameter 'id' is required.")
@@ -108,6 +104,14 @@ def dispatch_cmds(args):
             maccli.command_cli.configuration_list()
         elif args.subcmd == 'search':
             maccli.command_cli.configuration_search(args.keyword, args.url)
+
+    elif args.cmd == "infrastructure":
+        if args.subcmd == 'list':
+            maccli.command_cli.infrastructure_list()
+        elif args.subcmd == 'macfile':
+            maccli.command_cli.process_macfile(args.file[0], args.resume, args.param, args.quiet, args.on_failure)
+        elif args.subcmd == 'instance':
+            maccli.command_cli.infrastructure_search(args.name, args.version)
 
 
 def parse_args(self, args):

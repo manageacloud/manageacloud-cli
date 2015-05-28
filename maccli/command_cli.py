@@ -8,6 +8,7 @@ import service.auth
 import service.instance
 import service.provider
 import service.macfile
+import service.infrastructure
 import maccli.facade.macfile
 import maccli.service.configuration
 from view.view_generic import show_error, show
@@ -15,6 +16,7 @@ import view.view_location
 import view.view_instance
 import view.view_cookbook
 import view.view_generic
+import view.view_infrastructure
 import maccli.view.view_hardware
 from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE
 from maccli.helper.exception import MacParseEnvException, MacErrorCreatingTier, MacParseParamException
@@ -313,4 +315,27 @@ def instance_log(instance_id):
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def infrastructure_list():
+    try:
+        infrastructure = service.infrastructure.list_infrastructure()
+        view.view_infrastructure.show_infrastructure(infrastructure)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def infrastructure_search(name, version):
+    try:
+        infrastructure = service.infrastructure.search_instances(name, version)
+        view.view_infrastructure.show_infrastructure_instances(infrastructure)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
 

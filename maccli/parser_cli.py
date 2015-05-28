@@ -8,7 +8,7 @@ def add_login_parser(subparsers):
 
 
 def add_instance_parser(subparsers):
-    instance_parser = subparsers.add_parser('instance', help='Manage testing or production server instances',
+    instance_parser = subparsers.add_parser('instance', help='Instance related operations',
                                             description='Create, destroy, search or list server instances')
 
     instance_subparser = instance_parser.add_subparsers(title='mac instance commands', dest='subcmd')
@@ -106,6 +106,40 @@ def add_instance_parser(subparsers):
     logs_parser.add_argument('id', help='Server ID or server name')
 
 
+def add_infrastructure_parser(subparsers):
+    """ infrastructure parser"""
+    inf_parser = subparsers.add_parser('infrastructure',
+                                       help='Infrastructure operations',
+                                       description='Infrastructure related operations')
+
+    inf_subparser = inf_parser.add_subparsers(title='infrastructure operations', dest='subcmd')
+
+    # infrastructure macfile
+    macfile_parser = inf_subparser.add_parser('macfile', help='Create an infrastructure',
+                                              description='Create an infrastructure loading a macfile')
+
+    # get file path
+    macfile_parser.add_argument('file', nargs=1, help='Path to Macfile')
+    macfile_parser.add_argument('--resume', action='store_true', help="Resume infrastructure creation")
+    macfile_parser.add_argument('-p', '--param', nargs='*', help="Add parameters to be replaced in the macfile")
+    macfile_parser.add_argument('--on_failure', choices=[MACFILE_ON_FAILURE_DESTROY_ALL, MACFILE_ON_FAILURE_DESTROY_OTHERS],
+                                help="Action to be taken a server fails. 'destroy_all' "
+                                     "will completely remove every server created. "
+                                     "To allow debugging, 'destroy_others' will destroy "
+                                     "all the servers that did not fail (this allows to debug)")
+
+    # infrastructure list
+    inf_subparser.add_parser('list', help='List all infrastructure and versions available')
+
+    # infrastructure instance
+    instance_parser = inf_subparser.add_parser('instance', help='List all instances available in a infrastructure')
+
+    instance_parser.add_argument('-v', '--version', help='Filter by infrastructure version')
+    instance_parser.add_argument('-n', '--name', help='Filter by infrastructure name')
+
+
+
+
 def add_ssh_parser(subparsers):
     # ssh instance
     ssh_parser = subparsers.add_parser('ssh',
@@ -118,7 +152,7 @@ def add_ssh_parser(subparsers):
 
 
 def add_configuration_parser(subparsers):
-    configuration_parser = subparsers.add_parser('configuration', help='Manage configurations',
+    configuration_parser = subparsers.add_parser('configuration', help='Server configuration related operations',
                                                  description='Search public and private configurations')
 
     configuration_subparser = configuration_parser.add_subparsers(title='mac configuration commands', dest='subcmd')
@@ -137,22 +171,6 @@ def add_configuration_parser(subparsers):
 
     search_parser.add_argument('-u', '--url',
                                help='Show Urls', action='store_true', default=False)
-
-
-def add_macfile_parser(subparsers):
-    macfile_parser = subparsers.add_parser('macfile', help='Load a Macfile',
-                                           description='Load a Macfile and execute its contents')
-
-    # get file path
-    macfile_parser.add_argument('file', nargs=1, help='Path to Macfile')
-    macfile_parser.add_argument('--resume', action='store_true', help="Resume infrastructure creation")
-    macfile_parser.add_argument('-p', '--param', nargs='*', help="Add parameters to be replaced in the macfile")
-    macfile_parser.add_argument('--on_failure', choices=[MACFILE_ON_FAILURE_DESTROY_ALL, MACFILE_ON_FAILURE_DESTROY_OTHERS],
-                                help="Action to be taken a server fails. 'destroy_all' "
-                                     "will completely remove every server created. "
-                                     "To allow debugging, 'destroy_others' will destroy "
-                                     "all the servers that did not fail (this allows to debug)")
-
 
 
 def validate_environment(input):
