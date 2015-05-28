@@ -13,8 +13,8 @@ def clear():
     print(chr(27) + "[2J")
 
 def general_help():
-    print("Welcome to the Pre-alpha version of Manageacloud.cli. This tool is under heavy development.")
-    print("For more information, please visit https://alpha.manageacloud.com")
+    print("Welcome to the beta version of Manageacloud cli.")
+    print("For more information, please visit https://manageacloud.com")
     print("")
     print("To display the available options:")
     print("")

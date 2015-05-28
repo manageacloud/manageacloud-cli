@@ -53,7 +53,7 @@ def no_credentials():
     show()
     show("    mac login")
     show()
-    show("If you do not have an account, you can register one at https://alpha.manageacloud.com/register")
+    show("If you do not have an account, you can register one at https://manageacloud.com/register")
 
 
 def instance_list():

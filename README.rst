@@ -11,6 +11,7 @@ Mangeacloud simplifies tasks such:
  - Continuous Development
  - Application Deployment
  - Cloud benchmarking
+ - A/B Testing
  - Management of geographically disperse infrastructures (static and dynamic)
 
 Manageacloud is designed to use the existing automation to leverage the orchestration.
@@ -22,7 +23,7 @@ Installing the CLI
 An automatic installation can be performed with the following command:
 
 .. sourcecode:: bash
-    curl -sSL https://alpha.manageacloud.com/mac | bash
+    curl -sSL https://manageacloud.com/mac | bash
 
 For a manual installation you can use ``pip install``:
 
@@ -33,4 +34,4 @@ For a manual installation you can use ``pip install``:
 
 Usage
 -----
-Documentation is available at https://alpha.manageacloud.com/docs
+Documentation is available at https://manageacloud.com/docs
