@@ -9,7 +9,7 @@ def add_login_parser(subparsers):
 
 def add_instance_parser(subparsers):
     instance_parser = subparsers.add_parser('instance', help='Instance related operations',
-                                            description='Create, destroy, search or list server instances')
+                                            description='Server instances operations')
 
     instance_subparser = instance_parser.add_subparsers(title='mac instance commands', dest='subcmd')
 
@@ -91,19 +91,37 @@ def add_instance_parser(subparsers):
     destroy_parser.add_argument('id', nargs='*',
                                 help='Server ID or server name')
 
+    # ssh instance
+    ssh_parser = instance_subparser.add_parser('ssh',
+                                       help='Connect via SSH',
+                                       description='Connect via SSH to the server')
+
+    ssh_parser.add_argument('id', help='Server ID or server name')
+
+    ssh_parser.add_argument('-c', '--command', help='Run a command and exit')
+
+
     # facts instance
     facts_parser = instance_subparser.add_parser('facts',
-                                                 help='Retrieves facts about the system',
-                                                 description='Retrieves facts about the system')
+                                                 help='Retrieves facts about an instance',
+                                                 description='Retrieves facts about  an instance')
     facts_parser.add_argument('id', help='Server ID or server name')
 
     # logs
     logs_parser = instance_subparser.add_parser('log',
-                                                help='Show server logs',
-                                                description='Show server output when creating the server and '
-                                                            'applying the configuration')
+                                                help='Show instance logs',
+                                                description='Show server output when creating and applying '
+                                                            'the configuration to an instance')
 
     logs_parser.add_argument('id', help='Server ID or server name')
+
+    # lifespan operations
+    lifespan_parser = instance_subparser.add_parser('lifespan',
+                                                    help='Manipulate testing instance\'s lifespan',
+                                                    description='Add or remove testing instance lifespan')
+    lifespan_parser.add_argument('id', help='Server ID or server name')
+    lifespan_parser.add_argument('amount', type=int, help='New server lifespan in minutes')
+
 
 
 def add_infrastructure_parser(subparsers):
@@ -137,18 +155,11 @@ def add_infrastructure_parser(subparsers):
     instance_parser.add_argument('-v', '--version', help='Filter by infrastructure version')
     instance_parser.add_argument('-n', '--name', help='Filter by infrastructure name')
 
-
-
-
-def add_ssh_parser(subparsers):
-    # ssh instance
-    ssh_parser = subparsers.add_parser('ssh',
-                                       help='Connect via SSH',
-                                       description='Connect via SSH to the server')
-
-    ssh_parser.add_argument('id', help='Server ID or server name')
-
-    ssh_parser.add_argument('-c', '--command', help='Run a command and exit')
+    # lifespan
+    lifespan_parser = inf_subparser.add_parser('lifespan', help='Manipulate testing instance\'s lifespan')
+    lifespan_parser.add_argument('amount', type=int, help='New server lifespan in minutes')
+    lifespan_parser.add_argument('-v', '--version', help='Filter by infrastructure version')
+    lifespan_parser.add_argument('-n', '--name', help='Filter by infrastructure name')
 
 
 def add_configuration_parser(subparsers):

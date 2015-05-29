@@ -21,7 +21,12 @@ def show_instances(instances):
 
 def show_instance(instance):
     pretty = PrettyTable(["Instance name", "IP", "Instance ID", "Type", "Status"])
-    pretty.add_row([instance['servername'], instance['ipv4'], instance['id'], instance['type'], instance['status']])
+    if instance['type'] == 'testing' and instance['status'] == "Ready":
+        status = "%s (%im left)" % (instance['status'], instance['lifespan'])
+    else:
+        status = instance['status']
+
+    pretty.add_row([instance['servername'], instance['ipv4'], instance['id'], instance['type'], status])
     print(pretty)
 
 

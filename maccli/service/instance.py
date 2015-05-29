@@ -124,6 +124,17 @@ def log(instance_id):
     return maccli.dao.api_instance.log(instance_id)
 
 
+def lifespan(instance_id, amount):
+    """
+
+    Set new instance lifespan
+
+    :param instance_id;
+    :return:
+    """
+    return maccli.dao.api_instance.update(instance_id, amount)
+
+
 def metadata(macfile_root, infrastructure_key, role_key, role):
     """
     Generate the json metadata to create an instance

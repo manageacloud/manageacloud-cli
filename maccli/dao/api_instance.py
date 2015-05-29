@@ -141,3 +141,23 @@ def log(instance_id):
         show_error("There is a problem with the input parameters")
 
     return json_response
+
+
+def update(instance_id, lifespan):
+
+    params = {
+        'lifespan': lifespan
+    }
+
+    json_request = json.dumps(params)
+
+    status_code, json_response, raw = maccli.helper.http.send_request("PUT", "/instance/%s" % instance_id,
+                                                                      data=json_request)
+
+    if status_code == 404:
+        show_error("Server not found")
+
+    if status_code == 400:
+        show_error("There is a problem with the input parameters")
+
+    return json_response

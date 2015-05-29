@@ -317,6 +317,17 @@ def instance_log(instance_id):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
+def instance_lifespan(instance_id, amount):
+    try:
+        instance = service.instance.lifespan(instance_id, amount)
+        view.view_instance.show_instance(instance)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+
 def infrastructure_list():
     try:
         infrastructure = service.infrastructure.list_infrastructure()
@@ -339,3 +350,12 @@ def infrastructure_search(name, version):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
+def infrastructure_lifespan(amount, name, version):
+    try:
+        infrastructure = service.infrastructure.lifespan(amount, name, version)
+        view.view_infrastructure.show_infrastructure_instances(infrastructure)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)

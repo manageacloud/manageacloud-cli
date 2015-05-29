@@ -136,10 +136,11 @@ class MockConfiguration_Args(Mock_args):
 
 
 class MockInstanceSSH_args(MockInstanceDestroy_args):
-    def __init__(self, cmd, instance_id, command):
+    def __init__(self, cmd, subcmd, instance_id, command):
         self.debug = False
         self.verbose = False
         self.cmd = cmd
+        self.subcmd = subcmd
         self.id = instance_id
         self.command = command
 

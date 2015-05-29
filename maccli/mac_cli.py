@@ -25,7 +25,6 @@ def initialize_parser():
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
     parser_cli.add_login_parser(subparsers)
     parser_cli.add_instance_parser(subparsers)
-    parser_cli.add_ssh_parser(subparsers)
     parser_cli.add_configuration_parser(subparsers)
     parser_cli.add_infrastructure_parser(subparsers)
     return parser
@@ -92,12 +91,15 @@ def dispatch_cmds(args):
         elif args.subcmd == 'log':
             maccli.command_cli.instance_log(args.id)
 
-    elif args.cmd == 'ssh':
-        if args.id is None:
-            show_error("Parameter 'id' is required.")
-            maccli.command_cli.instance_ssh_help()
-        else:
-            maccli.command_cli.instance_ssh(args.id, args.command)
+        elif args.subcmd == 'lifespan':
+            maccli.command_cli.instance_lifespan(args.id, args.amount)
+
+        elif args.subcmd == 'ssh':
+            if args.id is None:
+                show_error("Parameter 'id' is required.")
+                maccli.command_cli.instance_ssh_help()
+            else:
+                maccli.command_cli.instance_ssh(args.id, args.command)
 
     elif args.cmd == "configuration":
         if args.subcmd == 'list':
@@ -112,6 +114,9 @@ def dispatch_cmds(args):
             maccli.command_cli.process_macfile(args.file[0], args.resume, args.param, args.quiet, args.on_failure)
         elif args.subcmd == 'instance':
             maccli.command_cli.infrastructure_search(args.name, args.version)
+        elif args.subcmd == 'lifespan':
+            maccli.command_cli.infrastructure_lifespan(args.amount, args.name, args.version)
+
 
 
 def parse_args(self, args):
