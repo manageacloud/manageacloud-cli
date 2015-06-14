@@ -44,7 +44,7 @@ def _get_environment(role, infrastructure):
 
         if 'environment' in role.keys():
             if environment is not None:
-                environment = dict(environment.items() + role["environment"].items())
+                environment = environment + role["environment"]
             else:
                 environment = role["environment"]
 

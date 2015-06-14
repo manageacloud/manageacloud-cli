@@ -32,8 +32,15 @@ class AuthTestCase(unittest.TestCase):
         role_key = "consul"
         role = OrderedDict([('branch', 'master'), ('configuration', 'consul')])
         infrastructure = OrderedDict([('deployment', 'testing'), ('location', 'us-central1-c'), ('name', 'consul01'), ('role', 'consul'), ('environment', [OrderedDict([('MY_IP', 'consul01.PRIVATE_IP')]), OrderedDict([('MEMBERS_IP', 'consul02.PRIVATE_IP')])])])
-        actual_meta= maccli.service.instance.metadata(macfile_root, infrastructure_key, role_key, role, infrastructure)
+        actual_meta = maccli.service.instance.metadata(macfile_root, infrastructure_key, role_key, role, infrastructure)
         self.assertEqual(actual_meta, EXPECTED_META)
+
+    def test_get_environment(self):
+        ROLE = OrderedDict([('branch', 'master'), ('configuration', 'consul'), ('environment', [OrderedDict([('MEMBERS_IP', 'consul.PRIVATE_IP')])])])
+        INFRASTRUCTURE = OrderedDict([('deployment', 'testing'), ('location', 'us-central1-c'), ('name', 'consul01'), ('role', 'consul'), ('environment', [OrderedDict([('MY_IP', 'consul01.PRIVATE_IP')])])])
+        EXPECTED_ENVIRONMENT = [OrderedDict([('MEMBERS_IP', 'consul.PRIVATE_IP')]), OrderedDict([('MY_IP', 'consul01.PRIVATE_IP')])]
+        actual_environment = maccli.service.instance._get_environment(ROLE, INFRASTRUCTURE)
+        self.assertEqual(actual_environment, EXPECTED_ENVIRONMENT)
 
 
 
