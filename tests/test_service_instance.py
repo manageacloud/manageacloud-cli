@@ -25,10 +25,19 @@ class AuthTestCase(unittest.TestCase):
         self.assertTrue(mock.called)
         self.assertEqual(instances, MOCK_INSTANCE_LIST_INFRASTRUCTURE_CLEAN)
 
+    def test_metadata(self):
+        EXPECTED_META = {'macfile_infrastructure_name': 'consul01', 'macfile_role_name': 'consul', 'version': '1.0', 'environment_raw': [OrderedDict([('MY_IP', 'consul01.PRIVATE_IP')]), OrderedDict([('MEMBERS_IP', 'consul02.PRIVATE_IP')])], 'name': 'consul'}
+        macfile_root = {'version': '1.0', 'name': 'consul'}
+        infrastructure_key = "consul01"
+        role_key = "consul"
+        role = OrderedDict([('branch', 'master'), ('configuration', 'consul')])
+        infrastructure = OrderedDict([('deployment', 'testing'), ('location', 'us-central1-c'), ('name', 'consul01'), ('role', 'consul'), ('environment', [OrderedDict([('MY_IP', 'consul01.PRIVATE_IP')]), OrderedDict([('MEMBERS_IP', 'consul02.PRIVATE_IP')])])])
+        actual_meta= maccli.service.instance.metadata(macfile_root, infrastructure_key, role_key, role, infrastructure)
+        self.assertEqual(actual_meta, EXPECTED_META)
 
 
 
-        # @mock.patch('os.system')
+# @mock.patch('os.system')
     # @mock.patch('maccli.dao.api_instance.credentials')
     # def test_ssh_instance_privateKey(self, mock_credentials, mock_os):
     #     mock_credentials.return_value = MOCK_INSTANCE_CREDENTIALS_PRIVKEY_JSON

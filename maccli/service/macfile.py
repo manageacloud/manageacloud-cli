@@ -190,7 +190,8 @@ def parse_macfile(string):
 
 
     # validate infrastructures
-    infrastructure_optional_params = ['lifespan', 'deployment', 'release', 'provider', 'hardware', 'amount']
+    infrastructure_optional_params = ['lifespan', 'deployment', 'release', 'provider', 'hardware', 'amount',
+                                      'environment']
     infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
                                   'release']
     infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider', 'name', 'deployment',

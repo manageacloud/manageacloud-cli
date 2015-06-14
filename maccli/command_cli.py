@@ -243,7 +243,7 @@ def process_macfile(file, resume, params, quiet, on_failure):
                     else:
                         view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
                     role_raw = roles[infrastructure_role]["instance create"]
-                    metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw)
+                    metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw, infrastructure)
                     instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata, quiet)
                     roles_created[infrastructure_role] = instances
 

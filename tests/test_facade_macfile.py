@@ -117,6 +117,21 @@ class TestFacadeMacfileTestCase(unittest.TestCase):
         var_clean, all_processed = maccli.facade.macfile.parse_instance_envs(VARS_RAW,INSTANCES)
         self.assertTrue(all_processed)
 
+    def test_environment_in_infrastructure(self):
+        ROLE = OrderedDict([('branch', 'master'), ('configuration', 'consul')])
+        INFRASTRUCTURE = OrderedDict([('deployment', 'testing'), ('location', 'us-central1-c'), ('name', 'consul01'), ('role', 'consul'), ('environment', [OrderedDict([('MY_IP', 'consul01.PRIVATE_IP')]), OrderedDict([('MEMBERS_IP', 'consul02.PRIVATE_IP')])])])
+        environment = maccli.facade.macfile._get_environment(ROLE, INFRASTRUCTURE)
+        self.assertEqual(environment, [OrderedDict([('MY_IP', 'consul01.PRIVATE_IP')]), OrderedDict([('MEMBERS_IP', 'consul02.PRIVATE_IP')])])
+
+    @mock.patch('maccli.service.instance.facts')
+    def test_environment_in_infrastructure_ok(self, mock_facts):
+        INSTANCES=[{u'status': u'Instance completed', u'servername': u'mct-consul02-6vo', u'lifespan': 48, u'ipv4': u'130.211.136.156', u'type': u'testing', u'id': u'6voimkmhmvr8tne50u3cr4t1aq', u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'consul02', u'environment_raw': [{u'MY_IP': u'consul02.PRIVATE_IP'}, {u'MEMBERS_IP': u'consul01.PRIVATE_IP'}], u'version': u'1.0', u'name': u'consul', u'macfile_role_name': u'consul'}, u'system': {u'infrastructure': {u'hardware': u'https://www.googleapis.com/compute/v1/projects/manageacloud-instances/zones/REPLACE_ZONE/machineTypes/f1-micro', u'deployment': u'testing', u'location': u'us-central1-c', u'lifespan': 60, u'provider': u'manageacloud'}, u'role': {u'environment': {u'MEMBERS_IP': u'consul01.PRIVATE_IP', u'MY_IP': u'consul02.PRIVATE_IP'}, u'cookbook_tag': u'consul', u'block_tags': [u's5409438ujbbmj8783755g45c5']}}}}, {u'status': u'Instance completed', u'servername': u'mct-consul01-u8e', u'lifespan': 48, u'ipv4': u'130.211.156.29', u'type': u'testing', u'id': u'u8e6itejoj70q01pb5vaqtls90', u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'consul01', u'environment_raw': [{u'MY_IP': u'consul01.PRIVATE_IP'}, {u'MEMBERS_IP': u'consul02.PRIVATE_IP'}], u'version': u'1.0', u'name': u'consul', u'macfile_role_name': u'consul'}, u'system': {u'infrastructure': {u'hardware': u'https://www.googleapis.com/compute/v1/projects/manageacloud-instances/zones/REPLACE_ZONE/machineTypes/f1-micro', u'deployment': u'testing', u'location': u'us-central1-c', u'lifespan': 60, u'provider': u'manageacloud'}, u'role': {u'environment': {u'MEMBERS_IP': u'consul02.PRIVATE_IP', u'MY_IP': u'consul01.PRIVATE_IP'}, u'cookbook_tag': u'consul', u'block_tags': [u's5409438ujbbmj8783755g45c5']}}}}]
+        VARS_RAW=[{u'MY_IP': u'consul01.PRIVATE_IP'}, {u'MEMBERS_IP': u'consul02.PRIVATE_IP'}]
+        mock_facts.return_value = MOCK_FACTS_PRIV_NETWORK
+        var_clean, all_processed = maccli.facade.macfile.parse_instance_envs(VARS_RAW,INSTANCES)
+        self.assertTrue(all_processed)
+
+
 
     # @mock.patch('maccli.service.instance.facts')
     # def test_apply_infrastructure_changes_replace_private_ip_ok(self, mock_facts):

@@ -135,15 +135,25 @@ def lifespan(instance_id, amount):
     return maccli.dao.api_instance.update(instance_id, amount)
 
 
-def metadata(macfile_root, infrastructure_key, role_key, role):
+def metadata(macfile_root, infrastructure_key, role_key, role, infrastructure):
     """
     Generate the json metadata to create an instance
     """
     meta = macfile_root
     meta['macfile_role_name'] = role_key
     meta['macfile_infrastructure_name'] = infrastructure_key
+    environment = None
     if 'environment' in role.keys():
-        meta['environment_raw'] = role['environment']
+        environment = role['environment']
+
+    if 'environment' in infrastructure.keys():
+        if environment is not None:
+            environment = dict(environment.items() + infrastructure["environment"].items())
+        else:
+            environment = infrastructure["environment"]
+
+    if environment is not None:
+        meta['environment_raw'] = environment
     return meta
 
 

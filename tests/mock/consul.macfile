@@ -1,0 +1,26 @@
+mac: 0.7.1
+description: Consul Example
+name: consul
+version: '1.0'
+roles:
+  consul:
+    instance create:
+      branch: master
+      configuration: consul
+infrastructures:
+  consul01:
+    deployment: testing
+    location: us-central1-c
+    name: 'consul01'
+    role: consul
+    environment:
+    - MY_IP: consul01.PRIVATE_IP
+    - MEMBERS_IP: consul02.PRIVATE_IP
+  consul02:
+    deployment: testing
+    location: us-central1-c
+    name: 'consul02'
+    role: consul
+    environment:
+    - MY_IP: consul02.PRIVATE_IP
+    - MEMBERS_IP: consul01.PRIVATE_IP

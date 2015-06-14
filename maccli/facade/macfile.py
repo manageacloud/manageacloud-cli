@@ -36,6 +36,24 @@ def _get_private_ip_from_fatcs(facts):
     return ip
 
 
+def _get_environment(role, infrastructure):
+    environment = None
+    try:
+        if 'environment' in infrastructure.keys():
+            environment = infrastructure["environment"]
+
+        if 'environment' in role.keys():
+            if environment is not None:
+                environment = dict(environment.items() + role["environment"].items())
+            else:
+                environment = role["environment"]
+
+    except KeyError:
+        pass
+
+    return environment
+
+
 def create_tier(role, infrastructure, metadata, quiet):
     """
         Creates tje instances that represents a role in a given infrastructure
@@ -57,11 +75,7 @@ def create_tier(role, infrastructure, metadata, quiet):
     except KeyError:
         pass
 
-    environment = None
-    try:
-        environment = role["environment"]
-    except KeyError:
-        pass
+    environment = _get_environment(role, infrastructure)
 
     hd = None
     try:
@@ -150,9 +164,10 @@ def parse_instance_envs(env_raws, instances):
                     ips = []
                     for instance in instances:
                         instance_role_name = instance['metadata']['infrastructure']['macfile_role_name']
+                        instance_infrastructure_name = instance['metadata']['infrastructure']['macfile_infrastructure_name']
 
-                        if instance_role_name == role_name:
-                            ip = instance['ipv4']
+                        ip = instance['ipv4']
+                        if ip and (instance_role_name == role_name or instance_infrastructure_name == role_name):
                             ips.append(ip)
 
                     if len(ips) > 0:
@@ -168,8 +183,9 @@ def parse_instance_envs(env_raws, instances):
                     ips = []
                     for instance in instances:
                         instance_role_name = instance['metadata']['infrastructure']['macfile_role_name']
+                        instance_infrastructure_name = instance['metadata']['infrastructure']['macfile_infrastructure_name']
 
-                        if instance_role_name == role_name:
+                        if instance_role_name == role_name or instance_infrastructure_name == role_name:
                             try:
                                 instance_facts = maccli.service.instance.facts(instance['id'])
                                 ip = _get_private_ip_from_fatcs(instance_facts)
@@ -194,8 +210,9 @@ def parse_instance_envs(env_raws, instances):
                     facts = []
                     for instance in instances:
                         instance_role_name = instance['metadata']['infrastructure']['macfile_role_name']
+                        instance_infrastructure_name = instance['metadata']['infrastructure']['macfile_infrastructure_name']
 
-                        if instance_role_name == role_name:
+                        if instance_role_name == role_name or instance_infrastructure_name == role_name:
                             try:
                                 instance_facts = maccli.service.instance.facts(instance['id'])
                                 property_value = instance_facts[property.lower()]
