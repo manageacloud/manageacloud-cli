@@ -33,6 +33,6 @@ class AuthTestCase(unittest.TestCase):
     @mock.patch('maccli.dao.api_provider.get_hardwares')
     def test_list_hardwares(self, mock):
         mock.return_value = (200, MOCK_HARDWARE_LIST_JSON)
-        json_response = maccli.service.provider.list_hardwares(DEFAULT_PROVIDER, DEFAULT_LOCATION)
+        json_response = maccli.service.provider.list_hardwares(DEFAULT_PROVIDER, DEFAULT_LOCATION, DEFAULT_CONFIGURATION, DEFAULT_RELEASE)
         self.assertTrue(mock.called)
         self.assertEqual(json_response, MOCK_HARDWARE_LIST_JSON)

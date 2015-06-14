@@ -23,10 +23,10 @@ def list_locations(cookbook_tag, provider_id, release):
     return clean_locations
 
 
-def list_hardwares(provider_id, location_id):
+def list_hardwares(provider, location, cookbook_tag, release):
     """
         List available hardware for given configuration
     """
-    server_status, response = maccli.dao.api_provider.get_hardwares(provider_id, location_id)
+    server_status, response = maccli.dao.api_provider.get_hardwares(provider, location, cookbook_tag, release)
 
     return response

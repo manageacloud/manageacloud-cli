@@ -75,13 +75,39 @@ def create_tier(role, infrastructure, metadata, quiet):
     except KeyError:
         pass
 
+    deployment = None
+    try:
+        deployment = infrastructure["deployment"]
+    except KeyError:
+        pass
+
+    release = None
+    try:
+        release = infrastructure["release"]
+    except KeyError:
+        pass
+
+    branch = None
+    try:
+        branch = infrastructure["branch"]
+    except KeyError:
+        pass
+
+    provider = None
+    try:
+        provider = infrastructure["provider"]
+    except KeyError:
+        pass
+
     instances = []
-    for x in range(0, infrastructure['amount']):
-        instance = maccli.service.instance.create_instance(role["configuration"], infrastructure["deployment"],
+    amount = 1
+    if 'amount' in infrastructure:
+        amount = infrastructure['amount']
+
+    for x in range(0, amount):
+        instance = maccli.service.instance.create_instance(role["configuration"], deployment,
                                                            infrastructure["location"], infrastructure["name"],
-                                                           infrastructure["provider"],
-                                                           infrastructure["release"], role["branch"], hardware,
-                                                           lifespan,
+                                                           provider, release, branch, hardware, lifespan,
                                                            environment, hd, port, metadata, False)
         instances.append(instance)
         print("Creating instance '%s'" % (instance['id']))
@@ -217,8 +243,9 @@ def apply_infrastructure_changes(instances, infrastructure_name, version, quiet)
         if 'environment_raw' in instance['metadata']['infrastructure']:
             environment_raws = instance['metadata']['infrastructure']['environment_raw']
             maccli.logger.debug("[%s] Environment raw: %s" % (instance['servername'], environment_raws))
+            maccli.logger.debug("[%s] Instances: %s" % (instance['servername'], other_instances))
             environment_clean, processed = parse_instance_envs(environment_raws, other_instances)
-            maccli.logger.debug("[%s] Environment clean: %s" % (instance['servername'], environment_raws))
+            maccli.logger.debug("[%s] Environment clean: %s" % (instance['servername'], environment_clean))
             metadata_new = {'system': {'role': {'environment': environment_clean}}}
             maccli.logger.debug("[%s] Process %s" % (instance['servername'], processed))
             if processed:

@@ -45,8 +45,9 @@ def send_request(method, path, **kwargs):
         # Server returned an error.
         if status_code == 403:
             raise MacAuthError("Not authorized")
+        elif status_code == 503:
+            maccli.logger.info("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
         else:
-            # TODO if verbose we should print this
             maccli.logger.warn("Status %s (%s %s). Response: %s" % (str(status_code), method, url, response.text))
 
     maccli.logger.info("Response: %s", json)

@@ -108,8 +108,9 @@ def validate_param(actual, expected, optional=None):
     if len(notpresent_optional):
         error = "Incorrect file format. The following parameters are needed and not present:\n"
         for p in notpresent_optional:
-            error += " - %s" % p
+            error += " - %s\n" % p
         raise MacParamValidationError(error)
+
 
 def is_present(actual, expected):
     """ evaluates if all params in actual exist in expected  """
@@ -119,6 +120,7 @@ def is_present(actual, expected):
 def is_unexpected(actual, expected):
     """ evaluates if there is a parameter in actual that does not exist in expected  """
     return filter(lambda x: x not in expected, actual)
+
 
 def parse_params(raw, params_raw):
     """
@@ -171,8 +173,8 @@ def parse_macfile(string):
     # validate roles
     expected_roles = []
     role_root_params = ["instance create"]
-    role_params = ['branch', 'configuration']
-    role_optional_params = ['hd', 'lifespan', 'environment']
+    role_params = ['configuration']
+    role_optional_params = ['branch', 'hd', 'lifespan', 'environment']
     raw_role_root_keys = raw['roles'].keys()
     for key_role_root in raw_role_root_keys:
         expected_roles.append(key_role_root)
@@ -188,7 +190,7 @@ def parse_macfile(string):
 
 
     # validate infrastructures
-    infrastructure_optional_params = ['lifespan']
+    infrastructure_optional_params = ['lifespan', 'deployment', 'release', 'provider', 'hardware', 'amount']
     infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
                                   'release']
     infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider', 'name', 'deployment',

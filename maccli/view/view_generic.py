@@ -9,8 +9,10 @@ def show(string=""):
 def show_error(string):
     print(string, file=sys.stderr)
 
+
 def clear():
     print(chr(27) + "[2J")
+
 
 def general_help():
     print("Welcome to the beta version of Manageacloud cli.")

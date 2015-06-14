@@ -1,4 +1,5 @@
 import maccli.helper.http
+from maccli.config import RELEASE_ANY
 
 
 def get_locations(cookbook_tag, provider):
@@ -9,9 +10,14 @@ def get_locations(cookbook_tag, provider):
     return status_code, json
 
 
-def get_hardwares(provider, location):
-    status_code, json, raw = maccli.helper.http.send_request("GET", "/provider/hardware?provider=%s&location=%s" % (
-        provider, location))
+def get_hardwares(provider, location, cookbook_tag, release):
+
+    if release is None or release == "":
+        release = RELEASE_ANY
+
+    status_code, json, raw = maccli.helper.http.send_request("GET",
+                                                             "/provider/hardware?provider=%s&location=%s&release=%s&cookbook_tag=%s" %
+                                                             (provider, location, release, cookbook_tag))
 
     if status_code == 400:
         if raw == "No credentials available":

@@ -104,7 +104,7 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
                 view.view_instance.show_instance_help()
         elif deployment == "production" and hardware is None or \
                                         deployment == "testing" and provider is not "manageacloud" and hardware is None:
-            hardwares = service.provider.list_hardwares(provider, location)
+            hardwares = service.provider.list_hardwares(provider, location, cookbook_tag, release)
             show()
             show("--hardware not found. You must choose the hardware.")
             show()
@@ -249,7 +249,7 @@ def process_macfile(file, resume, params, quiet, on_failure):
 
             except MacErrorCreatingTier:
                 view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
-                view.view_generic.show_error("HINT: Use 'mac instance log -i <instance id>' for details")
+                view.view_generic.show_error("HINT: Use 'mac instance log <instance id>' for details")
                 view.view_generic.show("Task raised errors.")
                 exit(5)
 
