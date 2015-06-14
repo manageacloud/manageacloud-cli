@@ -181,21 +181,23 @@ def parse_instance_envs(env_raws, instances):
                 role_name, property = val.split(".", 1)
                 try:
                     ips = []
+                    is_error = False
                     for instance in instances:
                         instance_role_name = instance['metadata']['infrastructure']['macfile_role_name']
                         instance_infrastructure_name = instance['metadata']['infrastructure']['macfile_infrastructure_name']
-
                         if instance_role_name == role_name or instance_infrastructure_name == role_name:
                             try:
                                 instance_facts = maccli.service.instance.facts(instance['id'])
                                 ip = _get_private_ip_from_fatcs(instance_facts)
                                 ips.append(ip)
                             except FactError:
+                                is_error = True
                                 pass
                             except MacApiError:
+                                is_error = True
                                 pass
 
-                    if len(ips) > 0:
+                    if len(ips) > 0 and not is_error:
                         envs_clean[key] = ips
                     else:
                         all_processed = False
@@ -208,6 +210,7 @@ def parse_instance_envs(env_raws, instances):
 
                 try:
                     facts = []
+                    is_error = False
                     for instance in instances:
                         instance_role_name = instance['metadata']['infrastructure']['macfile_role_name']
                         instance_infrastructure_name = instance['metadata']['infrastructure']['macfile_infrastructure_name']
@@ -218,11 +221,13 @@ def parse_instance_envs(env_raws, instances):
                                 property_value = instance_facts[property.lower()]
                                 facts.append(property_value)
                             except FactError:
+                                is_error = True
                                 pass
                             except MacApiError:
+                                is_error = True
                                 pass
 
-                    if len(facts) > 0:
+                    if len(facts) > 0 and not is_error:
                         envs_clean[key] = facts
                     else:
                         all_processed = False
