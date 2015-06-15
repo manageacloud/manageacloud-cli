@@ -153,6 +153,9 @@ def parse_instance_envs(env_raws, instances):
     for env in env_raws:
         key = env.keys()[0]
         val = env[key]
+        if isinstance(val, (int, long)):
+            val = str(val)
+
         if isinstance(val, basestring):
             if val.endswith(".PUBLIC_IP"):
                 """
