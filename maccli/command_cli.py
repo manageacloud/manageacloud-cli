@@ -18,7 +18,8 @@ import view.view_cookbook
 import view.view_generic
 import view.view_infrastructure
 import maccli.view.view_hardware
-from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE
+from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE, CONFIGURATION_FAILED, \
+    CREATION_FAILED
 from maccli.helper.exception import MacParseEnvException, MacErrorCreatingTier, MacParseParamException
 
 
@@ -267,9 +268,9 @@ def process_macfile(file, resume, params, quiet, on_failure):
             maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'], quiet)
             finish = True
             for instance in processing_instances:
-                if not (instance['status'].startswith("Ready") or instance['status'] == "Creation failed" or instance['status'] == "Configuration Error"):
+                if not (instance['status'].startswith("Ready") or instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
                     finish = False
-                if on_failure is not None and (instance['status'] == "Creation failed" or instance['status'] == "Configuration Error"):
+                if on_failure is not None and (instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
                     finish = True
 
             if not finish:

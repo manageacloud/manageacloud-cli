@@ -8,6 +8,8 @@ AUTH_ERROR = 'auth_error'
 NO_ERROR = 'no_error'
 
 RELEASE_ANY = "any"
+CONFIGURATION_FAILED = "Configuration Error"
+CREATION_FAILED = "Creation failed"
 
 AUTH_ERROR_EXIT_CODE = 2
 EXCEPTION_EXIT_CODE = 3
