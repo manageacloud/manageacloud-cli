@@ -3,4 +3,4 @@ configparser
 prettytable
 pexpect
 argparse
-requests[security]
+requests[security] >=2.7.0
