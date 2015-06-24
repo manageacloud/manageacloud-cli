@@ -35,7 +35,7 @@ setup(
     include_package_data=True,
     author='R3Systems Pty Ltd',
     author_email='support@manageacloud.com',
-    description='Multi-cloud orchestration platform for servers and infrastructures',
+    description='Automation Swiss Army knife',
     license='Apache v2',
     keywords='manageacloud docker puppet chef saltstack ansible bash rackspace aws digitalocean '
              'gce google compute engine multicloud multi-cloud orchestration ci cd continuous integration deployment a/b testing',
