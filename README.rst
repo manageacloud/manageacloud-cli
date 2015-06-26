@@ -11,9 +11,9 @@ mac is very useful for a set of business cases such:
  - `Orchestration of geographically disperse infrastructures <https://manageacloud.com/case-study/geographically-disperse-infrastructures>`_
  - `Continuous Integration <https://manageacloud.com/case-study/continuous-integration>`_
  - `Disaster Recovery <https://manageacloud.com/case-study/disaster-recovery>`_
- - `Continuous Delivery: <https://manageacloud.com/case-study/continuous-delivery>`_
- - `Cloud benchmarking: <https://manageacloud.com/case-study/cloud-benchmark>`_
- - `A/B Testing <https://manageacloud.com/case-study/ab-testing>`_
+ - `Continuous Delivery <https://manageacloud.com/case-study/continuous-delivery>`_
+ - `Cloud benchmarking <https://manageacloud.com/case-study/cloud-benchmark>`_
+ - `A/B Testing <https//manageacloud.com/case-study/ab-testing>`_
 
 
 
@@ -26,7 +26,7 @@ An automatic installation can be performed with the following command:
 
     curl -sSL https://manageacloud.com/mac | bash
 
-For a manual installation you can use ``pip install``:
+You can also use ``pip install``:
 
 .. sourcecode:: bash
 
