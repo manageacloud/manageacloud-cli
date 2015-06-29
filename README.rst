@@ -1,5 +1,5 @@
 mac
-=====
+====
 
 mac is a command line tool that allows to
   - bootstrap bash scripts when you are creating a new cloud server, allowing to hook configuration management systems like Puppet, Chef, Ansible and more
@@ -60,13 +60,38 @@ if you don't have one available.
         configuration       Server configuration related operations
         infrastructure      Infrastructure operations
 
-
-Actions
-----------------------------
-
-
-
 Documentation
 -------------
-Documentation is available at https://manageacloud.com/docs
+Documentation is available at https://manageacloud.com/article/orchestration/cli
 
+Build status
+------------
+
+|mac-1| Debian Wheezy 7
+
+|mac-2| Ubuntu Trusty Tahr 14.04
+
+|mac-3| CentOS 6.5
+
+|mac-5| CentOS 7
+
+|mac-6| Ubuntu Utopic Unicorn 14.10
+
+|mac-7| Debian Jessie 8
+
+|mac-8| Ubuntu Ubuntu Vivid Vervet 15.04
+
+.. |mac-1| image:: https://manageacloud.com/configuration/mac/build/1/image
+.. _mac-1: https://manageacloud.com/configuration/mac/builds
+.. |mac-2| image:: https://manageacloud.com/configuration/mac/build/2/image
+.. _mac-2: https://manageacloud.com/configuration/mac/builds
+.. |mac-3| image:: https://manageacloud.com/configuration/mac/build/3/image
+.. _mac-3: https://manageacloud.com/configuration/mac/builds
+.. |mac-5| image:: https://manageacloud.com/configuration/mac/build/5/image
+.. _mac-5: https://manageacloud.com/configuration/mac/builds
+.. |mac-6| image:: https://manageacloud.com/configuration/mac/build/6/image
+.. _mac-6: https://manageacloud.com/configuration/mac/builds
+.. |mac-7| image:: https://manageacloud.com/configuration/mac/build/7/image
+.. _mac-7: https://manageacloud.com/configuration/mac/builds
+.. |mac-8| image:: https://manageacloud.com/configuration/mac/build/8/image
+.. _mac-8: https://manageacloud.com/configuration/mac/builds
