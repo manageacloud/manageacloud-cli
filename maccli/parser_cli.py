@@ -98,7 +98,7 @@ def add_instance_parser(subparsers):
 
     ssh_parser.add_argument('id', help='Server ID or server name')
 
-    ssh_parser.add_argument('-c', '--command', help='Run a command and exit')
+    ssh_parser.add_argument('-c', '--command', nargs=argparse.REMAINDER, help='Run a command and exit')
 
 
     # facts instance

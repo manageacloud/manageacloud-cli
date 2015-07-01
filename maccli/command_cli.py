@@ -100,7 +100,8 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
                                                                            provider, release, branch, hardware)
 
                 else:
-                    show("There is not locations available for configuration %s and provider %s" % (cookbook_tag, provider))
+                    show("There is not locations available for configuration %s and provider %s" % (
+                        cookbook_tag, provider))
 
                 view.view_instance.show_instance_help()
         elif deployment == "production" and hardware is None or \
@@ -117,7 +118,8 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
                                                                        provider, release, branch, hardwares[0]['id'])
         else:
             """ Execute create instance """
-            instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider, release,
+            instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider,
+                                                        release,
                                                         branch, hardware, lifespan, environments, hd, port)
             if instance is not None:
                 view.view_instance.show_instance(instance)
@@ -132,7 +134,6 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
-
 
 
 def instance_destroy_help():
@@ -159,7 +160,6 @@ def instance_destroy(ids):
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
-
 
 
 def instance_help():
@@ -201,7 +201,6 @@ def convert_to_yaml(args):
 
 
 def process_macfile(file, resume, params, quiet, on_failure):
-
     try:
 
         raw = maccli.service.macfile.load_macfile(file)
@@ -211,7 +210,7 @@ def process_macfile(file, resume, params, quiet, on_failure):
             view.view_generic.show_error(e.message)
             exit(11)
 
-        root, roles, infrastructures = maccli.service.macfile.parse_macfile(raw)
+        root, roles, actions, resources, infrastructures = maccli.service.macfile.parse_macfile(raw)
 
         if not resume:
             existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
@@ -226,6 +225,13 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 view.view_instance.show_instances(existing_instances)
                 view.view_generic.show()
                 view.view_generic.show()
+                view.view_generic.show(
+                    "Instances must be destroyed before attempting to create another "
+                    "infrastructure using the same version.")
+                view.view_generic.show("")
+                view.view_generic.show("To destroy instances:")
+                view.view_generic.show("    mac instance destroy <instance id or name>")
+                view.view_generic.show("")
                 exit(7)
 
             if quiet:
@@ -240,11 +246,14 @@ def process_macfile(file, resume, params, quiet, on_failure):
                     infrastructure = infrastructures[infrastructure_key]
                     infrastructure_role = infrastructure['role']
                     if quiet:
-                        view.view_generic.show("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
+                        view.view_generic.show(
+                            "[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
                     else:
-                        view.view_generic.header("[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
+                        view.view_generic.header(
+                            "[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
                     role_raw = roles[infrastructure_role]["instance create"]
-                    metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw, infrastructure)
+                    metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw,
+                                                         infrastructure)
                     instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata, quiet)
                     roles_created[infrastructure_role] = instances
 
@@ -255,7 +264,8 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 exit(5)
 
             except MacParseEnvException as e:
-                view.view_generic.show_error("ERROR: An error happened parsing environments." + str(type(e)) + str(e.args))
+                view.view_generic.show_error(
+                    "ERROR: An error happened parsing environments." + str(type(e)) + str(e.args))
                 view.view_generic.show("Task raised errors.")
                 exit(6)
 
@@ -265,12 +275,15 @@ def process_macfile(file, resume, params, quiet, on_failure):
             if not quiet:
                 view.view_generic.clear()
                 view.view_instance.show_instances(processing_instances)
-            maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'], quiet)
+            maccli.facade.macfile.apply_infrastructure_changes(processing_instances, root['name'], root['version'],
+                                                               quiet)
             finish = True
             for instance in processing_instances:
-                if not (instance['status'].startswith("Ready") or instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
+                if not (instance['status'].startswith("Ready") or instance['status'] == CREATION_FAILED or instance[
+                    'status'] == CONFIGURATION_FAILED):
                     finish = False
-                if on_failure is not None and (instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
+                if on_failure is not None and (
+                                instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
                     finish = True
 
             if not finish:
@@ -285,7 +298,11 @@ def process_macfile(file, resume, params, quiet, on_failure):
         failed = maccli.facade.macfile.clean_up(instances_processed, on_failure)
 
         if failed:
+            view.view_generic.show("")
             view.view_generic.show("Infrastructure failed.")
+            view.view_generic.show("")
+            view.view_generic.show("Logs available at")
+            view.view_generic.show("    mac instance log <instance id or name>")
             exit(12)
         else:
             view.view_generic.show("Infrastructure created successfully.")
