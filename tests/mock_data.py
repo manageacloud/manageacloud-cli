@@ -410,3 +410,10 @@ MOCK_PARSE_MACFILE_AWS_NO_ORDER_INF  = OrderedDict([('postgres', OrderedDict([('
 
 MOCK_PARSE_ENVS_NO_ENVIRONMENT_ROLE_RAW = OrderedDict([('default', OrderedDict([('instance create', OrderedDict([('branch', 'master'), ('configuration', 'postgres_93_customized')]))]))])
 MOCK_PARSE_ENVS_EMPTY_ROLES_CREATED = {}
+
+MOCK_PARSE_MACFILE_V2_EXPECTED_ROOT = {'version': '1.0', 'name': 'demo'}
+MOCK_PARSE_MACFILE_V2_EXPECTED_ROLES = OrderedDict([('app', OrderedDict([('instance create', OrderedDict([('configuration', 'demo_application'), ('environment', [OrderedDict([('DB_IP', '127.0.0.1')]), OrderedDict([('APP_BRANCH', 'master')])])]))]))])
+MOCK_PARSE_MACFILE_V2_EXPECTED_INFRASTRUCTURES = OrderedDict([('app_inf', OrderedDict([('name', 'app'), ('provider', 'amazon'), ('location', 'us-east-1'), ('hardware', 't1.micro'), ('role', 'app')])), ('build_lb_inf', OrderedDict([('resource', 'build_lb')])), ('register_lb_inf', OrderedDict([('resource', 'register_lb')]))])
+MOCK_PARSE_MACFILE_V2_EXPECTED_ACTIONS = OrderedDict([('get_id', OrderedDict([('ssh', 'wget -q -O - http://169.254.169.254/latest/meta-data/instance-id')]))])
+MOCK_PARSE_MACFILE_V2_EXPECTED_RESOURCES = OrderedDict([('build_lb', OrderedDict([('create bash', '< aws elb create-load-balancer --load-balancer-name my-load-balancer --listeners "Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80" --region us-east-1 --availability-zones "us-east-1e" "us-east-1b"')])), ('register_lb', OrderedDict([('create bash', '< aws elb register-instances-with-load-balancer --load-balancer-name my-load-balancer --instances roles.app.get_id')]))])
+

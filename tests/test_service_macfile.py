@@ -14,7 +14,6 @@ from maccli.helper.exception import MacParseEnvException, MacParseParamException
 
 class MacfileServiceTestCase(unittest.TestCase):
 
-
     def setUp(self):
         self.stdout = sys.stdout
         sys.stdout = self.buf = StringIO.StringIO()
@@ -48,6 +47,16 @@ class MacfileServiceTestCase(unittest.TestCase):
         root, roles, infrastructures = maccli.service.macfile.parse_macfile(contents)
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
+
+    def test_open_file_infrastructure(self):
+        contents = maccli.service.macfile.load_macfile("%s/infrastructure.aws.macfile" % self.mock_path)
+        root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(contents)
+
+        self.assertEquals(yaml.dump(root, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_ROOT, default_flow_style=False))
+        self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_ROLES, default_flow_style=False))
+        self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_INFRASTRUCTURES, default_flow_style=False))
+        self.assertEquals(yaml.dump(actions, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_ACTIONS, default_flow_style=False))
+        self.assertEquals(yaml.dump(resources, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_RESOURCES, default_flow_style=False))
 
     def test_parse_params_valid(self):
         raw_params = maccli.service.macfile.parse_params(MOCK_MACFILE_PARAMS, MACFILE_PARAMS_VALID)

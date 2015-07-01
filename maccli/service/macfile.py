@@ -96,7 +96,7 @@ def validate_param(actual, expected, optional=None):
     if len(unexpected_optional):
         error = "Incorrect file format. The following parameters are unexpected:\n"
         for p in unexpected_optional:
-            error += " - %s" % p
+            error += " - %s\n" % p
         raise MacParamValidationError(error)
 
     notpresent = is_present(actual, expected)
@@ -114,12 +114,20 @@ def validate_param(actual, expected, optional=None):
 
 def is_present(actual, expected):
     """ evaluates if all params in actual exist in expected  """
-    return filter(lambda x: x not in actual, expected)
+    if expected is None:
+        notfound = actual
+    else:
+        notfound = filter(lambda x: x not in actual, expected)
+    return notfound
 
 
 def is_unexpected(actual, expected):
     """ evaluates if there is a parameter in actual that does not exist in expected  """
-    return filter(lambda x: x not in expected, actual)
+    if expected is None:
+        unexpected = actual
+    else:
+        unexpected = filter(lambda x: x not in expected, actual)
+    return unexpected
 
 
 def parse_params(raw, params_raw):
@@ -163,9 +171,10 @@ def parse_macfile(string):
     """
     # validate root
     root_params = ['mac', 'version', 'name', 'description', 'roles', 'infrastructures']
+    root_params_optional = ['actions', 'resources']
     raw_root_keys = raw.keys()
     try:
-        validate_param(raw_root_keys, root_params)
+        validate_param(raw_root_keys, root_params, root_params_optional)
     except MacParamValidationError, e:
         show_error(e.message)
         exit(1)
@@ -188,33 +197,62 @@ def parse_macfile(string):
             show_error(e.message)
             exit(1)
 
-
     # validate infrastructures
-    infrastructure_optional_params = ['lifespan', 'deployment', 'release', 'provider', 'hardware', 'amount',
-                                      'environment']
-    infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
-                                  'release']
-    infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider', 'name', 'deployment',
-                                      'release']
     raw_infrastructure_root_keys = raw['infrastructures'].keys()
     actual_roles = []
     for key_infrastructure_root in raw_infrastructure_root_keys:
         raw_infrastructure_keys = raw['infrastructures'][key_infrastructure_root].keys()
-        try:
-            provider = raw['infrastructures'][key_infrastructure_root]['provider']
-        except:
-            provider = ""
+        if 'role' in raw_infrastructure_keys:
+            """ Infrastructure related with a role """
+            infrastructure_optional_params = ['lifespan', 'deployment', 'release', 'provider', 'hardware', 'amount',
+                                              'environment']
+            infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
+                                          'release']
+            infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider', 'name', 'deployment',
+                                              'release']
 
-        try:
-            if provider == "manageacloud":
-                validate_param(raw_infrastructure_keys, infrastructure_root_params_mac, infrastructure_optional_params)
-            else:
-                validate_param(raw_infrastructure_keys, infrastructure_root_params, infrastructure_optional_params)
-        except MacParamValidationError, e:
-            show_error(e.message)
-            exit(1)
+            try:
+                provider = raw['infrastructures'][key_infrastructure_root]['provider']
+            except:
+                provider = ""
 
-        actual_roles.append(raw['infrastructures'][key_infrastructure_root]["role"])
+            try:
+                if provider == "manageacloud":
+                    validate_param(raw_infrastructure_keys, infrastructure_root_params_mac, infrastructure_optional_params)
+                else:
+                    validate_param(raw_infrastructure_keys, infrastructure_root_params, infrastructure_optional_params)
+            except MacParamValidationError, e:
+                show_error(e.message)
+                exit(1)
+
+            actual_roles.append(raw['infrastructures'][key_infrastructure_root]["role"])
+        else:
+            """ Infrastructure related with a resource"""
+            infrastructure_optional_params = ['resource', 'action']
+            validate_param(raw_infrastructure_keys, None, infrastructure_optional_params)
+
+    # validate actions
+    if 'actions' in raw.keys():
+        actions_optional_params = ["ssh", "bash"]
+        raw_actions_root_keys = raw['actions'].keys()
+        for key_action_root in raw_actions_root_keys:
+            raw_action_keys = raw['actions'][key_action_root].keys()
+            if len(raw_action_keys) != 1:
+                print("The action '%s' does not have anything defined." % key_action_root)
+                exit(1)
+            validate_param(raw_action_keys, None, actions_optional_params)
+
+    # validate actions
+    if 'resources' in raw.keys():
+        actions_resource_params = ["create bash"]
+        raw_resources_root_keys = raw['resources'].keys()
+        for key_resource_root in raw_resources_root_keys:
+            raw_resource_keys = raw['resources'][key_resource_root].keys()
+            if len(raw_resource_keys) != 1:
+                print("The resource '%s' has defined %s child, and it should be one ." % key_resource_root)
+                exit(1)
+            validate_param(raw_resource_keys, None, actions_resource_params)
+
 
     # check the values of infrastructures > default > role
     not_existing_roles = is_unexpected(actual_roles, expected_roles)
@@ -237,4 +275,4 @@ def parse_macfile(string):
         'name': raw['name'],
     }
 
-    return root, raw['roles'], raw['infrastructures']
+    return root, raw['roles'], raw['infrastructures'], raw['actions'], raw['resources']
