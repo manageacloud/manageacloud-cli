@@ -16,6 +16,10 @@ actions:
    get_id:
       ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
 
+   get_availability_zone:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone
+
+
 resources:
 
    build_lb:
@@ -23,15 +27,15 @@ resources:
         aws elb create-load-balancer
           --load-balancer-name my-load-balancer
           --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80
-          --region us-east-1
-          --availability-zones us-east-1e us-east-1b us-east-1c
+          --region infrastructure.app_inf.location
+          --availability-zones role.app.get_availability_zone
 
    register_lb:
       create bash:
         aws elb register-instances-with-load-balancer
           --load-balancer-name my-load-balancer
           --instances role.app.get_id
-          --region us-east-1
+          --region infrastructure.app_inf.location
 
 infrastructures:
 
@@ -41,6 +45,7 @@ infrastructures:
     location: us-east-1
     hardware: t1.micro
     role: app
+    amount: 2
 
   build_lb_inf:
     resource: build_lb

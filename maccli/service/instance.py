@@ -4,6 +4,8 @@ import tempfile
 import pexpect
 
 import maccli.dao.api_instance
+import maccli.helper.cmd
+from maccli.helper.exception import InstanceDoesNotExistException, InstanceNotReadyException
 
 
 def list_instances():
@@ -35,17 +37,53 @@ def list_by_infrastructure(name, version):
     return filtered_instances
 
 
-def ssh_instance(instance_id, cmd=None):
+def ssh_command_instance(instance_id, cmd):
+    instance = maccli.dao.api_instance.credentials(instance_id)
+
+    if instance is None:
+        raise InstanceDoesNotExistException(instance_id)
+
+    if not (instance['privateKey'] or instance['password']):
+        raise InstanceNotReadyException(instance_id)
+
+    rc, stdout, stderr = -1, "", ""
+    if instance is not None and (instance['privateKey'] or instance['password']):
+        if instance['privateKey']:
+            tmp_fpath = tempfile.mkstemp()
+            try:
+                with open(tmp_fpath[1], "wb") as f:
+                    f.write(bytes(instance['privateKey']))
+
+                command = "ssh %s@%s -i %s %s" % (instance['user'], instance['ip'], f.name, cmd)
+                rc, stdout, stderr = maccli.helper.cmd.run(command)
+
+            finally:
+                os.remove(tmp_fpath[1])
+        else:
+            """ Authentication with password """
+            print("NOT IMPLEMENTED")
+            exit(1)
+            # command = "ssh %s@%s %s" % (instance['user'], instance['ip'], cmd)
+            # child = pexpect.spawn(command)
+            # i = child.expect(['.* password:', "yes/no"], timeout=60)
+            # if i == 1:
+            #     child.sendline("yes")
+            #     child.expect('.* password:', timeout=60)
+            #
+            # child.sendline(instance['password'])
+            # child.interact()
+
+    return rc, stdout, stderr
+
+
+def ssh_interactive_instance(instance_id):
     """
-        ssh to an existing instance
+        ssh to an existing instance for an interactive session
     """
+    stdout = None
     instance = maccli.dao.api_instance.credentials(instance_id)
 
     if instance is not None:
-
-        command_str = ""
-        if cmd is not None:
-            command_str = "%s" % cmd
 
         if instance['privateKey']:
             """ Authentication with private key """
@@ -53,14 +91,16 @@ def ssh_instance(instance_id, cmd=None):
             try:
                 with open(tmp_fpath[1], "wb") as f:
                     f.write(bytes(instance['privateKey']))
-                command = "ssh %s@%s -i %s %s" % (instance['user'], instance['ip'], f.name, command_str)
+
+                command = "ssh %s@%s -i %s " % (instance['user'], instance['ip'], f.name)
                 os.system(command)
+
             finally:
                 os.remove(tmp_fpath[1])
 
         else:
             """ Authentication with password """
-            command = "ssh %s@%s %s" % (instance['user'], instance['ip'], command_str)
+            command = "ssh %s@%s" % (instance['user'], instance['ip'])
             child = pexpect.spawn(command)
             i = child.expect(['.* password:', "yes/no"], timeout=60)
             if i == 1:
@@ -70,6 +110,7 @@ def ssh_instance(instance_id, cmd=None):
             child.sendline(instance['password'])
             child.interact()
 
+    return stdout
 
 def create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
                     environments, hd, port, metadata=None, applyChanges=True):

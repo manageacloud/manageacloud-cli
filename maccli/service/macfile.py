@@ -241,6 +241,9 @@ def parse_macfile(string):
                 print("The action '%s' does not have anything defined." % key_action_root)
                 exit(1)
             validate_param(raw_action_keys, None, actions_optional_params)
+    else:
+        raw['actions'] = []
+
 
     # validate actions
     if 'resources' in raw.keys():
@@ -252,6 +255,8 @@ def parse_macfile(string):
                 print("The resource '%s' has defined %s child, and it should be one ." % key_resource_root)
                 exit(1)
             validate_param(raw_resource_keys, None, actions_resource_params)
+    else:
+        raw['resources'] = []
 
 
     # check the values of infrastructures > default > role

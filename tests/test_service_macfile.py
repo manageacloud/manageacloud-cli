@@ -26,16 +26,15 @@ class MacfileServiceTestCase(unittest.TestCase):
     def tearDown(self):
         sys.stdout = self.stdout
 
-
     def test_open_file(self):
         contents = maccli.service.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
-        root, roles, infrastructures = maccli.service.macfile.parse_macfile(contents)
+        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
 
     def test_open_file_no_order(self):
         contents = maccli.service.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
-        root, roles, infrastructures = maccli.service.macfile.parse_macfile(contents)
+        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
         self.assertNotEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_NO_ORDER_INF, default_flow_style=False))
 
     def test_convert_args_to_yaml(self):
@@ -44,7 +43,7 @@ class MacfileServiceTestCase(unittest.TestCase):
 
     def test_open_file_port(self):
         contents = maccli.service.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
-        root, roles, infrastructures = maccli.service.macfile.parse_macfile(contents)
+        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
 
@@ -56,7 +55,8 @@ class MacfileServiceTestCase(unittest.TestCase):
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_ROLES, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_INFRASTRUCTURES, default_flow_style=False))
         self.assertEquals(yaml.dump(actions, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_ACTIONS, default_flow_style=False))
-        self.assertEquals(yaml.dump(resources, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_RESOURCES, default_flow_style=False))
+        self.assertEquals(resources, MOCK_PARSE_MACFILE_V2_EXPECTED_RESOURCES)
+        #self.assertEquals(yaml.dump(resources, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_RESOURCES, default_flow_style=False))
 
     def test_parse_params_valid(self):
         raw_params = maccli.service.macfile.parse_params(MOCK_MACFILE_PARAMS, MACFILE_PARAMS_VALID)

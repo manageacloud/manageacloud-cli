@@ -57,6 +57,74 @@ Once is installed, you need to login. [Create an account](https://manageacloud.c
 ## Documentation
 The documentation is available at the [official website](https://manageacloud.com/docs)
 
+## Examples
+
+Create two instances of [Demo Application](https://manageacloud.com/configuration/demo_application>) in Amazon Web Services and configure a load balancer.
+
+
+```yaml
+
+    mac: 0.7.1
+    description: Infrastructure demo
+    name: demo
+    version: '1.0'
+
+    roles:
+
+      app:
+        instance create:
+          configuration: demo_application
+          environment:
+          - DB_IP: 127.0.0.1
+          - APP_BRANCH: master
+
+    actions:
+       get_id:
+          ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
+
+       get_availability_zone:
+          ssh: wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone
+
+
+    resources:
+
+       build_lb:
+          create bash:
+            aws elb create-load-balancer
+              --load-balancer-name my-load-balancer
+              --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80
+              --region infrastructure.app_inf.location
+              --availability-zones role.app.get_availability_zone
+
+       register_lb:
+          create bash:
+            aws elb register-instances-with-load-balancer
+              --load-balancer-name my-load-balancer
+              --instances role.app.get_id
+              --region infrastructure.app_inf.location
+
+    infrastructures:
+
+      app_inf:
+        name: app
+        provider: amazon
+        location: us-east-1
+        hardware: t1.micro
+        role: app
+        amount: 2
+
+      build_lb_inf:
+        resource: build_lb
+
+      register_lb_inf:
+        resource: register_lb
+```
+
+Demo requirements:
+ - Install and configure [aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html#install-with-pip>) and [mac cli](https://manageacloud.com/article/orchestration/cli/installation)
+ - Deploy a production server at Amazon Web Services using [Manageacloud](https://manageacloud.com/login) (sign up takes 1 minute)
+ - save the previous contents to a file called `infrastructure.macfile` and run the command `mac infrastructure macfile infrastructure.macfile`
+
 ## Build status
 
 Distribution  | Status

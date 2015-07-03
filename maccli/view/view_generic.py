@@ -30,3 +30,11 @@ def header(text, char=None):
     print(text)
     print(char * len(text))
     print()
+
+
+def cmd_error(command, rc, stdout, stderr):
+    show_error("Script exited with code %s" % rc)
+    show_error(command)
+    show_error("Error details: %s" % stderr)
+    if stdout != "":
+        show_error("Extra output: %s " % stdout)
