@@ -176,7 +176,7 @@ Create an AMI from [Demo Application](https://manageacloud.com/configuration/dem
                 --launch-configuration-name my-lc
                 --image-id resource.create_image_inf.json.ImageId
                 --instance-type infrastructure.image_base_inf.hardware
-                --security-groups role.app.get_security_groups
+                --security-groups infrastructure.image_base_inf.get_security_groups
                 --region infrastructure.image_base_inf.location
     
        create_autoscale_group:
@@ -184,7 +184,7 @@ Create an AMI from [Demo Application](https://manageacloud.com/configuration/dem
               aws autoscaling create-auto-scaling-group
                 --auto-scaling-group-name my-lb-asg
                 --launch-configuration-name my-lc
-                --availability-zones role.app.get_availability_zone
+                --availability-zones infrastructure.image_base_inf.get_availability_zone
                 --load-balancer-names my-load-balancer
                 --max-size 5
                 --min-size 1
@@ -221,9 +221,9 @@ Create an AMI from [Demo Application](https://manageacloud.com/configuration/dem
 ```
 
 Demo requirements:
- - Install and configure [aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html#install-with-pip>) and [mac cli](https://manageacloud.com/article/orchestration/cli/installation)
- - Deploy a production server at Amazon Web Services using [Manageacloud](https://manageacloud.com/login) (sign up takes 1 minute)
- - save the previous contents to a file called `infrastructure.macfile` and run the command `mac infrastructure macfile infrastructure.macfile`
+ - Install and configure [aws cli](http://docs.aws.amazon.com/cli/latest/userguide/installing.html#install-with-pip) and [mac cli](https://manageacloud.com/article/orchestration/cli/installation)
+ - [Deploy a production server](https://manageacloud.com/article/orchestration/web) at Amazon Web Services using [Manageacloud](https://manageacloud.com/login) (sign up takes 1 minute)
+ - Save the previous contents to a file called `infrastructure.macfile` and run the command `mac infrastructure macfile infrastructure.macfile`
 
 ## Build status
 
