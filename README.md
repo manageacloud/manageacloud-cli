@@ -225,6 +225,8 @@ Demo requirements:
  - [Deploy a production server](https://manageacloud.com/article/orchestration/web) at Amazon Web Services using [Manageacloud](https://manageacloud.com/login) (sign up takes 1 minute)
  - Save the previous contents to a file called `infrastructure.macfile` and run the command `mac infrastructure macfile infrastructure.macfile`
 
+After Manageacloud finishes please allow 1 to 5 minutes for the load balancer to be completely functional in AWS.
+
 ## Build status
 
 Distribution  | Status
