@@ -1,83 +1,94 @@
-mac: 0.7.1
-description: Scaled and Load-Balanced Application
-name: demo
-version: '1.0'
-
-roles:
-  app:
-    instance create:
-      configuration: demo_application
-      environment:
-      - DB_IP: 127.0.0.1
-      - APP_BRANCH: master
-
-actions:
-   get_id:
-      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
-
-   get_availability_zone:
-      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone
-
-   get_security_groups:
-      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/security-groups
-
-resources:
-   build_lb:
-      create bash:
-        aws elb create-load-balancer
-          --load-balancer-name my-load-balancer
-          --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80
-          --region infrastructure.image_base_inf.location
-          --availability-zones role.app.get_availability_zone
-
-   create_image:
-      create bash:
-          aws ec2 create-image
-            --instance-id infrastructure.image_base_inf.get_id
-            --name DemoApplication3
-            --description MyDemoApplication
-            --region infrastructure.image_base_inf.location
-
-   create_launch_configuration:
-      create bash:
-          aws autoscaling create-launch-configuration
-            --launch-configuration-name my-lc
-            --image-id resource.create_image_inf.json.ImageId
-            --instance-type infrastructure.image_base_inf.hardware
-            --security-groups role.app.get_security_groups
-            --region infrastructure.image_base_inf.location
-
-   create_autoscale_group:
-      create bash:
-          aws autoscaling create-auto-scaling-group
-            --auto-scaling-group-name my-lb-asg
-            --launch-configuration-name my-lc
-            --availability-zones role.app.get_availability_zone
-            --load-balancer-names my-load-balancer
-            --max-size 5
-            --min-size 1
-            --desired-capacity 2
-            --region infrastructure.image_base_inf.location
-
-infrastructures:
-
-  image_base_inf:
-    name: app
-    provider: amazon
-    location: us-east-1
-    hardware: t1.micro
-    role: app
-    amount: 1
-
-  build_lb_inf:
-    resource: build_lb
-
-  create_image_inf:
-    ready: role.app
-    resource: create_image
-
-  create_launch_configuration_inf:
-    resource: create_launch_configuration
-
-  create_autoscale_group_inf:
-    resource: create_autoscale_group
+    mac: 0.7.1
+    description: Scaled and Load-Balanced Application
+    name: demo
+    version: '1.0'
+    
+    roles:
+      app:
+        instance create:
+          # application configuration defined at https://manageacloud.com/configuration/demo_application
+          configuration: demo_application
+          environment:
+          - DB_IP: 127.0.0.1
+          - APP_BRANCH: master
+    
+    actions:
+       # will be executed on the instances to fetch information
+       get_id:
+          ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
+    
+       get_availability_zone:
+          ssh: wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone
+    
+       get_security_groups:
+          ssh: wget -q -O - http://169.254.169.254/latest/meta-data/security-groups
+    
+    resources:
+       # resources creates configurations in the cloud.
+       
+       # creates load balancer
+       build_lb:
+          create bash:
+            aws elb create-load-balancer
+              --load-balancer-name my-load-balancer
+              --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80
+              --region infrastructure.image_base_inf.location
+              --availability-zones role.app.get_availability_zone
+    
+        # creates AMI from the role 'app'
+       create_image:
+          create bash:
+              aws ec2 create-image
+                --instance-id infrastructure.image_base_inf.get_id
+                --name DemoApplication3
+                --description MyDemoApplication
+                --region infrastructure.image_base_inf.location
+    
+       create_launch_configuration:
+          create bash:
+              aws autoscaling create-launch-configuration
+                --launch-configuration-name my-lc
+                --image-id resource.create_image_inf.json.ImageId
+                --instance-type infrastructure.image_base_inf.hardware
+                --security-groups role.app.get_security_groups
+                --region infrastructure.image_base_inf.location
+    
+       create_autoscale_group:
+          create bash:
+              aws autoscaling create-auto-scaling-group
+                --auto-scaling-group-name my-lb-asg
+                --launch-configuration-name my-lc
+                --availability-zones role.app.get_availability_zone
+                --load-balancer-names my-load-balancer
+                --max-size 5
+                --min-size 1
+                --desired-capacity 2
+                --region infrastructure.image_base_inf.location
+    
+    infrastructures:  # infrastructures runs everything. The order is preserved.
+    
+      # create E2C instance using the configuration for role 'app'
+      image_base_inf:
+        name: app
+        provider: amazon
+        location: us-east-1
+        hardware: t1.micro
+        role: app
+        amount: 1
+    
+      # create the load balancer
+      build_lb_inf:
+        resource: build_lb
+    
+      # create the AMI from the E2C instance created before
+      create_image_inf:
+        ready: role.app
+        resource: create_image
+    
+      # create launch configuration
+      create_launch_configuration_inf:
+        resource: create_launch_configuration
+    
+      # create autoscale group
+      create_autoscale_group_inf:
+        resource: create_autoscale_group
