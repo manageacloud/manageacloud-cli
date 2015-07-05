@@ -134,19 +134,19 @@ Demo requirements:
 Build status
 ------------
 
-|mac-1| Debian Wheezy 7
+|mac-1| `Wheezy 7 <https://manageacloud.com/configuration/mac/builds>`_
 
-|mac-2| Ubuntu Trusty Tahr 14.04
+|mac-2| `Ubuntu Trusty Tahr 14.04 <https://manageacloud.com/configuration/mac/builds>`_
 
-|mac-3| CentOS 6.5
+|mac-3| `CentOS 6.5 <https://manageacloud.com/configuration/mac/builds>`_
 
-|mac-5| CentOS 7
+|mac-5| `CentOS 7 <https://manageacloud.com/configuration/mac/builds>`_
 
-|mac-6| Ubuntu Utopic Unicorn 14.10
+|mac-6| `Ubuntu Utopic Unicorn 14.10 <https://manageacloud.com/configuration/mac/builds>`_
 
-|mac-7| Debian Jessie 8
+|mac-7| `Debian Jessie 8 <https://manageacloud.com/configuration/mac/builds>`_
 
-|mac-8| Ubuntu Ubuntu Vivid Vervet 15.04
+|mac-8| `Ubuntu Ubuntu Vivid Vervet 15.04 <https://manageacloud.com/configuration/mac/builds>`_
 
 .. |mac-1| image:: https://manageacloud.com/configuration/mac/build/1/image
 .. _mac-1: https://manageacloud.com/configuration/mac/builds

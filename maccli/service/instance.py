@@ -5,6 +5,7 @@ import pexpect
 
 import maccli.dao.api_instance
 import maccli.helper.cmd
+import maccli.helper.simplecache
 from maccli.helper.exception import InstanceDoesNotExistException, InstanceNotReadyException
 
 
@@ -38,40 +39,60 @@ def list_by_infrastructure(name, version):
 
 
 def ssh_command_instance(instance_id, cmd):
-    instance = maccli.dao.api_instance.credentials(instance_id)
-
-    if instance is None:
-        raise InstanceDoesNotExistException(instance_id)
-
-    if not (instance['privateKey'] or instance['password']):
-        raise InstanceNotReadyException(instance_id)
 
     rc, stdout, stderr = -1, "", ""
-    if instance is not None and (instance['privateKey'] or instance['password']):
-        if instance['privateKey']:
-            tmp_fpath = tempfile.mkstemp()
-            try:
-                with open(tmp_fpath[1], "wb") as f:
-                    f.write(bytes(instance['privateKey']))
+    cache_hash = maccli.helper.simplecache.hash_value(cmd)
+    cache_key = 'ssh_%s_%s' % (instance_id, cache_hash)
+    cached_value = maccli.helper.simplecache.get(cache_key)  # read from cache
 
-                command = "ssh %s@%s -i %s %s" % (instance['user'], instance['ip'], f.name, cmd)
-                rc, stdout, stderr = maccli.helper.cmd.run(command)
+    if cached_value is not None:
+        rc = cached_value['rc']
+        stdout = cached_value['stdout']
+        stderr = cached_value['stderr']
+    else:
 
-            finally:
-                os.remove(tmp_fpath[1])
-        else:
-            """ Authentication with password """
-            print("NOT IMPLEMENTED")
-            exit(1)
-            # command = "ssh %s@%s %s" % (instance['user'], instance['ip'], cmd)
-            # child = pexpect.spawn(command)
-            # i = child.expect(['.* password:', "yes/no"], timeout=60)
-            # if i == 1:
-            #     child.sendline("yes")
-            #     child.expect('.* password:', timeout=60)
-            #
-            # child.sendline(instance['password'])
-            # child.interact()
+        instance = maccli.dao.api_instance.credentials(instance_id)
+
+        if instance is None:
+            raise InstanceDoesNotExistException(instance_id)
+
+        if not (instance['privateKey'] or instance['password']):
+            raise InstanceNotReadyException(instance_id)
+
+        if instance is not None and (instance['privateKey'] or instance['password']):
+            if instance['privateKey']:
+                tmp_fpath = tempfile.mkstemp()
+                try:
+                    with open(tmp_fpath[1], "wb") as f:
+                        f.write(bytes(instance['privateKey']))
+
+                    command = "ssh %s@%s -i %s %s" % (instance['user'], instance['ip'], f.name, cmd)
+                    rc, stdout, stderr = maccli.helper.cmd.run(command)
+
+                finally:
+                    os.remove(tmp_fpath[1])
+            else:
+                """ Authentication with password """
+                print("NOT IMPLEMENTED")
+                exit(1)
+                # command = "ssh %s@%s %s" % (instance['user'], instance['ip'], cmd)
+                # child = pexpect.spawn(command)
+                # i = child.expect(['.* password:', "yes/no"], timeout=60)
+                # if i == 1:
+                #     child.sendline("yes")
+                #     child.expect('.* password:', timeout=60)
+                #
+                # child.sendline(instance['password'])
+                # child.interact()
+
+        # save cache
+        if not rc:
+            cached_value = {
+                'rc': rc,
+                'stdout': stdout,
+                'stderr': stderr
+            }
+            maccli.helper.simplecache.set_value(cache_key, cached_value)
 
     return rc, stdout, stderr
 

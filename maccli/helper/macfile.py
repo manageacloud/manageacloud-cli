@@ -1,3 +1,4 @@
+import json
 from maccli.helper.exception import InstanceNotReadyException, InstanceDoesNotExistException
 import maccli.service.instance
 __author__ = 'tk421'
@@ -12,7 +13,10 @@ def has_dependencies(text, roles, infrastructures, actions):
          - infrastructure.[infrastructure name].[action]
 
         returns true of false
+
     """
+    # TODO add validation for resources
+    # TODO add validation for cases where name is incorrect. e.g infrastructure.image_base.get_id instead infrastructure.image_base_inf.get_id
     has_deps = False
     matches = get_dependencies(text)
     if matches:
@@ -29,6 +33,8 @@ def has_dependencies(text, roles, infrastructures, actions):
                 else:
                     maccli.logger.warn("%s.%s.%s has been found but %s does not match with an action"
                                        % (type_name, name, action, action))
+            elif type_name == "resource":  # TODO add more validation
+                has_deps = True
             else:
                 maccli.logger.warn("%s.%s.%s has been found but %s does not match with a %s"
                                    % (type_name, name, action, name, type_name))
@@ -44,7 +50,7 @@ def get_dependencies(text):
 
         returns true of false
     """
-    a = re.compile("(role|infrastructure)\.([a-zA-Z0-9_\-\.]*?)\.([a-zA-Z0-9_\-\.]*)($|\s)", re.IGNORECASE)
+    a = re.compile("(role|infrastructure|resource)\.([a-zA-Z0-9_\-\.]*?)\.([a-zA-Z0-9_\-\.]*)($|\s)", re.IGNORECASE)
     matches = a.findall(text)
 
     maccli.logger.debug("Searching for dependencies at %s" % text)
@@ -60,7 +66,7 @@ def get_action_ssh(name, actions):
     return toreturn
 
 
-def parse_envs(text, instances, roles, infrastructures, actions):
+def parse_envs(text, instances, roles, infrastructures, actions, processed_resources):
     """ replace the dependencies between roles using actions
         a dependency is somthing with the format:
          - role.[role_name].[action]
@@ -83,6 +89,24 @@ def parse_envs(text, instances, roles, infrastructures, actions):
                 value = infrastructures[name][action]
                 text = text.replace("%s.%s.%s" % (type_name, name, action), value)
                 match_processed = True
+
+            elif any(name in d for d in processed_resources):
+                for processed_resource in processed_resources:
+                    if name in processed_resource:
+                        value_raw = processed_resource[name]['stdout']
+                        text_format, text_id = action.split(".")
+
+                        if text_format == "json":
+                            try:
+                                value_json = json.loads(value_raw.strip())
+                                value = value_json[text_id]
+                                text = text.replace("%s.%s.%s" % (type_name, name, action), value)
+                                match_processed = True
+                            except KeyError:
+                                match_processed = False
+
+                        else:
+                            raise NotImplementedError
 
             elif action in actions:
                 #  substitution is an action

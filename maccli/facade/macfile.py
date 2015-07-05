@@ -345,6 +345,19 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                 log_type = "resource"
                 key = infrastructure['resource']
                 command_raw = resources[key]['create bash']
+                if 'ready' in infrastructure:  # wait for the instance to be ready before proceeding
+                    instances_ready = infrastructure['ready']  # role.app
+                    maccli.logger.debug("Infrastructure %s infrastructure_key requires %s ready before proceeding" % (infrastructure_key, instances_ready))
+                    instance_type, role_name = instances_ready.split(".")
+                    for instance in processed_instances:
+                        instance_role_name = instance['metadata']['infrastructure']['macfile_role_name']
+                        instance_infrastructure_name = instance['metadata']['infrastructure']['macfile_infrastructure_name']
+                        if instance_role_name == role_name or instance_infrastructure_name == role_name:
+                            if not instance['status'].startswith("Ready"):  # instances are not ready, so let's break the loop
+                                maccli.logger.info("%s is not ready yet, waiting ...", instance['id'])
+                                finish = False
+                                break  # exit from loop to avoid processing other resources
+
             elif 'action' in infrastructure:
                 maccli.logger.debug("Type action")
                 log_type = "action"
@@ -357,45 +370,46 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
             else:
                 raise NotImplementedError
 
-            maccli.logger.debug("%s %s command_raw: %s " % (log_type, key, command_raw))
-            command_clean = command_raw
-            is_parsed = True
-            if maccli.helper.macfile.has_dependencies(command_raw, roles, infrastructures, actions):
-                maccli.logger.debug("Running %s %s with dependency, requested by infrastructure %s" % (log_type, key, infrastructure_key))
-                try:
-                    command_clean, is_parsed = maccli.helper.macfile.parse_envs(command_raw, instances, roles, infrastructures, actions)
-                except InstanceDoesNotExistException as e:
-                    raise MacResourceException("Instance %s  does not exist " % e)
-            else:
-                maccli.logger.debug("Running %s %s with no dependency, requested by infrastructure %s" % (log_type, key, infrastructure_key))
-
-            if is_parsed:
-                rc, stdout, stderr = maccli.helper.cmd.run(command_clean)
-
-                if rc == 0:
-                    if quiet:
-                        maccli.view.view_generic.show("%s executed successfully" % infrastructure_key)
-                    else:
-                        maccli.view.view_generic.clear()
-                        maccli.view.view_instance.show_instances(processed_instances)
-                        maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, processed_resources)
-                    resources_processed.append({infrastructure_key: {'stderr': stderr, 'stdout': stdout, 'rc': rc}})
-                    if stdout:
-                        maccli.logger.debug("STDOUT: %s " % stdout)
-                    if stderr:
-                        maccli.logger.debug("STDERR: %s " % stderr)
+            if finish:  # if finish is false the process was aborted above
+                maccli.logger.debug("%s %s command_raw: %s " % (log_type, key, command_raw))
+                command_clean = command_raw
+                is_parsed = True
+                if maccli.helper.macfile.has_dependencies(command_raw, roles, infrastructures, actions):
+                    maccli.logger.debug("Running %s %s with dependency, requested by infrastructure %s" % (log_type, key, infrastructure_key))
+                    try:
+                        command_clean, is_parsed = maccli.helper.macfile.parse_envs(command_raw, instances, roles, infrastructures, actions, processed_resources)
+                    except InstanceDoesNotExistException as e:
+                        raise MacResourceException("Instance %s  does not exist " % e)
                 else:
-                    if quiet:
-                        maccli.view.view_generic.cmd_error(command_clean, rc, stdout, stderr)
-                    else:
-                        maccli.view.view_generic.clear()
-                        maccli.view.view_instance.show_instances(processed_instances)
-                        maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, processed_resources)
+                    maccli.logger.debug("Running %s %s with no dependency, requested by infrastructure %s" % (log_type, key, infrastructure_key))
 
-                    raise MacResourceException("Error while executing resource %s " % infrastructure_key)
-            else:
-                finish = False
-                break  # exit from loop to avoid processing other resources
+                if is_parsed:
+                    rc, stdout, stderr = maccli.helper.cmd.run(command_clean)
+
+                    if rc == 0:
+                        if quiet:
+                            maccli.view.view_generic.show("%s executed successfully" % infrastructure_key)
+                        else:
+                            maccli.view.view_generic.clear()
+                            maccli.view.view_instance.show_instances(processed_instances)
+                            maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, processed_resources)
+                        resources_processed.append({infrastructure_key: {'stderr': stderr, 'stdout': stdout, 'rc': rc}})
+                        if stdout:
+                            maccli.logger.debug("STDOUT: %s " % stdout)
+                        if stderr:
+                            maccli.logger.debug("STDERR: %s " % stderr)
+                    else:
+                        if quiet:
+                            maccli.view.view_generic.cmd_error(command_clean, rc, stdout, stderr)
+                        else:
+                            maccli.view.view_generic.clear()
+                            maccli.view.view_instance.show_instances(processed_instances)
+                            maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, processed_resources)
+
+                        raise MacResourceException("Error while executing resource %s " % infrastructure_key)
+                else:
+                    finish = False
+                    break  # exit from loop to avoid processing other resources
 
     return resources_processed, finish
 

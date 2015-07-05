@@ -6,7 +6,7 @@ import maccli
 
 def run(command):
     cmd_parts = command.strip().split(" ")
-    maccli.logger.debug("Running bash: %s " % cmd_parts)
+    maccli.logger.debug("Running bash: %s " % command)
     process = subprocess.Popen(cmd_parts, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     process.wait()
     rc = process.returncode
