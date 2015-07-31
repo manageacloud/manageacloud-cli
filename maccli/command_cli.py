@@ -34,6 +34,9 @@ def help():
 
 def login():
     try:
+        view.view_generic.show("")
+        view.view_generic.show("If you don't have credentials, please register at https://manageacloud.com")
+        view.view_generic.show("")
         username = raw_input("Username or email: ")
         password = getpass.getpass()
 
