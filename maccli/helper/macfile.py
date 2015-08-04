@@ -42,6 +42,24 @@ def has_dependencies(text, roles, infrastructures, actions):
     return has_deps
 
 
+def is_role_dependencies_ready(infrastructure, processed_instances, infrastructure_key):
+    """ Return if the role dependencies are ready """
+    ready = True # we just return a boolean we are not ready
+    if 'ready' in infrastructure:  # check if infrastructure has dependencies
+        instances_ready = infrastructure['ready']  # role.app
+        maccli.logger.debug("Infrastructure %s infrastructure_key requires %s ready before proceeding" % (infrastructure_key, instances_ready))
+        instance_type, role_name = instances_ready.split(".")
+
+        for instance in processed_instances:
+            instance_role_name = instance['metadata']['infrastructure']['macfile_role_name']
+            instance_infrastructure_name = instance['metadata']['infrastructure']['macfile_infrastructure_name']
+            if instance_role_name == role_name or instance_infrastructure_name == role_name:
+                if not ("Error" in instance['status'] or instance['status'].startswith("Ready")):
+                    maccli.logger.info("%s is not ready yet, waiting ...", instance['id'])
+                    ready = False
+                    break  # exit from loop to avoid processing other resources
+    return ready
+
 def get_dependencies(text):
     """ check of there are dependencies in the text
         a dependency is somthing with the format:

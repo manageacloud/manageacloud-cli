@@ -259,7 +259,13 @@ def apply_instance_infrastructure_changes(instances, infrastructure_name, versio
     for instance in instances:
 
         if instance['status'] == "Instance completed":
-            configuration_pending.append(instance)
+            infrastructure_key = instance['metadata']['infrastructure']['macfile_infrastructure_name']
+            infrastructure = infrastructures[infrastructure_key]
+            dependencies_ready = maccli.helper.macfile.is_role_dependencies_ready(infrastructure, instances, infrastructure_key)
+            if dependencies_ready:
+                configuration_pending.append(instance)
+            else:
+                maccli.logger.debug("[%s] instance discarded as 'ready' dependencies are not met" % instance['servername'])
 
         if instance['ipv4'] is not None:
             other_instances.append(instance)
@@ -346,17 +352,9 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                 key = infrastructure['resource']
                 command_raw = resources[key]['create bash']
                 if 'ready' in infrastructure:  # wait for the instance to be ready before proceeding
-                    instances_ready = infrastructure['ready']  # role.app
-                    maccli.logger.debug("Infrastructure %s infrastructure_key requires %s ready before proceeding" % (infrastructure_key, instances_ready))
-                    instance_type, role_name = instances_ready.split(".")
-                    for instance in processed_instances:
-                        instance_role_name = instance['metadata']['infrastructure']['macfile_role_name']
-                        instance_infrastructure_name = instance['metadata']['infrastructure']['macfile_infrastructure_name']
-                        if instance_role_name == role_name or instance_infrastructure_name == role_name:
-                            if not instance['status'].startswith("Ready"):  # instances are not ready, so let's break the loop
-                                maccli.logger.info("%s is not ready yet, waiting ...", instance['id'])
-                                finish = False
-                                break  # exit from loop to avoid processing other resources
+                    is_role_ready = maccli.helper.macfile.is_role_dependencies_ready(infrastructure, processed_instances, infrastructure_key)
+                    if not is_role_ready: # we only change the variable if False is returned
+                        finish = is_role_ready
 
             elif 'action' in infrastructure:
                 maccli.logger.debug("Type action")
@@ -365,7 +363,10 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                 command_raw = actions[key]['bash']
                 # TODO ssh not implemented
             elif 'role' in infrastructure:
-                # instance
+                # if 'ready' in infrastructure:  # wait for the instance to be ready before proceeding
+                #     section_finish = maccli.helper.macfile.wait_until_ready(infrastructure, processed_instances, infrastructure_key)
+                #     if isinstance(section_finish, bool):
+                #         finish = section_finish
                 continue
             else:
                 raise NotImplementedError

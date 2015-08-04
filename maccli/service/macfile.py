@@ -205,7 +205,7 @@ def parse_macfile(string):
         if 'role' in raw_infrastructure_keys:
             """ Infrastructure related with a role """
             infrastructure_optional_params = ['lifespan', 'deployment', 'release', 'provider', 'hardware', 'amount',
-                                              'environment']
+                                              'environment', 'ready']
             infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
                                           'release']
             infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider', 'name', 'deployment',
@@ -244,8 +244,7 @@ def parse_macfile(string):
     else:
         raw['actions'] = []
 
-
-    # validate actions
+    # validate resources
     if 'resources' in raw.keys():
         actions_resource_params = ["create bash"]
         raw_resources_root_keys = raw['resources'].keys()
@@ -257,7 +256,6 @@ def parse_macfile(string):
             validate_param(raw_resource_keys, None, actions_resource_params)
     else:
         raw['resources'] = []
-
 
     # check the values of infrastructures > default > role
     not_existing_roles = is_unexpected(actual_roles, expected_roles)
