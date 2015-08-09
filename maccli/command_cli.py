@@ -151,6 +151,10 @@ def instance_destroy_help():
     view.view_instance.show_instance_destroy_help()
 
 
+def instance_update_help():
+    view.view_instance.show_instance_update_help()
+
+
 def instance_ssh_help():
     view.view_instance.show_instance_ssh_help()
 
@@ -159,9 +163,27 @@ def instance_destroy(ids):
     try:
         maccli.logger.debug("Destroying instances %s " % ids)
         instances = []
-        for instanceid in ids:
-            maccli.logger.debug("Destroying instance %s " % ids)
-            instance = service.instance.destroy_instance(instanceid)
+        for instance_id in ids:
+            maccli.logger.debug("Destroying instance %s " % instance_id)
+            instance = service.instance.destroy_instance(instance_id)
+            instances.append(instance)
+
+        if instances is not None:
+            view.view_instance.show_instances(instances)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def instance_update(ids):
+    try:
+        maccli.logger.debug("Updating instances %s " % ids)
+        instances = []
+        for instance_id in ids:
+            maccli.logger.debug("Updating instance %s " % instance_id)
+            instance = service.instance.update_configuration("", instance_id)
             instances.append(instance)
 
         if instances is not None:

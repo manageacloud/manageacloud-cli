@@ -2,6 +2,7 @@ from __future__ import print_function
 import sys
 
 from prettytable import PrettyTable
+import maccli.view.view_generic
 
 
 def show_instances(instances):
@@ -71,6 +72,13 @@ def show_instance_destroy_help():
     print("")
 
 
+def show_instance_update_help():
+    print("")
+    print("Show more help:")
+    print("")
+    print("    mac instance update -h")
+    print("")
+
 def show_instance_ssh_help():
     print("")
     print("Show more help:")
@@ -123,22 +131,20 @@ def show_logs(logs):
     print("")
     print("")
     if len(logs['cloudServerLogs']) > 0:
-        print("Server creation logs")
-        print("--------------------")
         for log in logs['cloudServerLogs']:
+            maccli.view.view_generic.header("Creation logs for %s" % log['created'])
             print(log['text'])
     else:
-        print("No creation logs available")
+        print("There is not creation logs")
 
     print("")
     print("")
     if len(logs['cloudServerBlockLogs']) > 0:
-        print("Apply configuration logs")
-        print("------------------------")
         for log in logs['cloudServerBlockLogs']:
+            maccli.view.view_generic.header("Configuration logs for %s" % log['created'])
             print(log['text'])
     else:
-        print("No logs available for applying configuration")
+        print("There is not configuration logs")
 
 
 def show_processing_instances(instances):

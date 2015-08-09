@@ -75,6 +75,13 @@ def dispatch_cmds(args):
                 maccli.command_cli.instance_create(args.configuration, args.deployment, args.location, args.name,
                                                    args.provider, args.release, args.branch, args.hardware, args.lifespan,
                                                    args.environment, args.hd, args.port)
+        elif args.subcmd == 'update':
+            if args.id is None:
+                show_error("Parameter 'id' is required.")
+                maccli.command_cli.instance_update_help()
+            else:
+                maccli.command_cli.instance_update(args.id)
+
         elif args.subcmd == 'destroy':
             if args.id is None:
                 show_error("Parameter 'id' is required.")

@@ -80,8 +80,12 @@ def add_instance_parser(subparsers):
     create_parser.add_argument('-y', '--yaml', action='store_true', default=False,
                                help="Prints the equivalent command in Macfile and exits.")
 
-
-
+    # update instance
+    update_parser = instance_subparser.add_parser('update',
+                                                   help='Run the server configuration',
+                                                   description='Run the server configuration')
+    update_parser.add_argument('id', nargs='*',
+                                help='Server ID or server name')
 
     # destroy instance
     destroy_parser = instance_subparser.add_parser('destroy',
@@ -99,7 +103,6 @@ def add_instance_parser(subparsers):
     ssh_parser.add_argument('id', help='Server ID or server name')
 
     ssh_parser.add_argument('-c', '--command', nargs=argparse.REMAINDER, help='Run a command and exit')
-
 
     # facts instance
     facts_parser = instance_subparser.add_parser('facts',
