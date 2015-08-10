@@ -73,17 +73,15 @@ def ssh_command_instance(instance_id, cmd):
                     os.remove(tmp_fpath[1])
             else:
                 """ Authentication with password """
-                print("NOT IMPLEMENTED")
-                exit(1)
-                # command = "ssh %s@%s %s" % (instance['user'], instance['ip'], cmd)
-                # child = pexpect.spawn(command)
-                # i = child.expect(['.* password:', "yes/no"], timeout=60)
-                # if i == 1:
-                #     child.sendline("yes")
-                #     child.expect('.* password:', timeout=60)
-                #
-                # child.sendline(instance['password'])
-                # child.interact()
+                command = "ssh %s@%s %s" % (instance['user'], instance['ip'], cmd)
+                child = pexpect.spawn(command)
+                i = child.expect(['.* password:', "yes/no"], timeout=60)
+                if i == 1:
+                    child.sendline("yes")
+                    child.expect('.* password:', timeout=60)
+
+                child.sendline(instance['password'])
+                child.interact()
 
         # save cache
         if not rc:

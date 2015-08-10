@@ -77,12 +77,13 @@ def instance_list():
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_ssh(instance_id, command):
+def instance_ssh(ids, command):
     try:
-        if command is None:
-            service.instance.ssh_interactive_instance(instance_id)
-        else:
-            service.instance.ssh_command_instance(instance_id, command)
+        for instance_id in ids:
+            if command is None:
+                service.instance.ssh_interactive_instance(instance_id)
+            else:
+                service.instance.ssh_command_instance(instance_id, command)
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:
