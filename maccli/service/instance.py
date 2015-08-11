@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import pexpect
+import time
 
 import maccli.dao.api_instance
 import maccli.helper.cmd
@@ -9,11 +10,25 @@ import maccli.helper.simplecache
 from maccli.helper.exception import InstanceDoesNotExistException, InstanceNotReadyException
 
 
-def list_instances():
+def list_instances(name_or_ids = None):
     """
         List available instances in the account
     """
-    return maccli.dao.api_instance.get_list()
+    instances = []
+    instances_raw = maccli.dao.api_instance.get_list()
+    if name_or_ids is not None:
+
+        # if name_or_ids is string, convert to list
+        if isinstance(name_or_ids, basestring):
+            name_or_ids = [name_or_ids]
+
+        for instance_raw in instances_raw:
+            if instance_raw['servername'] in name_or_ids or instance_raw['id'] in name_or_ids:
+                instances.append(instance_raw)
+    else:
+        instances = instances_raw
+
+    return instances
 
 
 def list_by_infrastructure(name, version):
@@ -81,7 +96,21 @@ def ssh_command_instance(instance_id, cmd):
                     child.expect('.* password:', timeout=60)
 
                 child.sendline(instance['password'])
-                child.interact()
+                child.expect(pexpect.EOF)
+                output = child.before
+
+                while child.isalive():
+                    time.sleep(0.1)
+
+                rc = child.exitstatus
+
+                # HACK: we do not really capture stderr
+                if rc:
+                    stdout = ""
+                    stderr = output
+                else:
+                    stdout = output
+                    stderr = ""
 
         # save cache
         if not rc:

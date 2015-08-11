@@ -101,7 +101,7 @@ def add_instance_parser(subparsers):
                                        description='Connect via SSH to the server')
 
     ssh_parser.add_argument('id', nargs='*',
-                            help='Server ID or server name')
+                            help="Server ID or server name. It also accepts several values. If value is 'all' it applies to all servers.")
 
     ssh_parser.add_argument('-c', '--command', nargs=argparse.REMAINDER, help='Run a command and exit')
 

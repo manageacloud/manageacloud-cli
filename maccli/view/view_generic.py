@@ -1,9 +1,20 @@
 from __future__ import print_function
 import sys
 
+# define colors
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+
 
 def show(string=""):
     print(string)
+
+
+def showc(string, colour=WHITE):
+    if _has_colours(sys.stdout):
+        seq = "\x1b[1;%dm" % (30 + colour) + string + "\x1b[0m"
+        sys.stdout.write(seq)
+    else:
+        sys.stdout.write(string)
 
 
 def show_error(string):
@@ -38,3 +49,20 @@ def cmd_error(command, rc, stdout, stderr):
     show_error("Error details: %s" % stderr)
     if stdout != "":
         show_error("Extra output: %s " % stdout)
+
+
+def _has_colours(stream):
+    if not hasattr(stream, "isatty"):
+        return False
+    if not stream.isatty():
+        return False  # auto color only on TTYs
+    try:
+        import curses
+
+        curses.setupterm()
+        return curses.tigetnum("colors") > 2
+    except:
+        # guess false in case of error
+        return False
+
+

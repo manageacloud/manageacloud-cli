@@ -22,6 +22,7 @@ import view.view_generic
 import view.view_resource
 import view.view_infrastructure
 import maccli.view.view_hardware
+from view.view_generic import GREEN, RED
 from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE, CONFIGURATION_FAILED, \
     CREATION_FAILED
 from maccli.helper.exception import MacParseEnvException, MacErrorCreatingTier, MacParseParamException, \
@@ -77,13 +78,26 @@ def instance_list():
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_ssh(ids, command):
+def instance_ssh(raw_ids, command):
+
+    if raw_ids == ["all"]:  # run in all instances
+        ids = service.instance.list_instances()
+    else:
+        ids = service.instance.list_instances(name_or_ids=raw_ids)
+
     try:
-        for instance_id in ids:
+        for id in ids:
             if command is None:
-                service.instance.ssh_interactive_instance(instance_id)
+                service.instance.ssh_interactive_instance(id['id'])
             else:
-                service.instance.ssh_command_instance(instance_id, command)
+                maccli.view.view_generic.showc("[%s]" % id['servername'], GREEN)
+                rc, stdout, stderr = service.instance.ssh_command_instance(id['id'], command)
+                if stdout:
+                    maccli.view.view_generic.show(stdout)
+                if stderr:
+                    maccli.view.view_generic.showc(stderr, RED)
+                maccli.view.view_generic.show()
+
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:
