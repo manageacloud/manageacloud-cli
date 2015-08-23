@@ -160,6 +160,9 @@ def load_macfile(path):
 
 def parse_macfile(string):
 
+    print (string);
+    exit;
+
     raw = ordered_load(string, yaml.SafeLoader)
 
     """
@@ -170,8 +173,8 @@ def parse_macfile(string):
     :return: root, role and infrastructure contents
     """
     # validate root
-    root_params = ['mac', 'version', 'name', 'description', 'roles', 'infrastructures']
-    root_params_optional = ['actions', 'resources']
+    root_params = ['mac', 'version', 'name', 'description', 'infrastructures']
+    root_params_optional = ['actions', 'resources', 'roles']
     raw_root_keys = raw.keys()
     try:
         validate_param(raw_root_keys, root_params, root_params_optional)
@@ -184,18 +187,26 @@ def parse_macfile(string):
     role_root_params = ["instance create"]
     role_params = ['configuration']
     role_optional_params = ['branch', 'hd', 'lifespan', 'environment']
-    raw_role_root_keys = raw['roles'].keys()
-    for key_role_root in raw_role_root_keys:
-        expected_roles.append(key_role_root)
-        raw_role_keys = raw['roles'][key_role_root].keys()
-        try:
-            validate_param(raw_role_keys, role_root_params)
-            for key_role in raw_role_keys:
-                raw_role = raw['roles'][key_role_root][key_role].keys()
-                validate_param(raw_role, role_params, role_optional_params)
-        except MacParamValidationError, e:
-            show_error(e.message)
+
+    if 'roles' in raw:
+        if raw['roles'] is None:
+            show_error("Roles section defined but empty")
             exit(1)
+        else:
+            raw_role_root_keys = raw['roles'].keys()
+            for key_role_root in raw_role_root_keys:
+                expected_roles.append(key_role_root)
+                raw_role_keys = raw['roles'][key_role_root].keys()
+                try:
+                    validate_param(raw_role_keys, role_root_params)
+                    for key_role in raw_role_keys:
+                        raw_role = raw['roles'][key_role_root][key_role].keys()
+                        validate_param(raw_role, role_params, role_optional_params)
+                except MacParamValidationError, e:
+                    show_error(e.message)
+                    exit(1)
+    else:
+        raw['roles'] = []
 
     # validate infrastructures
     raw_infrastructure_root_keys = raw['infrastructures'].keys()

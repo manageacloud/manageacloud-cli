@@ -77,6 +77,11 @@ def add_instance_parser(subparsers):
                                help="List of ports that are opened. "
                                     "The port 22 (SSH) must be in the list. "
                                     "Example: 22,80,8020")
+
+    create_parser.add_argument('--net',
+                               help="Network related property. For provider 'amazon', VPC subnet id. ")
+
+
     create_parser.add_argument('-y', '--yaml', action='store_true', default=False,
                                help="Prints the equivalent command in Macfile and exits.")
 

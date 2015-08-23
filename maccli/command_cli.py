@@ -192,13 +192,17 @@ def instance_destroy(ids):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_update(ids):
+def instance_update(raw_ids):
     try:
-        maccli.logger.debug("Updating instances %s " % ids)
+        if raw_ids == ["all"]:  # run in all instances
+            ids = service.instance.list_instances()
+        else:
+            ids = service.instance.list_instances(name_or_ids=raw_ids)
+
         instances = []
-        for instance_id in ids:
-            maccli.logger.debug("Updating instance %s " % instance_id)
-            instance = service.instance.update_configuration("", instance_id)
+        for id in ids:
+            maccli.logger.debug("Updating instance %s " % id['id'])
+            instance = service.instance.update_configuration("", id['id'])
             instances.append(instance)
 
         if instances is not None:

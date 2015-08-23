@@ -1,0 +1,63 @@
+mac: 0.7.1
+description: VPC with Internet and public ips
+name: demo
+version: '1.0'
+
+actions:
+   get_id:
+      bash:
+        ws ec2 describe-route-tables --filters "Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId" --region us-east-1
+
+
+resources:
+
+   # creates VPC
+   create_vpc:
+      create bash:
+        aws ec2 create-vpc
+          --cidr-block 10.0.0.0/16
+          --region us-east-1
+
+   # creates VPC
+   create_subnet:
+      create bash:
+        aws ec2 create-subnet
+          --vpc-id resource.vpc_inf.json.Vpc.VpcId
+          --cidr-block 10.0.1.0/24
+          --region us-east-1
+
+   # create internet gateway
+   create_internet_gateway:
+      create bash:
+        aws ec2 create-internet-gateway
+        --region us-east-1
+
+   # attach Internet Gateway
+   attach_internet_gateway:
+      create bash:
+        aws ec2 attach-internet-gateway
+          --internet-gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
+
+   # create route
+   create_route:
+      create bash:
+        aws ec2 create-route
+          --route-table-id action.json.RouteTableId
+          --destination-cidr-block 0.0.0.0/0
+          --gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
+          --region us-east-1
+
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  vpc_inf:
+    resource: create_vpc
+
+  subnet_inf:
+    resource: create_subnet
+
+  internet_gateway_inf:
+    resource: create_internet_gateway
+
+  attach_internet_gateway_inf:
+    resource: create_internet_gateway
