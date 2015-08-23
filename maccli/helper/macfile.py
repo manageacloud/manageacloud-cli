@@ -60,6 +60,7 @@ def is_role_dependencies_ready(infrastructure, processed_instances, infrastructu
                     break  # exit from loop to avoid processing other resources
     return ready
 
+
 def get_dependencies(text):
     """ check of there are dependencies in the text
         a dependency is somthing with the format:

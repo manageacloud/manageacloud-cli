@@ -380,7 +380,7 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                     try:
                         command_clean, is_parsed = maccli.helper.macfile.parse_envs(command_raw, instances, roles, infrastructures, actions, processed_resources)
                     except InstanceDoesNotExistException as e:
-                        raise MacResourceException("Instance %s  does not exist " % e)
+                        raise MacResourceException("Instance %s  does not exist " % e, "Instance %s  does not exist " % e)
                 else:
                     maccli.logger.debug("Running %s %s with no dependency, requested by infrastructure %s" % (log_type, key, infrastructure_key))
 
@@ -394,7 +394,7 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                             maccli.view.view_generic.clear()
                             maccli.view.view_instance.show_instances(processed_instances)
                             maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, processed_resources)
-                        resources_processed.append({infrastructure_key: {'stderr': stderr, 'stdout': stdout, 'rc': rc}})
+                        resources_processed.append({infrastructure_key: {'stderr': stderr, 'stdout': stdout, 'rc': rc, 'cmd': command_clean}})
                         if stdout:
                             maccli.logger.debug("STDOUT: %s " % stdout)
                         if stderr:
@@ -407,7 +407,7 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                             maccli.view.view_instance.show_instances(processed_instances)
                             maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, processed_resources)
 
-                        raise MacResourceException("Error while executing resource %s " % infrastructure_key)
+                        raise MacResourceException("Error while executing resource %s " % infrastructure_key, {'stderr': stderr, 'stdout': stdout, 'rc': rc, 'cmd': command_clean})
                 else:
                     finish = False
                     break  # exit from loop to avoid processing other resources

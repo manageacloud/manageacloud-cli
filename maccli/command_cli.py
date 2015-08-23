@@ -331,6 +331,7 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 view.view_generic.show("Task raised errors.")
                 exit(6)
 
+        infrastructure_error_detail = None
         finish = False
         infrastructure_resources_failed = False
         infrastructure_resources_processed = []  # looks for the non-instance infrastructure
@@ -359,7 +360,8 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 infrastructure_resources_processed = infrastructure_resources_processed + processed_resources_part
                 maccli.logger.debug("Total resources processed: %s " % infrastructure_resources_processed)
                 finish = finish and finish_resources
-            except MacResourceException:
+            except MacResourceException as e:
+                infrastructure_error_detail = e[1]
                 infrastructure_resources_failed = True
                 finish = True
 
@@ -379,13 +381,27 @@ def process_macfile(file, resume, params, quiet, on_failure):
 
         if instances_failed or infrastructure_resources_failed:
             view.view_generic.show("")
-            view.view_generic.show("Infrastructure failed.")
+            view.view_generic.showc("Infrastructure failed.", RED)
+
+            # Of the error is in infrastructure, display it.
+            if infrastructure_error_detail is not None:
+                view.view_generic.show("")
+                if 'stderr' in infrastructure_error_detail:
+                    view.view_generic.show(infrastructure_error_detail['stderr'])
+                else:
+                    view.view_generic.show(infrastructure_error_detail)
+
+                if 'cmd' in infrastructure_error_detail:
+                    view.view_generic.show(infrastructure_error_detail['cmd'])
+
+
+            # if an instance failed, the details of the error are in the log
             view.view_generic.show("")
             view.view_generic.show("Logs available at")
             view.view_generic.show("    mac instance log <instance id or name>")
             exit(12)
         else:
-            view.view_generic.show("Infrastructure created successfully.")
+            view.view_generic.showc("Infrastructure created successfully.", GREEN)
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:
