@@ -72,3 +72,15 @@ class HelperMacfileTestCase(unittest.TestCase):
         actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES)
         self.assertEqual(actual, CMD_CLEAN)
         self.assertTrue(processed)
+
+    def test_parse_env_multilevel_json(self):
+        CMD_RAW = "aws ec2 create-subnet --vpc-id resource.vpc_inf.json.Vpc.VpcId --cidr-block 10.0.1.0/24 --region us-east-1"
+        INSTANCES = []
+        ROLES = []
+        INFRASTRUCTURES = OrderedDict([('vpc_inf', OrderedDict([('resource', 'create_vpc')])), ('subnet_inf', OrderedDict([('resource', 'create_subnet')])), ('internet_gateway_inf', OrderedDict([('resource', 'create_internet_gateway')])), ('attach_internet_gateway_inf', OrderedDict([('resource', 'create_internet_gateway')]))])
+        ACTIONS = OrderedDict([('get_id', OrderedDict([('bash', 'ws ec2 describe-route-tables --filters "Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId" --region us-east-1')]))])
+        PROCESSED_RESOURCES = [{'vpc_inf': {'rc': 0, 'stderr': '', 'stdout': '{\n    "Vpc": {\n        "InstanceTenancy": "default", \n        "State": "pending", \n        "VpcId": "vpc-7257a716", \n        "CidrBlock": "10.0.0.0/16", \n        "DhcpOptionsId": "dopt-838273e6"\n    }\n}\n'}}]
+        CMD_CLEAN = 'aws ec2 create-subnet --vpc-id vpc-7257a716 --cidr-block 10.0.1.0/24 --region us-east-1'
+        actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES)
+        self.assertEqual(actual, CMD_CLEAN)
+        self.assertTrue(processed)

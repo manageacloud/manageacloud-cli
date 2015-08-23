@@ -112,12 +112,16 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                 for processed_resource in processed_resources:
                     if name in processed_resource:
                         value_raw = processed_resource[name]['stdout']
-                        text_format, text_id = action.split(".")
+                        text_format, text_id_raw = action.split(".", 1)
 
                         if text_format == "json":
                             try:
+                                texts = text_id_raw.split(".")
                                 value_json = json.loads(value_raw.strip())
-                                value = value_json[text_id]
+                                value = value_json
+                                for text_part in texts:
+                                    value = value[text_part]
+
                                 text = text.replace("%s.%s.%s" % (type_name, name, action), value)
                                 match_processed = True
                             except KeyError:
