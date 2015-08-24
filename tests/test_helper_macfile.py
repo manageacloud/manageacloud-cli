@@ -31,6 +31,14 @@ class HelperMacfileTestCase(unittest.TestCase):
                                                                      MOCK_PARSE_MACFILE_V2_EXPECTED_INFRASTRUCTURES, MOCK_PARSE_MACFILE_V2_EXPECTED_ACTIONS)
         self.assertTrue(actual_dependencies)
 
+    def test_has_dependencies_action(self):
+        ROLES=[]
+        INFRASTRUCTURES=OrderedDict([('vpc_inf', OrderedDict([('resource', 'create_vpc')])), ('subnet_inf', OrderedDict([('resource', 'create_subnet')])), ('internet_gateway_inf', OrderedDict([('resource', 'create_internet_gateway')])), ('attach_route_to_internet_gateway', OrderedDict([('resource', 'create_route')]))])
+        ACTIONS=OrderedDict([('get_id', OrderedDict([('bash', 'aws ec2 describe-route-tables --filters "Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId" --region us-east-1')]))])
+        command = "aws ec2 create-route --route-table-id action.json.RouteTableId --destination-cidr-block 0.0.0.0/0"
+        actual_dependencies = maccli.helper.macfile.has_dependencies(command, ROLES, INFRASTRUCTURES, ACTIONS)
+        self.assertTrue(actual_dependencies)
+
     @mock.patch('maccli.service.instance.ssh_command_instance')
     def test_parse_env_resource(self, mock_run):
         CMD_RAW = 'aws elb register-instances-with-load-balancer --load-balancer-name my-load-balancer --instances role.app.get_id'
@@ -78,9 +86,23 @@ class HelperMacfileTestCase(unittest.TestCase):
         INSTANCES = []
         ROLES = []
         INFRASTRUCTURES = OrderedDict([('vpc_inf', OrderedDict([('resource', 'create_vpc')])), ('subnet_inf', OrderedDict([('resource', 'create_subnet')])), ('internet_gateway_inf', OrderedDict([('resource', 'create_internet_gateway')])), ('attach_internet_gateway_inf', OrderedDict([('resource', 'create_internet_gateway')]))])
-        ACTIONS = OrderedDict([('get_id', OrderedDict([('bash', 'ws ec2 describe-route-tables --filters "Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId" --region us-east-1')]))])
+        ACTIONS = OrderedDict([('get_id', OrderedDict([('bash', 'aws ec2 describe-route-tables --filters "Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId" --region us-east-1')]))])
         PROCESSED_RESOURCES = [{'vpc_inf': {'rc': 0, 'stderr': '', 'stdout': '{\n    "Vpc": {\n        "InstanceTenancy": "default", \n        "State": "pending", \n        "VpcId": "vpc-7257a716", \n        "CidrBlock": "10.0.0.0/16", \n        "DhcpOptionsId": "dopt-838273e6"\n    }\n}\n'}}]
         CMD_CLEAN = 'aws ec2 create-subnet --vpc-id vpc-7257a716 --cidr-block 10.0.1.0/24 --region us-east-1'
         actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES)
         self.assertEqual(actual, CMD_CLEAN)
+        self.assertTrue(processed)
+
+    @mock.patch('maccli.helper.cmd.run')
+    def test_parse_action_json(self, mock_run):
+        CMD_RAW = "aws ec2 create-route --route-table-id action.get_route.json.RouteTables.0.RouteTableId --destination-cidr-block 0.0.0.0/0 --gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId --region us-east-1"
+        INSTANCES = []
+        ROLES = []
+        INFRASTRUCTURES = OrderedDict([('vpc_inf', OrderedDict([('resource', 'create_vpc')])), ('subnet_inf', OrderedDict([('resource', 'create_subnet')])), ('internet_gateway_inf', OrderedDict([('resource', 'create_internet_gateway')])), ('attach_route_to_internet_gateway', OrderedDict([('resource', 'create_route')]))])
+        ACTIONS = OrderedDict([('get_route', OrderedDict([('bash', 'aws ec2 describe-route-tables --filters "Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId" --region us-east-1')]))])
+        PROCESSED_RESOURCES = [{'vpc_inf': {'cmd': 'aws ec2 create-vpc --cidr-block 10.0.0.0/16 --region us-east-1', 'rc': 0, 'stderr': '', 'stdout': '{\n    "Vpc": {\n        "InstanceTenancy": "default", \n        "State": "pending", \n        "VpcId": "vpc-ee45b58a", \n        "CidrBlock": "10.0.0.0/16", \n        "DhcpOptionsId": "dopt-838273e6"\n    }\n}\n'}}, {'subnet_inf': {'cmd': u'aws ec2 create-subnet --vpc-id vpc-ee45b58a --cidr-block 10.0.1.0/24 --region us-east-1', 'rc': 0, 'stderr': '', 'stdout': '{\n    "Subnet": {\n        "VpcId": "vpc-ee45b58a", \n        "CidrBlock": "10.0.1.0/24", \n        "State": "pending", \n        "AvailabilityZone": "us-east-1c", \n        "SubnetId": "subnet-97fcf9e0", \n        "AvailableIpAddressCount": 251\n    }\n}\n'}}, {'internet_gateway_inf': {'cmd': 'aws ec2 create-internet-gateway --region us-east-1', 'rc': 0, 'stderr': '', 'stdout': '{\n    "InternetGateway": {\n        "Tags": [], \n        "InternetGatewayId": "igw-4b99bf2e", \n        "Attachments": []\n    }\n}\n'}}]
+        CMD_CLEAN = 'aws ec2 create-route --route-table-id rtb-147bde70 --destination-cidr-block 0.0.0.0/0 --gateway-id igw-4b99bf2e --region us-east-1'
+        mock_run.return_value = 0, AWS_DESCRIBE_ROUTE_RAW, None
+        actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES)
+        self.assertEqual(CMD_CLEAN, actual)
         self.assertTrue(processed)

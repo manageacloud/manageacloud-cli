@@ -50,3 +50,8 @@ class FactError(Exception):
 
 class InternalError(RuntimeError):
     pass
+
+
+class BashException(Exception):
+    """Bash command failed running"""
+    pass

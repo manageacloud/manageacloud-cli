@@ -4,9 +4,9 @@ name: demo
 version: '1.0'
 
 actions:
-   get_id:
+   get_route:
       bash:
-        ws ec2 describe-route-tables --filters "Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId" --region us-east-1
+        aws ec2 describe-route-tables --filters Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId --region us-east-1
 
 
 resources:
@@ -18,13 +18,22 @@ resources:
           --cidr-block 10.0.0.0/16
           --region us-east-1
 
-   # creates VPC
+   # creates subnet
    create_subnet:
       create bash:
         aws ec2 create-subnet
           --vpc-id resource.vpc_inf.json.Vpc.VpcId
           --cidr-block 10.0.1.0/24
           --region us-east-1
+
+   # enable public IPs
+   subnet_enable_public_ips:
+      create bash:
+        aws ec2 modify-subnet-attribute
+          --subnet-id resource.subnet_inf.json.Subnet.SubnetId
+          --map-public-ip-on-launch
+          --region us-east-1
+
 
    # create internet gateway
    create_internet_gateway:
@@ -37,12 +46,14 @@ resources:
       create bash:
         aws ec2 attach-internet-gateway
           --internet-gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
+          --vpc-id resource.vpc_inf.json.Vpc.VpcId
+          --region us-east-1
 
    # create route
    create_route:
       create bash:
         aws ec2 create-route
-          --route-table-id action.json.RouteTableId
+          --route-table-id action.get_route.json.RouteTables.0.RouteTableId
           --destination-cidr-block 0.0.0.0/0
           --gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
           --region us-east-1
@@ -56,8 +67,14 @@ infrastructures:  # infrastructures runs everything. The order is preserved.
   subnet_inf:
     resource: create_subnet
 
+  subnet_enable_public_ips_inf:
+    resource: subnet_enable_public_ips
+
   internet_gateway_inf:
     resource: create_internet_gateway
+
+  attach_internet_gateway_to_vpc:
+    resource: attach_internet_gateway
 
   attach_route_to_internet_gateway:
     resource: create_route

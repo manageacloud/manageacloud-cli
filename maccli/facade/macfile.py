@@ -12,7 +12,7 @@ import maccli.helper.macfile
 import maccli.helper.cmd
 from maccli.helper.network import is_ip_private, is_local
 from maccli.helper.exception import MacParseEnvException, FactError, MacApiError, MacResourceException, \
-    InstanceNotReadyException, InstanceDoesNotExistException
+    InstanceNotReadyException, InstanceDoesNotExistException, BashException
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -379,6 +379,9 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                     maccli.logger.debug("Running %s %s with dependency, requested by infrastructure %s" % (log_type, key, infrastructure_key))
                     try:
                         command_clean, is_parsed = maccli.helper.macfile.parse_envs(command_raw, instances, roles, infrastructures, actions, processed_resources)
+                    except BashException as e:
+                        raise MacResourceException("Error: %s\nCommand: %s", e[0], e[1])
+
                     except InstanceDoesNotExistException as e:
                         raise MacResourceException("Instance %s  does not exist " % e, "Instance %s  does not exist " % e)
                 else:

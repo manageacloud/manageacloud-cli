@@ -1,9 +1,10 @@
 import json
-from maccli.helper.exception import InstanceNotReadyException, InstanceDoesNotExistException
+from maccli.helper.exception import InstanceNotReadyException, InstanceDoesNotExistException, BashException
 import maccli.service.instance
 __author__ = 'tk421'
 import re
 import maccli
+import maccli.helper.cmd
 
 
 def has_dependencies(text, roles, infrastructures, actions):
@@ -35,9 +36,13 @@ def has_dependencies(text, roles, infrastructures, actions):
                                        % (type_name, name, action, action))
             elif type_name == "resource":  # TODO add more validation
                 has_deps = True
+
+            elif type_name == "action":
+                has_deps = True
+
             else:
-                maccli.logger.warn("%s.%s.%s has been found but %s does not match with a %s"
-                                   % (type_name, name, action, name, type_name))
+                maccli.logger.warn("'%s.%s.%s' has been found but we do not how to process '%s' "
+                                   % (type_name, name, action, type_name))
     maccli.logger.debug("has_dependencies? %s" % has_deps)
     return has_deps
 
@@ -69,7 +74,7 @@ def get_dependencies(text):
 
         returns true of false
     """
-    a = re.compile("(role|infrastructure|resource)\.([a-zA-Z0-9_\-\.]*?)\.([a-zA-Z0-9_\-\.]*)($|\s)", re.IGNORECASE)
+    a = re.compile("(role|infrastructure|resource|action)\.([a-zA-Z0-9_\-\.]*?)\.([a-zA-Z0-9_\-\.]*)($|\s|\"|')", re.IGNORECASE)
     matches = a.findall(text)
 
     maccli.logger.debug("Searching for dependencies at %s" % text)
@@ -81,6 +86,15 @@ def get_action_ssh(name, actions):
     for action_key in actions:
         if action_key == name:
             toreturn = actions[action_key]['ssh']
+            break
+    return toreturn
+
+
+def get_action_bash(name, actions):
+    toreturn = ""
+    for action_key in actions:
+        if action_key == name:
+            toreturn = actions[action_key]['bash']
             break
     return toreturn
 
@@ -104,12 +118,14 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
 
             match_processed = False
             if name in infrastructures and action in infrastructures[name]:
+                #  search in infrastructures
                 #  the substitution is an infrastructure
                 value = infrastructures[name][action]
                 text = text.replace("%s.%s.%s" % (type_name, name, action), value)
                 match_processed = True
 
             elif any(name in d for d in processed_resources):
+                # search in resources
                 for processed_resource in processed_resources:
                     if name in processed_resource:
                         value_raw = processed_resource[name]['stdout']
@@ -121,7 +137,10 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                                 value_json = json.loads(value_raw.strip())
                                 value = value_json
                                 for text_part in texts:
-                                    value = value[text_part]
+                                    if text_part.isdigit():
+                                        value = value[int(text_part)]
+                                    else:
+                                        value = value[text_part]
 
                                 text = text.replace("%s.%s.%s" % (type_name, name, action), value)
                                 match_processed = True
@@ -131,9 +150,54 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                         else:
                             raise NotImplementedError
 
+            elif type_name == "action" and name in actions:
+                # Executes the action, it is currently adhoc only for 'json'
+
+                bash_command_raw = get_action_bash(name, actions)
+
+                # bash command might have parameters to be replaced
+                if has_dependencies(bash_command_raw, roles, infrastructures, actions):
+                    bash_command, processed = parse_envs(bash_command_raw, instances, roles, infrastructures, actions, processed_resources)
+                else:
+                    bash_command = bash_command_raw
+
+                rc = None
+                stdout = None
+                try:
+                    rc, stdout, stderr = maccli.helper.cmd.run(bash_command)
+                except Exception as e:
+                    maccli.logger.warn("Error executing %s: %s" % (bash_command, e))
+
+                if rc is not None:
+                    if rc == 0:
+                        parts = action.split(".")
+                        action_type = parts.pop(0)
+                        value_json = json.loads(stdout.strip())
+                        value = value_json
+
+                        # get value from json structure
+                        if action_type == "json":
+                            for part in parts:
+                                if part.isdigit():
+                                    value = value[int(part)]
+                                else:
+                                    value = value[part]
+
+                        else:
+                            raise NotImplementedError
+
+                        text = text.replace("%s.%s.%s" % (type_name, name, action), value)
+                        match_processed = True
+                    else:
+                        maccli.logger.warn("Error executing bash action %s: %s" % (bash_command, stderr))
+                        #raise BashException("Error executing bash action %s: %s" % (bash_command, stderr), stderr)
+                        match_processed = False
+
             elif action in actions:
-                #  substitution is an action
+                # search in actions
                 outputs = []
+
+                # execute the action in an instance
                 for instance in instances:
                     if type_name == "role" and name in roles:
                         matching_name = instance['metadata']['infrastructure']['macfile_role_name']
@@ -156,6 +220,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                                     outputs.append(ssh_raw)
                                     match_processed = True
                                 else:
+                                    maccli.logger.warn("Error executing ssh action %s: %s" % (bash_command, stderr))
                                     match_processed = False
                                     break
 
