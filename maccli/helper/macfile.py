@@ -1,5 +1,6 @@
 import json
-from maccli.helper.exception import InstanceNotReadyException, InstanceDoesNotExistException, BashException
+from maccli.helper.exception import InstanceNotReadyException, InstanceDoesNotExistException, BashException, \
+    MacParameterNotFound
 import maccli.service.instance
 __author__ = 'tk421'
 import re
@@ -74,10 +75,14 @@ def get_dependencies(text):
 
         returns true of false
     """
-    a = re.compile("(role|infrastructure|resource|action)\.([a-zA-Z0-9_\-\.]*?)\.([a-zA-Z0-9_\-\.]*)($|\s|\"|')", re.IGNORECASE)
-    matches = a.findall(text)
+    try:
+        a = re.compile("(role|infrastructure|resource|action)\.([a-zA-Z0-9_\-\.]*?)\.([a-zA-Z0-9_\-\.]*)($|\s|\"|')", re.IGNORECASE)
+        matches = a.findall(text)
+        maccli.logger.debug("Searching for dependencies at %s" % text)
+    except TypeError:  # not an string, no dependencies
+        maccli.logger.debug("'%s' is not an string", text)
+        matches = []
 
-    maccli.logger.debug("Searching for dependencies at %s" % text)
     return matches
 
 
@@ -97,6 +102,48 @@ def get_action_bash(name, actions):
             toreturn = actions[action_key]['bash']
             break
     return toreturn
+
+
+def dict_has_dependencies(dict, roles, infrastructures, actions):
+    """
+    Check if dictionary's values has dependencies
+
+    :param dict:
+    :param roles:
+    :param infrastructures:
+    :param actions:
+    :return:
+    """
+    toreturn = False
+    for key in dict.keys():
+        text_raw = dict[key]
+        if has_dependencies(text_raw, roles, infrastructures, actions):
+            toreturn = True
+            break
+    return toreturn
+
+
+def parse_envs_dict(dict, instances, roles, infrastructures, actions, processed_resources):
+    """
+    Loops over a dictionary to find values that must be processed.
+
+    :param dict: dictionary input
+    :param instances:
+    :param roles:
+    :param infrastructures:
+    :param actions:
+    :param processed_resources:
+    :return: dictionary with values processed, and if all values could be processed
+    """
+    total_processed = True
+    for key in dict.keys():
+        text_raw = dict[key]
+        text, processed = parse_envs(text_raw, instances, roles, infrastructures, actions, processed_resources)
+        total_processed = total_processed and processed
+        if processed:
+            dict[key] = text
+
+    return dict, total_processed
 
 
 def parse_envs(text, instances, roles, infrastructures, actions, processed_resources):
@@ -124,7 +171,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                 text = text.replace("%s.%s.%s" % (type_name, name, action), value)
                 match_processed = True
 
-            elif any(name in d for d in processed_resources):
+            elif any(name in d for d in processed_resources) and not (action in actions):
                 # search in resources
                 for processed_resource in processed_resources:
                     if name in processed_resource:
@@ -145,6 +192,10 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                                 text = text.replace("%s.%s.%s" % (type_name, name, action), value)
                                 match_processed = True
                             except KeyError:
+                                if not(value_raw == '' or value_raw is None):
+                                    original_task = "%s.%s.%s" % (type_name, name, action)
+                                    maccli.logger.warn("We cannot find '%s' at '%s'" % (original_task, name))
+                                    maccli.logger.debug("Original value: %s" % value_raw)
                                 match_processed = False
 
                         else:
@@ -210,8 +261,9 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                     if matching_name and matching_name == name:
                         ssh_command = get_action_ssh(action, actions)
                         rc = None
+                        stderr = None
                         try:
-                            rc, ssh_raw, stderror = maccli.service.instance.ssh_command_instance(instance['id'], ssh_command)
+                            rc, ssh_raw, stderr = maccli.service.instance.ssh_command_instance(instance['id'], ssh_command)
                         except InstanceNotReadyException:
                             rc = -1
                         finally:
@@ -220,11 +272,16 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                                     outputs.append(ssh_raw)
                                     match_processed = True
                                 else:
-                                    maccli.logger.warn("Error executing ssh action %s: %s" % (bash_command, stderr))
+                                    if stderr is not None:
+                                        maccli.logger.warn("Error executing ssh action %s: %s" % (ssh_command, stderr))
                                     match_processed = False
                                     break
 
                 text = text.replace("%s.%s.%s" % (type_name, name, action), " ".join(outputs))
+            else:
+                # This parameter cannot be executed
+                if not name in infrastructures:
+                    raise MacParameterNotFound("The parameter %s.%s has not been found while processing %s " % (type_name, name, text))
 
             all_processed = all_processed and match_processed
 

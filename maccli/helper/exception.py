@@ -55,3 +55,9 @@ class InternalError(RuntimeError):
 class BashException(Exception):
     """Bash command failed running"""
     pass
+
+
+class MacParameterNotFound(Exception):
+    """Parameter has not been found"""
+    pass
+

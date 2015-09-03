@@ -14,13 +14,13 @@ def show_resources(resources):
                 if r['rc']:
                     maccli.view.view_generic.show("Process failed. Return code: %s. Output:" % r['rc'])
                     maccli.view.view_generic.show(r['stderr'])
-                    if r['stdout'].strip():
+                    if r['stdout'] is not None and r['stdout'].strip():
                         maccli.view.view_generic.show("Standard output not empty:")
                         maccli.view.view_generic.show(r['stdout'])
                 else:
                     maccli.view.view_generic.show("Execution successful. Output:")
                     maccli.view.view_generic.show(r['stdout'])
-                    if r['stderr'].strip():
+                    if r['stderr'] is not None and r['stderr'].strip():
                         maccli.view.view_generic.show("Standard error not empty:")
                         maccli.view.view_generic.show(r['stderr'])
 

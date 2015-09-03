@@ -106,7 +106,7 @@ def instance_ssh(raw_ids, command):
 
 
 def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
-                    environments, hd, port):
+                    environments, hd, port, net):
     try:
         if cookbook_tag is None:
             view.view_instance.show_instance_create_help()
@@ -146,7 +146,7 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
             """ Execute create instance """
             instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider,
                                                         release,
-                                                        branch, hardware, lifespan, environments, hd, port)
+                                                        branch, hardware, lifespan, environments, hd, port, net)
             if instance is not None:
                 view.view_instance.show_instance(instance)
 
@@ -264,6 +264,12 @@ def process_macfile(file, resume, params, quiet, on_failure):
 
         root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(raw)
 
+        # # TODO implement resume functionality
+        # if resume:
+        #     view.view_generic.show()
+        #     view.view_generic.show("Resume functionality not available in this version")
+        #     exit(1)
+
         if not resume:
 
             existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
@@ -293,50 +299,12 @@ def process_macfile(file, resume, params, quiet, on_failure):
             else:
                 view.view_generic.header("Infrastructure %s version %s" % (root['name'], root['version']), "=")
 
-            roles_created = {}
-            try:
-                """ Create all the servers """
-                maccli.logger.debug("Create servers")
-                for infrastructure_key in infrastructures:
-                    infrastructure = infrastructures[infrastructure_key]
-                    maccli.logger.debug("Processing infrastructure %s" % infrastructure_key)
-
-                    # type of infrastructure manageacloud instance
-                    if 'role' in infrastructure:
-                        maccli.logger.debug("Type role")
-                        infrastructure_role = infrastructure['role']
-                        if quiet:
-                            view.view_generic.show(
-                                "[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
-                        else:
-                            view.view_generic.header(
-                                "[%s][%s] Infrastructure tier" % (infrastructure_key, infrastructure['role']))
-                        role_raw = roles[infrastructure_role]["instance create"]
-                        metadata = service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw,
-                                                             infrastructure)
-                        instances = maccli.facade.macfile.create_tier(role_raw, infrastructure, metadata, quiet)
-                        roles_created[infrastructure_role] = instances
-
-
-
-            except MacErrorCreatingTier:
-                view.view_generic.show_error("ERROR: An error happened while creating tier. Server failed.")
-                view.view_generic.show_error("HINT: Use 'mac instance log <instance id>' for details")
-                view.view_generic.show("Task raised errors.")
-                exit(5)
-
-            except MacParseEnvException as e:
-                view.view_generic.show_error(
-                    "ERROR: An error happened parsing environments." + str(type(e)) + str(e.args))
-                view.view_generic.show("Task raised errors.")
-                exit(6)
-
         infrastructure_error_detail = None
         finish = False
         infrastructure_resources_failed = False
         infrastructure_resources_processed = []  # looks for the non-instance infrastructure
+        processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
         while not finish:
-            processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
             if not quiet:
                 view.view_generic.clear()
                 view.view_instance.show_instances(processing_instances)
@@ -345,17 +313,10 @@ def process_macfile(file, resume, params, quiet, on_failure):
             # apply configuration to the instances
             maccli.facade.macfile.apply_instance_infrastructure_changes(processing_instances, root['name'], root['version'], quiet, infrastructures, infrastructure_resources_processed)
 
-            # check instances has been processed
-            finish = True
-            for instance in processing_instances:
-                if not (instance['status'].startswith("Ready") or instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
-                    finish = False
-                if on_failure is not None and (instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
-                    finish = True
-
             # process resources
+            finish = True
             try:
-                processed_resources_part, finish_resources = maccli.facade.macfile.apply_resources(processing_instances, infrastructure_resources_processed, processing_instances, roles, infrastructures, actions, resources, quiet)
+                processed_resources_part, finish_resources = maccli.facade.macfile.apply_resources(processing_instances, infrastructure_resources_processed, processing_instances, roles, infrastructures, actions, resources, root, quiet)
                 maccli.logger.debug("Resources processed this run: %s " % processed_resources_part)
                 infrastructure_resources_processed = infrastructure_resources_processed + processed_resources_part
                 maccli.logger.debug("Total resources processed: %s " % infrastructure_resources_processed)
@@ -365,8 +326,19 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 infrastructure_resources_failed = True
                 finish = True
 
-            if not finish:
-                time.sleep(3)
+            # check instances has been processed
+            processing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
+            for instance in processing_instances:
+                if not (instance['status'].startswith("Ready") or instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
+                    finish = False
+                if on_failure is not None and (instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
+                    finish = finish and True
+
+            if infrastructure_resources_failed:
+                finish = True
+            else:
+                if not finish:
+                    time.sleep(3)
 
         instances_processed = service.instance.list_by_infrastructure(root['name'], root['version'])
         if not quiet:

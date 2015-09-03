@@ -14,6 +14,7 @@ DEFAULT_LIFESPAN = 90
 DEFAULT_BRANCH = "master"
 DEFAULT_RELEASE = "any"
 DEFAULT_PORT = [22]
+DEFAULT_NET = ""
 
 
 class AuthTestCase(unittest.TestCase):
@@ -34,7 +35,7 @@ class AuthTestCase(unittest.TestCase):
 
     def test_instance_create_no_args(self):
         maccli.command_cli.instance_create(None, DEFAULT_DEPLOYMENT, None, None, DEFAULT_PROVIDER, DEFAULT_RELEASE,
-                                           DEFAULT_BRANCH, None, DEFAULT_LIFESPAN, None, None, DEFAULT_PORT)
+                                           DEFAULT_BRANCH, None, DEFAULT_LIFESPAN, None, None, DEFAULT_PORT, DEFAULT_NET)
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CREATE_INSTANCE_NO_INPUT.split()), ' '.join(out.split()))
 
@@ -43,7 +44,7 @@ class AuthTestCase(unittest.TestCase):
         mock_list_locations.return_value = MOCK_LOCATION_LIST_JSON
         maccli.command_cli.instance_create("cookbook_tag", DEFAULT_DEPLOYMENT, None, None, DEFAULT_PROVIDER,
                                            DEFAULT_RELEASE, DEFAULT_BRANCH, None, DEFAULT_LIFESPAN, None, None,
-                                           DEFAULT_PORT)
+                                           DEFAULT_PORT, DEFAULT_NET)
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CREATE_INSTANCE_ONLY_CONFIGURATION.split()), ' '.join(out.split()))
 
@@ -52,7 +53,7 @@ class AuthTestCase(unittest.TestCase):
         mock_list_locations.return_value = MOCK_LOGIN_JSON_EMPTY
         maccli.command_cli.instance_create("cookbook_tag", DEFAULT_DEPLOYMENT, None, None, DEFAULT_PROVIDER,
                                            DEFAULT_RELEASE, DEFAULT_BRANCH, None, DEFAULT_LIFESPAN, None, None,
-                                           DEFAULT_PORT)
+                                           DEFAULT_PORT, DEFAULT_NET)
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CREATE_INSTANCE_ONLY_CONFIGURATION_NO_LOCATIONS.split()),
                          ' '.join(out.split()))
@@ -62,7 +63,7 @@ class AuthTestCase(unittest.TestCase):
         mock_list_hardwares.return_value = MOCK_HARDWARE_LIST_JSON
         maccli.command_cli.instance_create("cookbook_tag", "production", "sfo1", None, DEFAULT_PROVIDER,
                                            DEFAULT_RELEASE, DEFAULT_BRANCH, None, DEFAULT_LIFESPAN, None, None,
-                                           DEFAULT_PORT)
+                                           DEFAULT_PORT, DEFAULT_NET)
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CREATE_INSTANCE_PRODUCTION_NO_HARDWARE.split()), ' '.join(out.split()))
 
@@ -72,7 +73,7 @@ class AuthTestCase(unittest.TestCase):
         mock_instance.return_value = MOCK_INSTANCE_CREATE_TESTING_OK_JSON
         maccli.command_cli.instance_create("cookbook_tag", DEFAULT_DEPLOYMENT, "sfo1", None, DEFAULT_PROVIDER,
                                            DEFAULT_RELEASE, DEFAULT_BRANCH, None, DEFAULT_LIFESPAN, None, None,
-                                           DEFAULT_PORT)
+                                           DEFAULT_PORT, DEFAULT_NET)
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CREATE_INSTANCE_TESTING_OK.split()), ' '.join(out.split()))
 
@@ -81,7 +82,7 @@ class AuthTestCase(unittest.TestCase):
         mock_instance.return_value = MOCK_INSTANCE_CREATE_PRODUCTION_OK_JSON
         maccli.command_cli.instance_create("cookbook_tag", "production", "sfo1", None, DEFAULT_PROVIDER,
                                            DEFAULT_RELEASE, DEFAULT_BRANCH, "512mb", DEFAULT_LIFESPAN, None, None,
-                                           DEFAULT_PORT)
+                                           DEFAULT_PORT, DEFAULT_NET)
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CREATE_INSTANCE_PRODUCTION_OK.split()), ' '.join(out.split()))
 

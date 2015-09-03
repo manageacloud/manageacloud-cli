@@ -159,10 +159,6 @@ def load_macfile(path):
 
 
 def parse_macfile(string):
-
-    print (string);
-    exit;
-
     raw = ordered_load(string, yaml.SafeLoader)
 
     """
@@ -216,7 +212,7 @@ def parse_macfile(string):
         if 'role' in raw_infrastructure_keys:
             """ Infrastructure related with a role """
             infrastructure_optional_params = ['lifespan', 'deployment', 'release', 'provider', 'hardware', 'amount',
-                                              'environment', 'ready']
+                                              'environment', 'ready', 'net']
             infrastructure_root_params = ['amount', 'role', 'hardware', 'location', 'provider', 'name', 'deployment',
                                           'release']
             infrastructure_root_params_mac = ['amount', 'role', 'location', 'provider', 'name', 'deployment',

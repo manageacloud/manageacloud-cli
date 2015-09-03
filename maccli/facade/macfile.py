@@ -58,6 +58,24 @@ def _get_environment(role, infrastructure):
     return environment
 
 
+def create_instances_for_role(root, infrastructure, roles, infrastructure_key, quiet):
+    """ Create all the instances for the given tier """
+
+    maccli.logger.debug("Processing infrastructure %s" % infrastructure_key)
+
+    roles_created = {}
+    maccli.logger.debug("Type role")
+    infrastructure_role = infrastructure['role']
+
+    role_raw = roles[infrastructure_role]["instance create"]
+    metadata = maccli.service.instance.metadata(root, infrastructure_key, infrastructure_role, role_raw,
+                                                infrastructure)
+    instances = create_tier(role_raw, infrastructure, metadata, quiet)
+    roles_created[infrastructure_role] = instances
+
+    return roles_created
+
+
 def create_tier(role, infrastructure, metadata, quiet):
     """
         Creates tje instances that represents a role in a given infrastructure
@@ -90,6 +108,12 @@ def create_tier(role, infrastructure, metadata, quiet):
     port = None
     try:
         port = infrastructure["port"]
+    except KeyError:
+        pass
+
+    net = None
+    try:
+        net = infrastructure["net"]
     except KeyError:
         pass
 
@@ -126,7 +150,7 @@ def create_tier(role, infrastructure, metadata, quiet):
         instance = maccli.service.instance.create_instance(role["configuration"], deployment,
                                                            infrastructure["location"], infrastructure["name"],
                                                            provider, release, branch, hardware, lifespan,
-                                                           environment, hd, port, metadata, False)
+                                                           environment, hd, port, net, metadata, False)
         instances.append(instance)
         print("Creating instance '%s'" % (instance['id']))
 
@@ -336,7 +360,7 @@ def clean_up(instances, on_failure):
     return failed
 
 
-def apply_resources(processed_instances, processed_resources, instances, roles, infrastructures, actions, resources, quiet):
+def apply_resources(processed_instances, processed_resources, instances, roles, infrastructures, actions, resources, root, quiet):
     """ Apply all the resources that are not instances """
     # If event cannot happen, wait to the next loop
     resources_processed = []
@@ -362,12 +386,19 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                 key = infrastructure['action']
                 command_raw = actions[key]['bash']
                 # TODO ssh not implemented
+
             elif 'role' in infrastructure:
-                # if 'ready' in infrastructure:  # wait for the instance to be ready before proceeding
-                #     section_finish = maccli.helper.macfile.wait_until_ready(infrastructure, processed_instances, infrastructure_key)
-                #     if isinstance(section_finish, bool):
-                #         finish = section_finish
-                continue
+                maccli.logger.debug("Type role")
+                maccli.logger.debug("Processing %s " % infrastructure_key)
+                infrastructure_parsed, infrastructure_processed = maccli.helper.macfile.parse_envs_dict(infrastructure, processed_instances, roles, infrastructures, actions, processed_resources)
+                if infrastructure_processed:
+                    maccli.logger.debug("Creating instances for %s " % infrastructure_key)
+                    create_instances_for_role(root, infrastructure_parsed, roles, infrastructure_key, quiet )
+
+                # mark as resource processed
+                resources_processed.append({infrastructure_key: {'stderr': None, 'stdout': None, 'rc': 0, 'cmd': None}})
+
+                continue  # roles are processed independent to resources
             else:
                 raise NotImplementedError
 
@@ -416,6 +447,3 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                     break  # exit from loop to avoid processing other resources
 
     return resources_processed, finish
-
-
-

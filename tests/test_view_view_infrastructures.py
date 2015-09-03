@@ -25,12 +25,13 @@ class InfrastructureViewTestCase(unittest.TestCase):
         # pass
 
     def test_show_resources_status(self):
-        EXPECTED =  "+-----------------+--------+\n"\
-                    "| Resource name   | Status |\n"\
-                    "+-----------------+--------+\n"\
-                    "| build_lb_inf    | OK     |\n"\
-                    "| register_lb_inf | OK     |\n"\
-                    "+-----------------+--------+\n"
+        EXPECTED =  "+-----------------+---------+\n"\
+                    "| Resource name   | Status  |\n"\
+                    "+-----------------+---------+\n" \
+                    "| app_inf         | Pending |\n" \
+                    "| build_lb_inf    | OK      |\n"\
+                    "| register_lb_inf | OK      |\n"\
+                    "+-----------------+---------+\n"
         maccli.view.view_infrastructure.show_infrastructure_resources(INFRASTRUCTURES, RESOURCES_PROCESSED)
         actual = self.bufout.getvalue()
         self.assertEqual(actual, EXPECTED)

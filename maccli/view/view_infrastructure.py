@@ -37,27 +37,26 @@ def show_infrastructure_resources(infrastructures, infrastructures_resources_pro
         pretty = PrettyTable(["Resource name", "Status"])
         pretty.align = "l"
 
-        printTable = False
+        print_table = False
         for infrastructure in infrastructures.items():
-            if 'resource' in infrastructure[1]:
-                printTable = True
-                resource_name = infrastructure[0]
-                status = "Pending"
-                for resource_processed in infrastructures_resources_processed:
-                    key = resource_processed.iterkeys().next()
-                    if key == resource_name:
-                        rp = resource_processed[key]
-                        rc = rp['rc']
-                        stderr = rp['stderr']
-                        if rc:
-                            status = "Failed"
+            print_table = True
+            resource_name = infrastructure[0]
+            status = "Pending"
+            for resource_processed in infrastructures_resources_processed:
+                key = resource_processed.iterkeys().next()
+                if key == resource_name:
+                    rp = resource_processed[key]
+                    rc = rp['rc']
+                    stderr = rp['stderr']
+                    if rc != 0:
+                        status = "Failed"
+                    else:
+                        if not (stderr == '' or stderr is None):
+                            status = "OK, but stderr not empty"
                         else:
-                            if stderr:
-                                status = "OK, but stderr not empty"
-                            else:
-                                status = "OK"
+                            status = "OK"
 
-                pretty.add_row([resource_name, status])
+            pretty.add_row([resource_name, status])
 
-        if printTable:
+        if print_table:
             print(pretty)

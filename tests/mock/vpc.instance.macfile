@@ -1,0 +1,113 @@
+mac: 0.7.1
+description: VPC with Internet and public ips
+name: demo
+version: '1.0'
+
+actions:
+   get_route:
+      bash:
+        aws ec2 describe-route-tables --filters Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId --region us-east-1
+
+   get_security_group_id:
+      bash:
+        aws ec2 describe-security-groups --filters Name=vpc-id,Values=resource.vpc_inf.json.Vpc.VpcId --region us-east-1
+
+roles:
+  app:
+    instance create:
+      branch: master
+      configuration: test
+
+resources:
+
+   # creates VPC
+   create_vpc:
+      create bash:
+        aws ec2 create-vpc
+          --cidr-block 10.0.0.0/16
+          --region us-east-1
+
+   # creates subnet
+   create_subnet:
+      create bash:
+        aws ec2 create-subnet
+          --vpc-id resource.vpc_inf.json.Vpc.VpcId
+          --cidr-block 10.0.1.0/24
+          --region us-east-1
+
+   # enable public IPs
+   subnet_enable_public_ips:
+      create bash:
+        aws ec2 modify-subnet-attribute
+          --subnet-id resource.subnet_inf.json.Subnet.SubnetId
+          --map-public-ip-on-launch
+          --region us-east-1
+
+
+   # create internet gateway
+   create_internet_gateway:
+      create bash:
+        aws ec2 create-internet-gateway
+        --region us-east-1
+
+   # attach Internet Gateway
+   attach_internet_gateway:
+      create bash:
+        aws ec2 attach-internet-gateway
+          --internet-gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
+          --vpc-id resource.vpc_inf.json.Vpc.VpcId
+          --region us-east-1
+
+   # create route
+   create_route:
+      create bash:
+        aws ec2 create-route
+          --route-table-id action.get_route.json.RouteTables.0.RouteTableId
+          --destination-cidr-block 0.0.0.0/0
+          --gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
+          --region us-east-1
+
+   authorize_ssh:
+      create bash:
+          aws ec2 authorize-security-group-ingress
+            --group-id action.get_security_group_id.json.SecurityGroups.0.GroupId
+            --protocol tcp
+            --port 22
+            --cidr 0.0.0.0/0
+            --region us-east-1
+
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  vpc_inf:
+    resource: create_vpc
+
+  subnet_inf:
+    resource: create_subnet
+
+  subnet_enable_public_ips_inf:
+    resource: subnet_enable_public_ips
+
+  internet_gateway_inf:
+    resource: create_internet_gateway
+
+  attach_internet_gateway_to_vpc:
+    resource: attach_internet_gateway
+
+  attach_route_to_internet_gateway:
+    resource: create_route
+
+  authorize_ssh_inf:
+    resource: authorize_ssh
+
+  inf_app:
+    deployment: testing
+    hardware: t2.micro
+    location: us-east-1
+    name: app
+    provider: amazon
+    release: any
+    role: app
+    lifespan: 1440
+    net: resource.subnet_inf.json.Subnet.SubnetId
+    amount: 1
