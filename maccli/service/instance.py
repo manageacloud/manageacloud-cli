@@ -1,12 +1,13 @@
 import os
 import tempfile
+import time
 
 import pexpect
-import time
 
 import maccli.dao.api_instance
 import maccli.helper.cmd
 import maccli.helper.simplecache
+import maccli.helper.metadata
 from maccli.helper.exception import InstanceDoesNotExistException, InstanceNotReadyException
 
 
@@ -224,34 +225,6 @@ def lifespan(instance_id, amount):
     return maccli.dao.api_instance.update(instance_id, amount)
 
 
-def _get_environment(role, infrastructure):
-    environment = None
-
-    if 'environment' in role.keys():
-        environment = role['environment']
-
-    if 'environment' in infrastructure.keys():
-        if environment is not None:
-            environment = environment + infrastructure["environment"]
-        else:
-            environment = infrastructure["environment"]
-
-    return environment
-
-
-def metadata(macfile_root, infrastructure_key, role_key, role, infrastructure):
-    """
-    Generate the json metadata to create an instance
-    """
-    meta = macfile_root
-    meta['macfile_role_name'] = role_key
-    meta['macfile_infrastructure_name'] = infrastructure_key
-    environment = _get_environment(role, infrastructure)
-    if environment is not None:
-        meta['environment_raw'] = environment
-    return meta
-
-
 def update_configuration(cookbook_tag, instance_id, new_metadata=None):
     """
     Update server configuration with given cookbook
@@ -262,3 +235,102 @@ def update_configuration(cookbook_tag, instance_id, new_metadata=None):
     """
 
     return maccli.dao.api_instance.update_configuration(cookbook_tag, instance_id, new_metadata)
+
+
+def create_instances_for_role(root, infrastructure, roles, infrastructure_key, quiet):
+    """ Create all the instances for the given tier """
+
+    maccli.logger.debug("Processing infrastructure %s" % infrastructure_key)
+
+    roles_created = {}
+    maccli.logger.debug("Type role")
+    infrastructure_role = infrastructure['role']
+
+    role_raw = roles[infrastructure_role]["instance create"]
+    metadata = maccli.helper.metadata.metadata(root, infrastructure_key, infrastructure_role, role_raw,
+                        infrastructure)
+    instances = create_tier(role_raw, infrastructure, metadata, quiet)
+    roles_created[infrastructure_role] = instances
+
+    return roles_created
+
+
+def create_tier(role, infrastructure, metadata, quiet):
+    """
+        Creates the instances that represents a role in a given infrastructure
+
+    :param role:
+    :param infrastructure:
+    :return:
+    """
+
+    lifespan = None
+    try:
+        lifespan = infrastructure['lifespan']
+    except KeyError:
+        pass
+
+    hardware = ""
+    try:
+        hardware = infrastructure["hardware"]
+    except KeyError:
+        pass
+
+    environment = maccli.helper.metadata.get_environment(role, infrastructure)
+
+    hd = None
+    try:
+        hd = role["hd"]
+    except KeyError:
+        pass
+
+    port = None
+    try:
+        port = infrastructure["port"]
+    except KeyError:
+        pass
+
+    net = None
+    try:
+        net = infrastructure["net"]
+    except KeyError:
+        pass
+
+    deployment = None
+    try:
+        deployment = infrastructure["deployment"]
+    except KeyError:
+        pass
+
+    release = None
+    try:
+        release = infrastructure["release"]
+    except KeyError:
+        pass
+
+    branch = None
+    try:
+        branch = infrastructure["branch"]
+    except KeyError:
+        pass
+
+    provider = None
+    try:
+        provider = infrastructure["provider"]
+    except KeyError:
+        pass
+
+    instances = []
+    amount = 1
+    if 'amount' in infrastructure:
+        amount = infrastructure['amount']
+
+    for x in range(0, amount):
+        instance = maccli.dao.api_instance.create(role["configuration"], deployment,
+                                                  infrastructure["location"], infrastructure["name"],
+                                                  provider, release, branch, hardware, lifespan,
+                                                  environment, hd, port, net, metadata, False)
+        instances.append(instance)
+        maccli.logger.info("Creating instance '%s'" % (instance['id']))
+
+    return instances

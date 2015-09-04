@@ -58,6 +58,8 @@ def dispatch_cmds(args):
     else:
         logging.basicConfig(level=logging.WARN)
 
+    maccli.quiet = args.quiet
+
     maccli.logger.debug("Args options %s: " % args)
 
     if args.cmd == 'login':

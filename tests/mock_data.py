@@ -89,6 +89,7 @@ infrastructures:
 class Mock_args(object):
     def __init__(self, cmd, subcmd):
         self.debug = False
+        self.quiet = False
         self.verbose = False
         self.cmd = cmd
         self.subcmd = subcmd
@@ -97,6 +98,7 @@ class Mock_args(object):
 class MockInstanceCreate_args(Mock_args):
     def __init__(self, cmd, subcmd):
         self.debug = False
+        self.quiet = False
         self.verbose = False
         self.cmd = cmd
         self.subcmd = subcmd
@@ -119,6 +121,7 @@ class MockInstanceCreate_args(Mock_args):
 class MockInstanceDestroy_args(Mock_args):
     def __init__(self, cmd, subcmd, name, id):
         self.debug = False
+        self.quiet = False
         self.verbose = False
         self.cmd = cmd
         self.subcmd = subcmd
@@ -129,6 +132,7 @@ class MockInstanceDestroy_args(Mock_args):
 class MockConfiguration_Args(Mock_args):
     def __init__(self, cmd, subcmd, keyword, url):
         self.debug = False
+        self.quiet = False
         self.verbose = False
         self.cmd = cmd
         self.subcmd = subcmd
@@ -139,6 +143,7 @@ class MockConfiguration_Args(Mock_args):
 class MockInstanceSSH_args(MockInstanceDestroy_args):
     def __init__(self, cmd, subcmd, instance_id, command):
         self.debug = False
+        self.quiet = False
         self.verbose = False
         self.cmd = cmd
         self.subcmd = subcmd

@@ -19,3 +19,5 @@ domain = os.environ.get('MAC_DOMAIN', "https://manageacloud.com")
 
 logger = logging.getLogger("mac-cli")
 
+#: defines verbosity
+quiet = False

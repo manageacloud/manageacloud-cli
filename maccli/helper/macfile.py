@@ -154,6 +154,14 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
 
         returns true of false
     """
+    print('===========================')
+    print(text)
+    print(instances)
+    print(roles)
+    print(infrastructures)
+    print(actions)
+    print(processed_resources)
+    print('===========================')
     all_processed = True
     matches = get_dependencies(text)
     if matches:

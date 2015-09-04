@@ -174,7 +174,7 @@ class TestFacadeMacfileTestCase(unittest.TestCase):
     #     self.assertEqual(processed_resources, EXPECTED)
     #     self.assertTrue(finish)
 
-    @mock.patch('maccli.facade.macfile.create_instances_for_role')
+    @mock.patch('maccli.service.instance.create_instances_for_role')
     @mock.patch('maccli.helper.macfile.parse_envs_dict')
     @mock.patch('maccli.helper.macfile.parse_envs')
     @mock.patch('maccli.helper.cmd.run')
