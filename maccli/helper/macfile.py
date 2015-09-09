@@ -72,11 +72,11 @@ def get_dependencies(text):
         a dependency is somthing with the format:
          - role.[role_name].[action]
          - infrastructure.[infrastructure name].[action]
-
+         - resource.something.text.regex(myregex)
         returns true of false
     """
     try:
-        a = re.compile("(role|infrastructure|resource|action)\.([a-zA-Z0-9_\-\.]*?)\.([a-zA-Z0-9_\-\.]*)($|\s|\"|')", re.IGNORECASE)
+        a = re.compile("(role|infrastructure|resource|action)\.([a-zA-Z0-9_\-\.]*?)\.([a-zA-Z0-9_\-\.]*|text\.regex\((.+)\))($|\s|\"|')", re.IGNORECASE)
         matches = a.findall(text)
         maccli.logger.debug("Searching for dependencies at %s" % text)
     except TypeError:  # not an string, no dependencies
@@ -138,10 +138,11 @@ def parse_envs_dict(dict, instances, roles, infrastructures, actions, processed_
     total_processed = True
     for key in dict.keys():
         text_raw = dict[key]
-        text, processed = parse_envs(text_raw, instances, roles, infrastructures, actions, processed_resources)
-        total_processed = total_processed and processed
-        if processed:
-            dict[key] = text
+        if isinstance(text_raw, basestring):
+            text, processed = parse_envs(text_raw, instances, roles, infrastructures, actions, processed_resources)
+            total_processed = total_processed and processed
+            if processed:
+                dict[key] = text
 
     return dict, total_processed
 
@@ -151,17 +152,8 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
         a dependency is somthing with the format:
          - role.[role_name].[action]
          - infrastructure.[infrastructure name].[action]
-
         returns true of false
     """
-    print('===========================')
-    print(text)
-    print(instances)
-    print(roles)
-    print(infrastructures)
-    print(actions)
-    print(processed_resources)
-    print('===========================')
     all_processed = True
     matches = get_dependencies(text)
     if matches:
@@ -184,7 +176,11 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                 for processed_resource in processed_resources:
                     if name in processed_resource:
                         value_raw = processed_resource[name]['stdout']
-                        text_format, text_id_raw = action.split(".", 1)
+
+                        try:
+                            text_format, text_id_raw = action.split(".", 1)
+                        except ValueError:
+                            raise MacParameterNotFound("The value %s in the parameter %s.%s does not have the proper format." % (action, type_name, name))
 
                         if text_format == "json":
                             try:
@@ -204,6 +200,21 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                                     original_task = "%s.%s.%s" % (type_name, name, action)
                                     maccli.logger.warn("We cannot find '%s' at '%s'" % (original_task, name))
                                     maccli.logger.debug("Original value: %s" % value_raw)
+                                match_processed = False
+
+                        elif text_format == "text":
+                            try:
+                                regex_pattern = match[3]
+                                maccli.logger.debug("Regex marching: %s at value %s " % (regex_pattern, value_raw))
+                                regex = re.compile(regex_pattern, re.IGNORECASE)
+                                matches = regex.findall(value_raw.strip())
+                                maccli.logger.debug("Matches %s" % matches)
+                                value = matches[0]
+                                text = text.replace("%s.%s.%s" % (type_name, name, action), value)
+                                match_processed = True
+                            except Exception as e:
+                                maccli.logger.debug("Error matching regex %s at value %s because of %s" % (match[3], value_raw, e))
+                                maccli.logger.warn("Error matching regex %s at value %s" % (match[3], value_raw))
                                 match_processed = False
 
                         else:
@@ -297,3 +308,39 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                 break
 
     return text, all_processed
+
+
+def parse_envs_destroy(text, instances, resources):
+    """ parse envs for the destroy event
+            - resource.[infrastructure_name].json.jsonValue
+    """
+    matches = get_dependencies(text)
+    if matches:
+        for match in matches:
+            type_name = match[0]
+            name = match[1]
+            action = match[2]
+            maccli.logger.debug("Match found: type '%s' name '%s' action '%s' " % (type_name, name, action))
+
+            if type_name == "resource":
+                for resource in resources:
+                    if name == resource['metadata']['infrastructure']['macfile_infrastructure_name']:
+                        parts = action.split(".")
+                        action_type = parts.pop(0)
+                        value_json = json.loads(resource['create']['stdout'].strip())
+                        value = value_json
+
+                        # get value from json structure
+                        if action_type == "json":
+                            for part in parts:
+                                if part.isdigit():
+                                    value = value[int(part)]
+                                else:
+                                    value = value[part]
+
+                        else:
+                            raise NotImplementedError
+
+                        text = text.replace("%s.%s.%s" % (type_name, name, action), value)
+
+    return text

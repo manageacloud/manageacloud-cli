@@ -17,6 +17,10 @@ resources:
         aws ec2 create-vpc
           --cidr-block 10.0.0.0/16
           --region us-east-1
+      destroy bash:
+        aws ec2 delete-vpc
+          --vpc-id resource.vpc_inf.json.Vpc.VpcId
+          --region us-east-1
 
    # creates subnet
    create_subnet:
@@ -25,6 +29,11 @@ resources:
           --vpc-id resource.vpc_inf.json.Vpc.VpcId
           --cidr-block 10.0.1.0/24
           --region us-east-1
+      destroy bash:
+        aws ec2 delete-subnet
+          --subnet-id resource.subnet_inf.json.Subnet.SubnetId
+          --region us-east-1
+
 
    # enable public IPs
    subnet_enable_public_ips:
@@ -40,11 +49,20 @@ resources:
       create bash:
         aws ec2 create-internet-gateway
         --region us-east-1
+      destroy bash:
+        aws ec2 delete-internet-gateway
+          --internet-gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
+          --region us-east-1
 
    # attach Internet Gateway
    attach_internet_gateway:
       create bash:
         aws ec2 attach-internet-gateway
+          --internet-gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
+          --vpc-id resource.vpc_inf.json.Vpc.VpcId
+          --region us-east-1
+      destroy bash:
+        aws ec2 detach-internet-gateway
           --internet-gateway-id resource.internet_gateway_inf.json.InternetGateway.InternetGatewayId
           --vpc-id resource.vpc_inf.json.Vpc.VpcId
           --region us-east-1

@@ -10,6 +10,7 @@ import service.auth
 import service.instance
 import service.provider
 import service.macfile
+import service.resource
 import service.infrastructure
 import maccli.facade.macfile
 import maccli.service.configuration
@@ -264,25 +265,19 @@ def process_macfile(file, resume, params, quiet, on_failure):
 
         root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(raw)
 
-        # # TODO implement resume functionality
-        # if resume:
-        #     view.view_generic.show()
-        #     view.view_generic.show("Resume functionality not available in this version")
-        #     exit(1)
-
         if not resume:
 
-            existing_instances = service.instance.list_by_infrastructure(root['name'], root['version'])
+            existing_infrastructures = service.infrastructure.search_instances(root['name'], root['version'])
 
-            if len(existing_instances) > 0:
+            if len(existing_infrastructures) > 0:
                 view.view_generic.show()
                 view.view_generic.show()
                 view.view_generic.show_error(
-                    "There are active instances for infrastructure %s and version %s" % (root['name'], root['version']))
+                    "There are active instances for infrastructure '%s' and version '%s'" % (root['name'], root['version']))
                 view.view_generic.show()
                 view.view_generic.show()
-                view.view_instance.show_instances(existing_instances)
-                view.view_infrastructure.show_infrastructure_resources(infrastructures, [])
+                view.view_infrastructure.show_infrastructure_instances(existing_infrastructures)
+                view.view_infrastructure.show_resources_in_infrastructure(existing_infrastructures)
                 view.view_generic.show()
                 view.view_generic.show()
                 view.view_generic.show(
@@ -366,7 +361,6 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 if 'cmd' in infrastructure_error_detail:
                     view.view_generic.show(infrastructure_error_detail['cmd'])
 
-
             # if an instance failed, the details of the error are in the log
             view.view_generic.show("")
             view.view_generic.show("Logs available at")
@@ -374,6 +368,7 @@ def process_macfile(file, resume, params, quiet, on_failure):
             exit(12)
         else:
             view.view_generic.showc("Infrastructure created successfully.", GREEN)
+            view.view_generic.show("")
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:
@@ -432,11 +427,46 @@ def infrastructure_list():
 def infrastructure_search(name, version):
     try:
         infrastructure = service.infrastructure.search_instances(name, version)
-        view.view_infrastructure.show_infrastructure_instances(infrastructure)
+        if len(infrastructure):
+            view.view_infrastructure.show_infrastructure_instances(infrastructure)
+            view.view_generic.show()
+            view.view_infrastructure.show_resources_in_infrastructure(infrastructure)
+        else:
+            view.view_generic.show("There are not active infrastructure")
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:
         show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def infrastructure_destroy(name, version):
+    try:
+        infrastructures = service.infrastructure.search_instances(name, version)
+
+        if len(infrastructures):
+            infrastructure = infrastructures[0]
+
+            for instance in infrastructure['cloudServers']:
+                maccli.view.view_generic.showc("Instance %s marked as deleted" % instance['id'], GREEN)
+                maccli.view.view_generic.show("")
+                maccli.service.instance.destroy_instance(instance['id'])
+
+            if len(infrastructure['cloudServers']):
+                time.sleep(10)  # give some time to instances to free resources
+
+            for resource in infrastructure['resources']:
+                maccli.facade.macfile.destroy_resource(resource, infrastructure['cloudServers'], infrastructure['resources'])
+        else:
+            maccli.view.view_generic.show("Infrastructure '%s' version '%s' not found" % (name, version))
+
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            traceback.print_exc(file=sys.stdout)
+        else:
+            show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
 
 

@@ -2,6 +2,8 @@ import maccli
 from maccli.helper.exception import BashException, MacResourceException, InstanceDoesNotExistException
 import maccli.helper.macfile
 import maccli.helper.cmd
+import maccli.helper.metadata
+import maccli.dao.api_resource
 
 __author__ = 'tk421'
 
@@ -44,3 +46,31 @@ def run_raw_command(infrastructure_key, command_raw, log_type, key, instances, r
         is_resource_processed = False
 
     return resource_processed, is_resource_processed
+
+
+def create_resource(root, infrastructure_key, name, create_bash, rc, stderr, stdout, destroy_bash):
+    """
+        create a resource
+    """
+    metadata = maccli.helper.metadata.metadata_resource(root, infrastructure_key, name)
+    return maccli.dao.api_resource.create(infrastructure_key, create_bash, rc, stderr, stdout, destroy_bash, metadata)
+
+
+def update_resource(resource, destroy_bash, rc, stderr, stdout):
+    """
+        Updates a resource and adds the output for destroying it
+    """
+    resource['destroy'] = {
+        'cmd': destroy_bash,
+        'rc': rc,
+        'stderr': stderr,
+        'stdout': stdout
+    }
+    return maccli.dao.api_resource.update(resource)
+
+
+def destroy_resource(resource):
+    """
+        Destroy the resource
+    """
+    return maccli.dao.api_resource.delete(resource)

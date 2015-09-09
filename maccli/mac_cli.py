@@ -126,8 +126,11 @@ def dispatch_cmds(args):
             maccli.command_cli.infrastructure_list()
         elif args.subcmd == 'macfile':
             maccli.command_cli.process_macfile(args.file[0], args.resume, args.param, args.quiet, args.on_failure)
-        elif args.subcmd == 'instance':
+        elif args.subcmd == 'items':
             maccli.command_cli.infrastructure_search(args.name, args.version)
+        elif args.subcmd == 'destroy':
+            maccli.command_cli.infrastructure_destroy(args.name, args.version)
+
         elif args.subcmd == 'lifespan':
             maccli.command_cli.infrastructure_lifespan(args.amount, args.name, args.version)
 

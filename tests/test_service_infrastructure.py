@@ -13,7 +13,7 @@ NAME = "demo"
 
 class ServiceInfrastructureTestCase(unittest.TestCase):
 
-    @mock.patch('maccli.dao.api_infrastructure.search_instances')
+    @mock.patch('maccli.dao.api_infrastructure.search_infrastructure')
     @mock.patch('maccli.dao.api_instance.update')
     def test_lifespan_name(self, mock_update, mock_search):
         mock_search.return_value = 200, MOCK_INFRASTRUCTURE

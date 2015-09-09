@@ -174,11 +174,13 @@ class TestFacadeMacfileTestCase(unittest.TestCase):
     #     self.assertEqual(processed_resources, EXPECTED)
     #     self.assertTrue(finish)
 
+
+    @mock.patch('maccli.service.resource.create_resource')
     @mock.patch('maccli.service.instance.create_instances_for_role')
     @mock.patch('maccli.helper.macfile.parse_envs_dict')
     @mock.patch('maccli.helper.macfile.parse_envs')
     @mock.patch('maccli.helper.cmd.run')
-    def test_apply_actions(self, mock_run, mock_parse_envs, mock_parse_env_dict, mock_parse_create):
+    def test_apply_actions(self, mock_run, mock_parse_envs, mock_parse_env_dict, mock_parse_create, mock_create_resource):
         PROCESSED_INSTANCES = [{u'status': u'Instance completed', u'servername': u'ui1-app-23ac2af0', u'lifespan': 57, u'ipv4': u'52.7.6.85', u'type': u'testing', u'id': u'jui1euj3kj4oo4fr01469gb489', u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'app_inf', u'environment_raw': [{u'DB_IP': u'127.0.0.1'}, {u'APP_BRANCH': u'master'}], u'version': u'1.0', u'name': u'demo', u'macfile_role_name': u'app'}, u'system': {u'infrastructure': {u'hardware': u't1.micro', u'deployment': u'testing', u'location': u'us-east-1', u'lifespan': 60, u'provider': u'amazon'}, u'role': {u'environment': {u'APP_BRANCH': u'master', u'DB_IP': u'127.0.0.1'}, u'cookbook_tag': u'demo_application', u'block_tags': [u'2fetua4olnmaf70euqkrivvake']}}}}, {u'status': u'Instance completed', u'servername': u'6oj-app-21ac2af2', u'lifespan': 57, u'ipv4': u'52.7.70.85', u'type': u'testing', u'id': u'h6oji0icufqh56apspsfu5mqj5', u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'app_inf', u'environment_raw': [{u'DB_IP': u'127.0.0.1'}, {u'APP_BRANCH': u'master'}], u'version': u'1.0', u'name': u'demo', u'macfile_role_name': u'app'}, u'system': {u'infrastructure': {u'hardware': u't1.micro', u'deployment': u'testing', u'location': u'us-east-1', u'lifespan': 60, u'provider': u'amazon'}, u'role': {u'environment': {u'APP_BRANCH': u'master', u'DB_IP': u'127.0.0.1'}, u'cookbook_tag': u'demo_application', u'block_tags': [u'2fetua4olnmaf70euqkrivvake']}}}}]
         PROCESSED_RESOURCES = []
         INSTANCES = [{u'status': u'Instance completed', u'servername': u'ui1-app-23ac2af0', u'lifespan': 57, u'ipv4': u'52.7.6.85', u'type': u'testing', u'id': u'jui1euj3kj4oo4fr01469gb489', u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'app_inf', u'environment_raw': [{u'DB_IP': u'127.0.0.1'}, {u'APP_BRANCH': u'master'}], u'version': u'1.0', u'name': u'demo', u'macfile_role_name': u'app'}, u'system': {u'infrastructure': {u'hardware': u't1.micro', u'deployment': u'testing', u'location': u'us-east-1', u'lifespan': 60, u'provider': u'amazon'}, u'role': {u'environment': {u'APP_BRANCH': u'master', u'DB_IP': u'127.0.0.1'}, u'cookbook_tag': u'demo_application', u'block_tags': [u'2fetua4olnmaf70euqkrivvake']}}}}, {u'status': u'Instance completed', u'servername': u'6oj-app-21ac2af2', u'lifespan': 57, u'ipv4': u'52.7.70.85', u'type': u'testing', u'id': u'h6oji0icufqh56apspsfu5mqj5', u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'app_inf', u'environment_raw': [{u'DB_IP': u'127.0.0.1'}, {u'APP_BRANCH': u'master'}], u'version': u'1.0', u'name': u'demo', u'macfile_role_name': u'app'}, u'system': {u'infrastructure': {u'hardware': u't1.micro', u'deployment': u'testing', u'location': u'us-east-1', u'lifespan': 60, u'provider': u'amazon'}, u'role': {u'environment': {u'APP_BRANCH': u'master', u'DB_IP': u'127.0.0.1'}, u'cookbook_tag': u'demo_application', u'block_tags': [u'2fetua4olnmaf70euqkrivvake']}}}}]
@@ -190,7 +192,7 @@ class TestFacadeMacfileTestCase(unittest.TestCase):
         mock_run.return_value = 0, "output", "error"
         mock_parse_envs.return_value = "'aws elb create-load-balancer --load-balancer-name my-load-balancer --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80 --region us-east-1 --availability-zones output output'", True
         mock_parse_env_dict.return_value = INFRASTRUCTURES, True
-        processed_resources, finish = maccli.facade.macfile.apply_resources(PROCESSED_INSTANCES, PROCESSED_RESOURCES, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, RESOURCES, [], True)
+        processed_resources, finish = maccli.facade.macfile.apply_resources(PROCESSED_INSTANCES, PROCESSED_RESOURCES, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, RESOURCES, MOCK_PARSE_MACFILE_V2_EXPECTED_ROOT, True)
         self.assertEqual(processed_resources, EXPECTED)
         self.assertTrue(finish)
 

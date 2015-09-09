@@ -9,7 +9,7 @@ def get_infrastructure_list():
     return status_code, json
 
 
-def search_instances(name, version):
+def search_infrastructure(name, version):
 
     params = {}
     if name is not None:

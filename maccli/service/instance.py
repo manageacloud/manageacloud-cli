@@ -247,7 +247,7 @@ def create_instances_for_role(root, infrastructure, roles, infrastructure_key, q
     infrastructure_role = infrastructure['role']
 
     role_raw = roles[infrastructure_role]["instance create"]
-    metadata = maccli.helper.metadata.metadata(root, infrastructure_key, infrastructure_role, role_raw,
+    metadata = maccli.helper.metadata.metadata_instance(root, infrastructure_key, infrastructure_role, role_raw,
                         infrastructure)
     instances = create_tier(role_raw, infrastructure, metadata, quiet)
     roles_created[infrastructure_role] = instances

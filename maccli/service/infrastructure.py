@@ -18,7 +18,7 @@ def search_instances(name, version):
         Search infrastructure by name and version
     """
 
-    server_status, response = maccli.dao.api_infrastructure.search_instances(name, version)
+    server_status, response = maccli.dao.api_infrastructure.search_infrastructure(name, version)
 
     return response
 
@@ -28,12 +28,11 @@ def lifespan(amount, name, input_version):
         Manipulate's lifespan for all server in a infrastructure
     """
 
-    server_status, infrastructure = maccli.dao.api_infrastructure.search_instances(name, input_version)
+    server_status, infrastructure = maccli.dao.api_infrastructure.search_infrastructure(name, input_version)
 
     new_infrastructure = []
     if len(infrastructure):
         for inf in infrastructure:
-            new_inf = {}
             if name is None or name == inf['name']:
                 for version in inf['versions']:
                     if input_version is None or input_version == version:
@@ -43,7 +42,6 @@ def lifespan(amount, name, input_version):
                                 maccli.logger.debug("Adding %s to instance %s" % (amount, instance['id']))
                                 new_instance = maccli.dao.api_instance.update(instance['id'], amount)
                                 instances.append(new_instance)
-                        new_inf = inf
                         inf['cloudServers'] = instances
                         new_infrastructure.append(inf)
 

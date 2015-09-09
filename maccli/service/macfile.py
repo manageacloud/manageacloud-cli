@@ -1,4 +1,5 @@
 from __future__ import print_function
+from collections import OrderedDict
 
 import yaml
 import yaml.representer
@@ -243,24 +244,34 @@ def parse_macfile(string):
         actions_optional_params = ["ssh", "bash"]
         raw_actions_root_keys = raw['actions'].keys()
         for key_action_root in raw_actions_root_keys:
-            raw_action_keys = raw['actions'][key_action_root].keys()
-            if len(raw_action_keys) != 1:
-                print("The action '%s' does not have anything defined." % key_action_root)
+            if isinstance(raw['actions'][key_action_root], OrderedDict):
+                raw_action_keys = raw['actions'][key_action_root].keys()
+                if len(raw_action_keys) != 1:
+                    print("The action '%s' does not have anything defined." % key_action_root)
+                    exit(1)
+                validate_param(raw_action_keys, None, actions_optional_params)
+            else:
+                print("The action '%s' has wrong format." % key_action_root)
                 exit(1)
-            validate_param(raw_action_keys, None, actions_optional_params)
+
     else:
         raw['actions'] = []
 
     # validate resources
     if 'resources' in raw.keys():
-        actions_resource_params = ["create bash"]
+        resources_optional_params = ["create bash", "destroy bash"]
         raw_resources_root_keys = raw['resources'].keys()
         for key_resource_root in raw_resources_root_keys:
-            raw_resource_keys = raw['resources'][key_resource_root].keys()
-            if len(raw_resource_keys) != 1:
-                print("The resource '%s' has defined %s child, and it should be one ." % key_resource_root)
+            if isinstance(raw['resources'][key_resource_root], OrderedDict):
+                raw_resource_keys = raw['resources'][key_resource_root].keys()
+                if len(raw_resource_keys) < 1:
+                    print("The resource '%s' does not have anything defined." % key_resource_root)
+                    exit(1)
+                validate_param(raw_resource_keys, None, resources_optional_params)
+            else:
+                print("The resource '%s' has wrong format." % key_resource_root)
                 exit(1)
-            validate_param(raw_resource_keys, None, actions_resource_params)
+
     else:
         raw['resources'] = []
 

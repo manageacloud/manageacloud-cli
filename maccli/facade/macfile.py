@@ -4,6 +4,7 @@ import maccli
 
 import pprint
 from maccli.config import MACFILE_ON_FAILURE_DESTROY_OTHERS, MACFILE_ON_FAILURE_DESTROY_ALL
+from maccli.view.view_generic import GREEN, RED
 import maccli.service.instance
 import maccli.view.view_generic
 import maccli.view.view_instance
@@ -12,8 +13,8 @@ import maccli.helper.macfile
 import maccli.helper.cmd
 import maccli.service.resource
 from maccli.helper.network import is_ip_private, is_local
-from maccli.helper.exception import MacParseEnvException, FactError, MacApiError, MacResourceException, \
-    InstanceNotReadyException, InstanceDoesNotExistException, BashException
+from maccli.helper.exception import MacParseEnvException, FactError, MacApiError, BashException, \
+    MacResourceException
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -262,7 +263,7 @@ def clean_up(instances, on_failure):
 def apply_resources(processed_instances, processed_resources, instances, roles, infrastructures, actions, resources, root, quiet):
     """ Apply all the resources that are not instances """
     # If event cannot happen, wait to the next loop
-    resources_processed = []
+    resources_processed_part = []
     finish = True
     for infrastructure_key in infrastructures:
         infrastructure = infrastructures[infrastructure_key]
@@ -273,16 +274,24 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                 maccli.logger.debug("Type resource")
                 log_type = "resource"
                 key = infrastructure['resource']
-                command_raw = resources[key]['create bash']
+                try:
+                    command_raw = resources[key]['create bash']
+                except KeyError:
+                    raise MacResourceException("Resource %s not found" % key, "Resource %s not found" % key)
+
+                command_destroy = None
+                if 'destroy bash' in resources[key].keys():
+                    command_destroy = resources[key]['destroy bash']
+
                 if 'ready' in infrastructure:  # wait for the instance to be ready before proceeding
                     is_role_ready = maccli.helper.macfile.is_role_dependencies_ready(infrastructure, processed_instances, infrastructure_key)
                     if is_role_ready:
                         resource_processed, resource_finish = maccli.service.resource.run_raw_command(infrastructure_key, command_raw, log_type, key, instances, roles, infrastructures, actions, processed_resources)
-                        maccli.logger.debug("RESOURCE PROCESSED (READY) %s, %s" % (resource_finish, resource_processed))
                         if resource_finish:
-                            resources_processed.append({infrastructure_key: resource_processed})
+                            resources_processed_part.append({infrastructure_key: resource_processed})
+                            maccli.service.resource.create_resource(root, infrastructure_key, key, command_raw, resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'], command_destroy)
                             __resource_status(infrastructure_key, resource_processed['cmd'], resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'],
-                                              infrastructures, processed_instances, processed_resources)
+                                              infrastructures, processed_instances, processed_resources + resources_processed_part)
                         else:
                             finish = False
                             break  # stop processing resources
@@ -291,11 +300,11 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                         break  # stop processing resources
                 else:
                     resource_processed, resource_finish = maccli.service.resource.run_raw_command(infrastructure_key, command_raw, log_type, key, instances, roles, infrastructures, actions, processed_resources)
-                    maccli.logger.debug("RESOURCE PROCESSED %s, %s" % (resource_finish, resource_processed))
                     if resource_finish:
-                        resources_processed.append({infrastructure_key: resource_processed})
+                        resources_processed_part.append({infrastructure_key: resource_processed})
+                        maccli.service.resource.create_resource(root, infrastructure_key, key, command_raw, resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'], command_destroy)
                         __resource_status(infrastructure_key, resource_processed['cmd'], resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'],
-                                          infrastructures, processed_instances, processed_resources)
+                                          infrastructures, processed_instances, processed_resources + resources_processed_part)
                     else:
                         finish = False
                         break  # stop processing resources
@@ -308,9 +317,9 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                 resource_processed, resource_finish = maccli.service.resource.run_raw_command(infrastructure_key, command_raw, log_type, key, instances, roles, infrastructures, actions, processed_resources)
                 maccli.logger.debug("RESOURCE (ACTION) PROCESSED %s, %s" % (resource_finish, resource_processed))
                 if resource_finish:
-                    resources_processed.append({infrastructure_key: resource_processed})
+                    resources_processed_part.append({infrastructure_key: resource_processed})
                     __resource_status(infrastructure_key, resource_processed['cmd'], resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'],
-                                      infrastructures, processed_instances, processed_resources)
+                                      infrastructures, processed_instances, processed_resources + resources_processed_part)
                 else:
                     finish = False
                     break  # stop processing resources
@@ -319,63 +328,57 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
             elif 'role' in infrastructure:
                 maccli.logger.debug("Type role")
                 maccli.logger.debug("Processing %s " % infrastructure_key)
-                infrastructure_parsed, infrastructure_processed = maccli.helper.macfile.parse_envs_dict(infrastructure, processed_instances, roles, infrastructures, actions, processed_resources)
+                infrastructure_role = infrastructure['role']
+
+                new_environments = []  # parse environments
+                if 'environment' in roles[infrastructure_role]["instance create"]:
+                    for environment_raw in roles[infrastructure_role]["instance create"]['environment']:
+                        environment_clean, environments_processed = maccli.helper.macfile.parse_envs_dict(environment_raw, processed_instances, roles, infrastructures, actions, processed_resources + resources_processed_part)
+                        new_environments.append(environment_clean)
+                    roles[infrastructure_role]["instance create"]['environment'] = new_environments
+
+                infrastructure_parsed, infrastructure_processed = maccli.helper.macfile.parse_envs_dict(infrastructure, processed_instances, roles, infrastructures, actions, processed_resources + resources_processed_part)
+
                 if infrastructure_processed:
                     maccli.logger.debug("Creating instances for %s " % infrastructure_key)
                     maccli.service.instance.create_instances_for_role(root, infrastructure_parsed, roles, infrastructure_key, quiet)
 
                 # mark as resource processed
-                resources_processed.append({infrastructure_key: {'stderr': None, 'stdout': None, 'rc': 0, 'cmd': None}})
+                resources_processed_part.append({infrastructure_key: {'stderr': None, 'stdout': None, 'rc': 0, 'cmd': None}})
 
                 continue  # roles are processed independent to resources
             else:
                 raise NotImplementedError
 
-            # if finish:  # if finish is false the process was aborted above
-            #     maccli.logger.debug("%s %s command_raw: %s " % (log_type, key, command_raw))
-            #     command_clean = command_raw
-            #     is_parsed = True
-            #     if maccli.helper.macfile.has_dependencies(command_raw, roles, infrastructures, actions):
-            #         maccli.logger.debug("Running %s %s with dependency, requested by infrastructure %s" % (log_type, key, infrastructure_key))
-            #         try:
-            #             command_clean, is_parsed = maccli.helper.macfile.parse_envs(command_raw, instances, roles, infrastructures, actions, processed_resources)
-            #         except BashException as e:
-            #             raise MacResourceException("Error: %s\nCommand: %s", e[0], e[1])
-            #
-            #         except InstanceDoesNotExistException as e:
-            #             raise MacResourceException("Instance %s  does not exist " % e, "Instance %s  does not exist " % e)
-            #     else:
-            #         maccli.logger.debug("Running %s %s with no dependency, requested by infrastructure %s" % (log_type, key, infrastructure_key))
-            #
-            #     if is_parsed:
-            #         rc, stdout, stderr = maccli.helper.cmd.run(command_clean)
-            #
-            #         if rc == 0:
-            #             if quiet:
-            #                 maccli.view.view_generic.show("%s executed successfully" % infrastructure_key)
-            #             else:
-            #                 maccli.view.view_generic.clear()
-            #                 maccli.view.view_instance.show_instances(processed_instances)
-            #                 maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, processed_resources)
-            #             resources_processed.append({infrastructure_key: {'stderr': stderr, 'stdout': stdout, 'rc': rc, 'cmd': command_clean}})
-            #             if stdout:
-            #                 maccli.logger.debug("STDOUT: %s " % stdout)
-            #             if stderr:
-            #                 maccli.logger.debug("STDERR: %s " % stderr)
-            #         else:
-            #             if quiet:
-            #                 maccli.view.view_generic.cmd_error(command_clean, rc, stdout, stderr)
-            #             else:
-            #                 maccli.view.view_generic.clear()
-            #                 maccli.view.view_instance.show_instances(processed_instances)
-            #                 maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, processed_resources)
-            #
-            #             raise MacResourceException("Error while executing resource %s " % infrastructure_key, {'stderr': stderr, 'stdout': stdout, 'rc': rc, 'cmd': command_clean})
-            #     else:
-            #         finish = False
-            #         break  # exit from loop to avoid processing other resources
+    return resources_processed_part, finish
 
-    return resources_processed, finish
+
+def destroy_resource(resource, instances, resources):
+
+    if resource['cmdDestroy']:
+
+        clean_cmd_destroy = maccli.helper.macfile.parse_envs_destroy(resource['cmdDestroy'], instances, resources)
+        maccli.logger.debug("CMD_DESTROY_CLEAN %s" % clean_cmd_destroy)
+        rc = None
+        stdout = None
+        try:
+            rc, stdout, stderr = maccli.helper.cmd.run(clean_cmd_destroy)
+        except Exception as e:
+            maccli.logger.warn("Error executing %s: %s" % (clean_cmd_destroy, e))
+            stderr = e[1]
+
+        maccli.service.resource.update_resource(resource, clean_cmd_destroy, rc, stderr, stdout)
+
+        if rc != 0:
+            maccli.view.view_generic.showc("Resource %s failed when destroying resource" % resource['name'], RED)
+            maccli.view.view_generic.cmd_error(clean_cmd_destroy, rc, stdout, stderr)
+        else:
+            maccli.view.view_generic.showc("Resource %s has been successfully removed" % resource['name'], GREEN)
+        maccli.view.view_generic.show("")
+    else:
+        maccli.view.view_generic.show("Resource %s skipped" % resource['name'])
+
+    maccli.service.resource.destroy_resource(resource)
 
 
 def __resource_status(infrastructure_key, command_clean, rc, stderr, stdout, infrastructures, processed_instances, processed_resources):

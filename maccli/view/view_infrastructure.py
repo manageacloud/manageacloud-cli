@@ -16,22 +16,59 @@ def show_infrastructure(infrastructure):
 
 def show_infrastructure_instances(infrastructure):
     pretty = PrettyTable(["Infrastructure name", "Version", "Instance name", "Instance id", "Status"])
-    if len(infrastructure):
-        for inf in infrastructure:
-            for version in inf['versions']:
-                for instance in inf['cloudServers']:
-                    if instance['type'] == 'testing' and instance['status'] == "Ready":
-                        status = "%s (%im left)" % (instance['status'], instance['lifespan'])
-                    else:
-                        status = instance['status']
-
-                    pretty.add_row([inf['name'], version, instance['servername'], instance['id'], status])
+    is_output = False
+    for inf in infrastructure:
+        for version in inf['versions']:
+            for instance in inf['cloudServers']:
+                if instance['type'] == 'testing' and instance['status'] == "Ready":
+                    status = "%s (%im left)" % (instance['status'], instance['lifespan'])
+                else:
+                    status = instance['status']
+                pretty.add_row([inf['name'], version, instance['servername'], instance['id'], status])
+                is_output = True
+    if is_output:
         print(pretty)
     else:
-        print("There is no active infrastructure")
+        print("There is no active instances in infrastructure")
+
+
+def show_resources_in_infrastructure(infrastructures):
+
+    """  Display resources in infrastrucrures """
+    if len(infrastructures):
+        pretty = PrettyTable(["Infrastructure name", "Version", "Resource type", "Resource name", "Status"])
+        pretty.align = "l"
+
+        is_output = False
+        for inf in infrastructures:
+            for version in inf['versions']:
+                for resource in inf['resources']:
+                    resource_type = resource['metadata']['infrastructure']['macfile_resource_name']
+                    resource_name = resource['metadata']['infrastructure']['macfile_infrastructure_name']
+                    status = ""
+                    if 'destroy' in resource:
+                        if resource['create']['rc']:
+                            status = "Destroy failed"
+                        else:
+                            status = "Destroyed"
+
+                    elif 'create' in resource:
+                        if resource['create']['rc']:
+                            status = "Creation failed"
+                        else:
+                            status = "Ready"
+
+                    pretty.add_row([inf['name'], version, resource_type, resource_name, status])
+                    is_output = True
+
+        if is_output:
+            print(pretty)
+        else:
+            print("There is no resources in infrastructure")
 
 
 def show_infrastructure_resources(infrastructures, infrastructures_resources_processed):
+    """ display table with infrastructure when it is being processed """
 
     if len(infrastructures):
         pretty = PrettyTable(["Resource name", "Status"])

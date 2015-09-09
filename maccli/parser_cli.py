@@ -132,7 +132,6 @@ def add_instance_parser(subparsers):
     lifespan_parser.add_argument('amount', type=int, help='New server lifespan in minutes')
 
 
-
 def add_infrastructure_parser(subparsers):
     """ infrastructure parser"""
     inf_parser = subparsers.add_parser('infrastructure',
@@ -159,10 +158,14 @@ def add_infrastructure_parser(subparsers):
     inf_subparser.add_parser('list', help='List all infrastructure and versions available')
 
     # infrastructure instance
-    instance_parser = inf_subparser.add_parser('instance', help='List all instances available in a infrastructure')
-
+    instance_parser = inf_subparser.add_parser('items', help='List instances and resources available in a infrastructure')
     instance_parser.add_argument('-v', '--version', help='Filter by infrastructure version')
     instance_parser.add_argument('-n', '--name', help='Filter by infrastructure name')
+
+    # infrastructure destroy
+    instance_parser = inf_subparser.add_parser('destroy', help='Destroy instances and resources')
+    instance_parser.add_argument('name', help='Infrastructure name')
+    instance_parser.add_argument('version', help='Infrastructure version')
 
     # lifespan
     lifespan_parser = inf_subparser.add_parser('lifespan', help='Manipulate testing instance\'s lifespan')
