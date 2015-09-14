@@ -453,7 +453,7 @@ def infrastructure_destroy(name, version):
                 maccli.service.instance.destroy_instance(instance['id'])
 
             if len(infrastructure['cloudServers']):
-                time.sleep(10)  # give some time to instances to free resources
+                time.sleep(15)  # give some time to instances to free resources
 
             for resource in infrastructure['resources']:
                 maccli.facade.macfile.destroy_resource(resource, infrastructure['cloudServers'], infrastructure['resources'])

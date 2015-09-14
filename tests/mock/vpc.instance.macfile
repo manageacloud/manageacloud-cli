@@ -1,7 +1,7 @@
 mac: 0.7.1
 description: VPC with Internet and public ips
-name: demo
-version: '1.0'
+name: {INF_NAME}
+version: {INF_VERSION}
 
 actions:
    get_route:

@@ -135,7 +135,6 @@ def dispatch_cmds(args):
             maccli.command_cli.infrastructure_lifespan(args.amount, args.name, args.version)
 
 
-
 def parse_args(self, args):
     # factored out for testability
     return self.parser.parse_args(args)

@@ -20,12 +20,14 @@ def show_infrastructure_instances(infrastructure):
     for inf in infrastructure:
         for version in inf['versions']:
             for instance in inf['cloudServers']:
-                if instance['type'] == 'testing' and instance['status'] == "Ready":
-                    status = "%s (%im left)" % (instance['status'], instance['lifespan'])
-                else:
-                    status = instance['status']
-                pretty.add_row([inf['name'], version, instance['servername'], instance['id'], status])
-                is_output = True
+                instance_infrastructure_version = instance['metadata']['infrastructure']['version']
+                if version == instance_infrastructure_version:
+                    if instance['type'] == 'testing' and instance['status'] == "Ready":
+                        status = "%s (%im left)" % (instance['status'], instance['lifespan'])
+                    else:
+                        status = instance['status']
+                    pretty.add_row([inf['name'], version, instance['servername'], instance['id'], status])
+                    is_output = True
     if is_output:
         print(pretty)
     else:
@@ -45,21 +47,23 @@ def show_resources_in_infrastructure(infrastructures):
                 for resource in inf['resources']:
                     resource_type = resource['metadata']['infrastructure']['macfile_resource_name']
                     resource_name = resource['metadata']['infrastructure']['macfile_infrastructure_name']
-                    status = ""
-                    if 'destroy' in resource:
-                        if resource['create']['rc']:
-                            status = "Destroy failed"
-                        else:
-                            status = "Destroyed"
+                    resource_version = resource['metadata']['infrastructure']['version']
+                    if version == resource_version:
+                        status = ""
+                        if 'destroy' in resource:
+                            if resource['create']['rc']:
+                                status = "Destroy failed"
+                            else:
+                                status = "Destroyed"
 
-                    elif 'create' in resource:
-                        if resource['create']['rc']:
-                            status = "Creation failed"
-                        else:
-                            status = "Ready"
+                        elif 'create' in resource:
+                            if resource['create']['rc']:
+                                status = "Creation failed"
+                            else:
+                                status = "Ready"
 
-                    pretty.add_row([inf['name'], version, resource_type, resource_name, status])
-                    is_output = True
+                        pretty.add_row([inf['name'], version, resource_type, resource_name, status])
+                        is_output = True
 
         if is_output:
             print(pretty)

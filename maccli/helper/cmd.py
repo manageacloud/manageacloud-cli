@@ -1,13 +1,17 @@
 import subprocess
 
-from maccli.helper.exception import MacApiError, MacAuthError
+from maccli.helper.exception import MacApiError, MacAuthError, BashException
 import maccli
 
 
 def run(command):
-    cmd_parts = command.strip().split(" ")
+    cmd_parts = ["/bin/bash", "-c", command]
     maccli.logger.debug("Running bash: %s " % command)
-    process = subprocess.Popen(cmd_parts, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        process = subprocess.Popen(cmd_parts, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except Exception as e:
+        raise BashException("%s: %s" % (command, e))
+
     process.wait()
     rc = process.returncode
     stdout, stderr = process.communicate()
