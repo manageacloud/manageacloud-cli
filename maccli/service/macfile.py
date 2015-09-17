@@ -1,5 +1,6 @@
 from __future__ import print_function
 from collections import OrderedDict
+import os
 
 import yaml
 import yaml.representer
@@ -155,7 +156,13 @@ def parse_params(raw, params_raw):
 
 
 def load_macfile(path):
+
+    # this is going to be the PWD to run commands
+    maccli.pwd = os.path.dirname(os.path.realpath(path))
+
+    # open file
     stream = open(path, "r")
+
     return stream.read()
 
 

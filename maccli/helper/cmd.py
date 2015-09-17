@@ -8,7 +8,7 @@ def run(command):
     cmd_parts = ["/bin/bash", "-c", command]
     maccli.logger.debug("Running bash: %s " % command)
     try:
-        process = subprocess.Popen(cmd_parts, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(cmd_parts, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=maccli.pwd)
     except Exception as e:
         raise BashException("%s: %s" % (command, e))
 

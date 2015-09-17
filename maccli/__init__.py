@@ -21,3 +21,6 @@ logger = logging.getLogger("mac-cli")
 
 #: defines verbosity
 quiet = False
+
+#: pwd
+pwd = os.getcwd()
