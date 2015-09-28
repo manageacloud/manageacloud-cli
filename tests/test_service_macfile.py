@@ -72,6 +72,10 @@ class MacfileServiceTestCase(unittest.TestCase):
         raw_params = maccli.service.macfile.parse_params(MOCK_MACFILE_PARAMS, MACFILE_PARAMS_VALID)
         self.assertEqual(raw_params, MOCK_MACFILE_PARAMS_VALID)
 
+    def test_parse_params_valid_2(self):
+        raw_params = maccli.service.macfile.parse_params(MOCK_MACFILE_PARAMS_2, MACFILE_PARAMS_EMPTY)
+        self.assertEqual(raw_params, MOCK_MACFILE_PARAMS_2)
+
     def test_parse_params_invalid(self):
         self.assertRaises(MacParseParamException, maccli.service.macfile.parse_params, MOCK_MACFILE_PARAMS, MACFILE_PARAMS_INVALID)
 

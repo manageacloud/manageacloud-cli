@@ -44,6 +44,7 @@ infrastructures:
 
 MACFILE_PARAMS_INVALID = ['NOTEXIST=0', 'PARAM2=VALUE2']
 MACFILE_PARAMS_VALID = ['VERSION=1.0', 'LOCATION=us-central1-c', 'AMOUNT=1']
+MACFILE_PARAMS_EMPTY = []
 MACFILE_PARAMS_ONE_MISSING = ['VERSION=1.0', 'LOCATION=us-central1-c']
 
 MOCK_MACFILE_PARAMS = """mac: 0.5a1
@@ -64,6 +65,51 @@ infrastructures:
     release: any
     role: default
     amount: {AMOUNT}
+"""
+
+
+MOCK_MACFILE_PARAMS_2 = """mac: 0.9.6
+description: test
+name: test
+version: test
+
+resources:
+
+  build_lb:
+    create bash:
+      aws elb create-load-balancer
+        --load-balancer-name lb-connection-draining
+        --listeners Protocol=HTTPS,LoadBalancerPort=443,InstanceProtocol=HTTP,InstancePort=80,SSLCertificateId=arn:aws:iam::my:server-certificate/Manageacloud
+        --security-groups sg-id
+        --region infrastructure.inf_app.location
+        --subnets subnet-id
+    destroy bash:
+      aws elb delete-load-balancer
+      --load-balancer-name lb-connection-draining
+      --region us-east-1
+
+  health_check:
+    create bash:
+      aws elb configure-health-check
+        --load-balancer-name lb-connection-draining
+        --health-check Target=HTTP:80/diagnostic,Interval=15,UnhealthyThreshold=2,HealthyThreshold=2,Timeout=5
+        --region us-east-1
+
+  connetion_draining:
+    create bash:
+      aws elb modify-load-balancer-attributes --load-balancer-name lb-connection-draining
+      --load-balancer-attributes "{\"ConnectionDraining\":{\"Enabled\":true,\"Timeout\":300}}"
+
+infrastructures:
+
+  build_lb_inf:
+    resource: build_lb
+
+  health_check_inf:
+    resource: health_check
+
+  connetion_draining_inf:
+    resource: connetion_draining
 """
 
 MOCK_MACFILE_PARAMS_VALID = """mac: 0.5a1

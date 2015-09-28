@@ -146,12 +146,12 @@ def parse_params(raw, params_raw):
                 raise MacParseParamException("Variable %s cloud not be found in macfile" % key)
             clean = clean_tmp
 
-    if re.search(r'{(.*?)}', clean,  re.MULTILINE):
+    if re.search(r'{([a-zA-Z_\-]*?)}', clean, re.MULTILINE):
         raise MacParseParamException("MACFILE contains parameters that were not available:\n"
                                      "\n"
                                      "%s"
                                      "\n"
-                                     "Available parameters %s" % (clean,  str(params_raw)))
+                                     "Available parameters %s" % (clean, str(params_raw)))
     return clean
 
 
