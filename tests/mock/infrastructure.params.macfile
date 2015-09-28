@@ -1,0 +1,27 @@
+mac: 0.9.6
+description: test
+name: test
+version: test
+
+resources:
+
+  build_lb:
+    create bash:
+      aws elb create-load-balancer
+        --load-balancer-name infrastructure.param.load-balancer-name
+        --listeners infrastructure.param.listeners
+        --security-groups sg-xxx
+        --region us-east-1
+        --subnets subnet-yyy
+    destroy bash:
+      aws elb delete-load-balancer
+      --load-balancer-name infrastructure.param.load-balancer-name
+      --region us-east-1
+
+infrastructures:
+
+  build_lb_inf:
+    resource: build_lb
+    params:
+      load-balancer-name: lb-local-parameters
+      listeners: Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80

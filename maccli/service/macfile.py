@@ -243,7 +243,7 @@ def parse_macfile(string):
             actual_roles.append(raw['infrastructures'][key_infrastructure_root]["role"])
         else:
             """ Infrastructure related with a resource"""
-            infrastructure_optional_params = ['resource', 'action', 'ready']
+            infrastructure_optional_params = ['resource', 'action', 'ready', 'params']
             validate_param(raw_infrastructure_keys, None, infrastructure_optional_params)
 
     # validate actions

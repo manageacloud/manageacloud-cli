@@ -461,6 +461,8 @@ MOCK_PARSE_MACFILE_AWS_ROLE = OrderedDict([('postgres', OrderedDict([('instance 
 MOCK_PARSE_MACFILE_AWS_INF  = OrderedDict([('postgres', OrderedDict([('hardware', 'm3.medium'), ('location', 'us-east-1'), ('provider', 'amazon'), ('role', 'postgres'), ('deployment', 'testing'), ('name', ''), ('release', 'any'), ('amount', 1)])),
                                            ('pgbench', OrderedDict([('hardware', 'm3.medium'), ('location', 'us-east-1'), ('provider', 'amazon'), ('deployment', 'testing'), ('name', ''), ('release', 'any'), ('role', 'pgbench'), ('amount', 1)]))])
 
+MOCK_PARSE_MACFILE_INFRASTURCTURE_PARAMS = OrderedDict([('build_lb_inf', OrderedDict([('resource', 'build_lb'), ('params', OrderedDict([('load-balancer-name', 'lb-local-parameters'), ('listeners', 'Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80')]))]))])
+
 MOCK_PARSE_MACFILE_AWS_NO_ORDER_INF  = OrderedDict([('postgres', OrderedDict([('location', 'us-east-1'), ('hardware', 'm3.medium'), ('provider', 'amazon'), ('role', 'postgres'), ('amount', 1), ('name', ''), ('release', 'any'), ('deployment', 'testing')])),
                                                     ('pgbench', OrderedDict([('hardware', 'm3.medium'), ('location', 'us-east-1'), ('provider', 'amazon'), ('role', 'pgbench'), ('amount', 1), ('name', ''), ('release', 'any'), ('deployment', 'testing')]))])
 

@@ -25,12 +25,18 @@ class HelperMacfileTestCase(unittest.TestCase):
                                                                      MOCK_PARSE_MACFILE_V2_EXPECTED_INFRASTRUCTURES, MOCK_PARSE_MACFILE_V2_EXPECTED_ACTIONS)
         self.assertTrue(actual_dependencies)
 
-    def test_has_dependencies_infrastructures(self):
-        #logging.basicConfig(level=logging.DEBUG)
-        command = "aws elb create-load-balancer --load-balancer-name my-load-balancer --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80 --region infrastructure.app_inf.location --availability-zones role.app.get_id.get_availability_zone"
-        actual_dependencies = maccli.helper.macfile.has_dependencies(command, MOCK_PARSE_MACFILE_V2_EXPECTED_ROLES,
-                                                                     MOCK_PARSE_MACFILE_V2_EXPECTED_INFRASTRUCTURES, MOCK_PARSE_MACFILE_V2_EXPECTED_ACTIONS)
+    def test_has_dependencies_infrastructure_params(self):
+        command="aws elb create-load-balancer --load-balancer-name infrastructure.param.load-balancer-name --listeners infrastructure.listeners --security-groups sg-xxx --region us-east-1 --subnets subnet-yyy"
+        INFRASTRUCTURES = OrderedDict([('build_lb_inf', OrderedDict([('resource', 'build_lb'), ('params', OrderedDict([('load-balancer-name', 'lb-local-parameters'), ('listerners', 'Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80')]))]))])
+        actual_dependencies = maccli.helper.macfile.has_dependencies(command, [], INFRASTRUCTURES, [])
         self.assertTrue(actual_dependencies)
+
+    def test_has_dependencies_infrastructures(self):
+            #logging.basicConfig(level=logging.DEBUG)
+            command = "aws elb create-load-balancer --load-balancer-name my-load-balancer --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80 --region infrastructure.app_inf.location --availability-zones role.app.get_id.get_availability_zone"
+            actual_dependencies = maccli.helper.macfile.has_dependencies(command, MOCK_PARSE_MACFILE_V2_EXPECTED_ROLES,
+                                                                         MOCK_PARSE_MACFILE_V2_EXPECTED_INFRASTRUCTURES, MOCK_PARSE_MACFILE_V2_EXPECTED_ACTIONS)
+            self.assertTrue(actual_dependencies)
 
     def test_has_dependencies_action(self):
         ROLES=[]
@@ -136,6 +142,21 @@ class HelperMacfileTestCase(unittest.TestCase):
         CMD_CLEAN = 'command with parameter s3-dev10'
         mock_run.return_value = 0, AWS_DESCRIBE_ROUTE_RAW, None
         actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES)
+        self.assertEqual(CMD_CLEAN, actual)
+        self.assertTrue(processed)
+
+    @mock.patch('maccli.helper.cmd.run')
+    def test_parse_resource_params(self, mock_run):
+        CMD_RAW = "aws elb create-load-balancer --load-balancer-name infrastructure.param.load-balancer-name --listeners infrastructure.param.listeners --security-groups sg-xxx --region us-east-1 --subnets subnet-yyy"
+        INSTANCES = []
+        ROLES = []
+        INFRASTRUCTURES = OrderedDict([('build_lb_inf', OrderedDict([('resource', 'build_lb'), ('params', OrderedDict([('load-balancer-name', 'lb-local-parameters'), ('listeners', 'Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80')]))]))])
+        ACTIONS = []
+        PROCESSED_RESOURCES = []
+        INFRASTRUCTURE = INFRASTRUCTURES['build_lb_inf']
+        CMD_CLEAN = 'aws elb create-load-balancer --load-balancer-name lb-local-parameters --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80 --security-groups sg-xxx --region us-east-1 --subnets subnet-yyy'
+        mock_run.return_value = 0, AWS_DESCRIBE_ROUTE_RAW, None
+        actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES, INFRASTRUCTURE)
         self.assertEqual(CMD_CLEAN, actual)
         self.assertTrue(processed)
 

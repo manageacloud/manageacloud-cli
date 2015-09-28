@@ -35,6 +35,11 @@ def has_dependencies(text, roles, infrastructures, actions):
                 else:
                     maccli.logger.warn("%s.%s.%s has been found but %s does not match with an action"
                                        % (type_name, name, action, action))
+
+            elif type_name == "infrastructure" and name == "param":
+                # TODO check if the param actually exists for every infrastructure that calls that resource
+                has_deps = True
+
             elif type_name == "resource":  # TODO add more validation
                 has_deps = True
 
@@ -147,15 +152,26 @@ def parse_envs_dict(dict, instances, roles, infrastructures, actions, processed_
     return dict, total_processed
 
 
-def parse_envs(text, instances, roles, infrastructures, actions, processed_resources):
-    """ replace the dependencies between roles using actions
-        a dependency is somthing with the format:
-         - role.[role_name].[action]
-         - infrastructure.[infrastructure name].[action]
-        returns true of false
+def parse_envs(text, instances, roles, infrastructures, actions, processed_resources, infrastructure = None):
     """
+        replace the dependencies
+
+    :param text: text that contains dependencies
+    :param instances: instances from the context
+    :param roles: roles available in the context
+    :param infrastructures: all the infrastructures available in the context
+    :param actions: all the actions available in the context
+    :param processed_resources: all the processed resources, including output of commands
+    :param infrastructure: the infrastructure that we are executing. Not available for all the contexts.
+    :return:
+    """
+
     all_processed = True
+
+    # let's get all the dependencies of variables that we have to substitute
     matches = get_dependencies(text)
+
+    # loop every variable
     if matches:
         for match in matches:
             type_name = match[0]
@@ -163,7 +179,13 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
             action = match[2]
             maccli.logger.debug("Match found: type '%s' name '%s' action '%s' " % (type_name, name, action))
 
+            # now we process the variables depending on the strategy to solve
+
+            # We check if the matches are processed. If it is not possible to process in this iteration, we might
+            # not have all the required information yet.
             match_processed = False
+
+            # parse values from "infrastructures" section in the macfile
             if name in infrastructures and action in infrastructures[name]:
                 #  search in infrastructures
                 #  the substitution is an infrastructure
@@ -171,6 +193,23 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                 text = text.replace("%s.%s.%s" % (type_name, name, action), value)
                 match_processed = True
 
+            # parse values from "infrastructures.params" section in the macfile. This is a bit different because keys are
+            # arbitrary
+            elif type_name == "infrastructure" and name == "param":
+
+                if not infrastructure:
+                    maccli.logger.warn("Infrastructure context not provided to substitute %s.%s.%s" % (type_name, name, action))
+
+                elif 'params' not in infrastructure:
+                    maccli.logger.warn("Infrastructure context does not have params %s" % infrastructure)
+
+                elif action in infrastructure['params']:
+
+                    value = infrastructure['params'][action]
+                    text = text.replace("%s.%s.%s" % (type_name, name, action), value)
+                    match_processed = True
+
+            # match values that are processed resources
             elif any(name in d for d in processed_resources) and not (action in actions):
                 # search in resources
                 for processed_resource in processed_resources:
@@ -182,6 +221,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                         except ValueError:
                             raise MacParameterNotFound("The value %s in the parameter %s.%s does not have the proper format." % (action, type_name, name))
 
+                        # output format is json
                         if text_format == "json":
                             try:
                                 texts = text_id_raw.split(".")
@@ -202,6 +242,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                                     maccli.logger.debug("Original value: %s" % value_raw)
                                 match_processed = False
 
+                        # output format is text, and it will be processed with a regular expression
                         elif text_format == "text":
                             try:
                                 regex_pattern = match[3]
@@ -220,6 +261,8 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                         else:
                             raise NotImplementedError
 
+            # process if it is an action, but it is bash and will be executed from
+            # the machine that is running the macfile
             elif type_name == "action" and name in actions:
                 # Executes the action, it is currently adhoc only for 'json'
 
@@ -263,6 +306,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                         #raise BashException("Error executing bash action %s: %s" % (bash_command, stderr), stderr)
                         match_processed = False
 
+            # action is related with an instance, and it will be executed via SSH
             elif action in actions:
                 # search in actions
                 outputs = []

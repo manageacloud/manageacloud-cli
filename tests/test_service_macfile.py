@@ -57,6 +57,11 @@ class MacfileServiceTestCase(unittest.TestCase):
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
 
+    def test_parse_infrastructure_params(self):
+        contents = maccli.service.macfile.load_macfile("%s/infrastructure.params.macfile" % self.mock_path)
+        root, _, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
+        self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_INFRASTURCTURE_PARAMS, default_flow_style=False))
+
     def test_open_file_infrastructure(self):
         contents = maccli.service.macfile.load_macfile("%s/infrastructure.aws.macfile" % self.mock_path)
         root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(contents)

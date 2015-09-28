@@ -25,7 +25,8 @@ def run_raw_command(infrastructure_key, command_raw, log_type, key, instances, r
     if maccli.helper.macfile.has_dependencies(command_raw, roles, infrastructures, actions):
         maccli.logger.debug("Running %s %s with dependency" % (log_type, key))
         try:
-            command_clean, is_parsed = maccli.helper.macfile.parse_envs(command_raw, instances, roles, infrastructures, actions, processed_resources)
+            infrastructure = infrastructures[infrastructure_key]
+            command_clean, is_parsed = maccli.helper.macfile.parse_envs(command_raw, instances, roles, infrastructures, actions, processed_resources, infrastructure)
         except BashException as e:
             raise MacResourceException("Error: %s\nCommand: %s", e[0], e[1])
 
