@@ -90,7 +90,7 @@ def add_instance_parser(subparsers):
                                                    help='Run the server configuration',
                                                    description='Run the server configuration')
     update_parser.add_argument('id', nargs='*',
-                                help='Server ID or server name')
+                                help="Server ID or server name. It also accepts several values. If value is 'all' it applies to all servers.")
 
     # destroy instance
     destroy_parser = instance_subparser.add_parser('destroy',
