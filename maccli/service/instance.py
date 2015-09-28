@@ -91,13 +91,13 @@ def ssh_command_instance(instance_id, cmd):
                 """ Authentication with password """
                 command = "ssh %s@%s %s" % (instance['user'], instance['ip'], cmd)
                 child = pexpect.spawn(command)
-                i = child.expect(['.* password:', "yes/no"], timeout=60)
+                i = child.expect(['.* password:', "yes/no"], timeout=120)
                 if i == 1:
                     child.sendline("yes")
-                    child.expect('.* password:', timeout=60)
+                    child.expect('.* password:', timeout=120)
 
                 child.sendline(instance['password'])
-                child.expect(pexpect.EOF)
+                child.expect(pexpect.EOF, timeout=120)
                 output = child.before
 
                 while child.isalive():
