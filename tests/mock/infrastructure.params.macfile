@@ -10,9 +10,8 @@ resources:
       aws elb create-load-balancer
         --load-balancer-name infrastructure.param.load-balancer-name
         --listeners infrastructure.param.listeners
-        --security-groups sg-xxx
+        --availability-zones us-east-1b
         --region us-east-1
-        --subnets subnet-yyy
     destroy bash:
       aws elb delete-load-balancer
       --load-balancer-name infrastructure.param.load-balancer-name

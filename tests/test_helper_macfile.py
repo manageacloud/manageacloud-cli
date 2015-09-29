@@ -124,12 +124,21 @@ class HelperMacfileTestCase(unittest.TestCase):
         self.assertRaises(MacParameterNotFound, maccli.helper.macfile.parse_envs, CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES)
 
     def test_parse_envs_destroy(self):
-        CMD_RAW = "aws ec2 delete-vpc --vpc-id resource.vpc_inf.json.Vpc.VpcId"
         CMD_CLEAN = "aws ec2 delete-vpc --vpc-id vpc-b78c48d3"
         INSTANCES = []
         RESOURCES = [{u'create': {u'cmd': u'aws ec2 create-vpc --cidr-block 10.0.0.0/16 --region us-east-1', u'rc': 0, u'stderr': u'', u'stdout': u'{\n    "Vpc": {\n        "InstanceTenancy": "default", \n        "State": "pending", \n        "VpcId": "vpc-b78c48d3", \n        "CidrBlock": "10.0.0.0/16", \n        "DhcpOptionsId": "dopt-838273e6"\n    }\n}\n'}, u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'vpc_inf', u'version': u'1.0', u'name': u'demo', u'macfile_resource_name': u'create_vpc'}}, u'cmdDestroy': u'aws ec2 delete-vpc --vpc-id resource.vpc_inf.json.Vpc.VpcId', u'name': u'vpc_inf', u'cmdCreate': u'aws ec2 create-vpc --cidr-block 10.0.0.0/16 --region us-east-1'}]
-        actual = maccli.helper.macfile.parse_envs_destroy(CMD_RAW, INSTANCES, RESOURCES)
+        RESOURCE = {u'create': {u'cmd': u'aws ec2 create-vpc --cidr-block 10.0.0.0/16 --region us-east-1', u'rc': 0, u'stderr': u'', u'stdout': u'{\n    "Vpc": {\n        "InstanceTenancy": "default", \n        "State": "pending", \n        "VpcId": "vpc-b78c48d3", \n        "CidrBlock": "10.0.0.0/16", \n        "DhcpOptionsId": "dopt-838273e6"\n    }\n}\n'}, u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'vpc_inf', u'version': u'1.0', u'name': u'demo', u'macfile_resource_name': u'create_vpc'}}, u'cmdDestroy': u'aws ec2 delete-vpc --vpc-id resource.vpc_inf.json.Vpc.VpcId', u'name': u'vpc_inf', u'cmdCreate': u'aws ec2 create-vpc --cidr-block 10.0.0.0/16 --region us-east-1'}
+        actual = maccli.helper.macfile.parse_envs_destroy(RESOURCE, INSTANCES, RESOURCES)
         self.assertEqual(CMD_CLEAN, actual)
+
+    def test_parse_envs_infrastructure_params_destroy(self):
+        CMD_CLEAN = "aws elb delete-load-balancer --load-balancer-name lb-local-parameters --region us-east-1"
+        INSTANCES = []
+        RESOURCES = [{u'create': {u'cmd': u'aws elb create-load-balancer --load-balancer-name infrastructure.param.load-balancer-name --listeners infrastructure.param.listeners --availability-zones us-east-1b --region us-east-1', u'rc': 0, u'stderr': u'', u'stdout': u'{\n    "DNSName": "lb-local-parameters-1322457308.us-east-1.elb.amazonaws.com"\n}\n'}, u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'build_lb_inf', u'macfile_infrastructure_params': {u'listeners': u'Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80', u'load-balancer-name': u'lb-local-parameters'}, u'version': u'test', u'name': u'test', u'macfile_resource_name': u'build_lb'}}, u'cmdDestroy': u'aws elb delete-load-balancer --load-balancer-name infrastructure.param.load-balancer-name --region us-east-1', u'name': u'build_lb_inf', u'cmdCreate': u'aws elb create-load-balancer --load-balancer-name infrastructure.param.load-balancer-name --listeners infrastructure.param.listeners --availability-zones us-east-1b --region us-east-1'}]
+        RESOURCE_TO_DESTROY = {u'create': {u'cmd': u'aws elb create-load-balancer --load-balancer-name infrastructure.param.load-balancer-name --listeners infrastructure.param.listeners --availability-zones us-east-1b --region us-east-1', u'rc': 0, u'stderr': u'', u'stdout': u'{\n    "DNSName": "lb-local-parameters-1322457308.us-east-1.elb.amazonaws.com"\n}\n'}, u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'build_lb_inf', u'macfile_infrastructure_params': {u'listeners': u'Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80', u'load-balancer-name': u'lb-local-parameters'}, u'version': u'test', u'name': u'test', u'macfile_resource_name': u'build_lb'}}, u'cmdDestroy': u'aws elb delete-load-balancer --load-balancer-name infrastructure.param.load-balancer-name --region us-east-1', u'name': u'build_lb_inf', u'cmdCreate': u'aws elb create-load-balancer --load-balancer-name infrastructure.param.load-balancer-name --listeners infrastructure.param.listeners --availability-zones us-east-1b --region us-east-1'}
+        actual = maccli.helper.macfile.parse_envs_destroy(RESOURCE_TO_DESTROY, INSTANCES, RESOURCES)
+        self.assertEqual(CMD_CLEAN, actual)
+
 
     @mock.patch('maccli.helper.cmd.run')
     def test_parse_action_regex(self, mock_run):

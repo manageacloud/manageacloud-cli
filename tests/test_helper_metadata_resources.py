@@ -41,7 +41,7 @@ class HelperMetadataTestCase(unittest.TestCase):
         macfile_root = {'version': '1.0', 'name': 'consul'}
         infrastructure_key = "consul01"
         resource_name = "resource_name_test"
-        actual_meta = maccli.helper.metadata.metadata_resource(macfile_root, infrastructure_key, resource_name)
+        actual_meta = maccli.helper.metadata.metadata_resource(macfile_root, infrastructure_key, resource_name, [])
         self.assertEqual(actual_meta, EXPECTED_META)
 
     def test_metadata_resource_version_string(self):
@@ -49,5 +49,15 @@ class HelperMetadataTestCase(unittest.TestCase):
         macfile_root = {'version': 1, 'name': 'consul'}
         infrastructure_key = "consul01"
         resource_name = "resource_name_test"
-        actual_meta = maccli.helper.metadata.metadata_resource(macfile_root, infrastructure_key, resource_name)
+        actual_meta = maccli.helper.metadata.metadata_resource(macfile_root, infrastructure_key, resource_name, [])
         self.assertEqual(actual_meta, EXPECTED_META)
+
+    def test_metadata_resource_params(self):
+        EXPECTED_META = {'macfile_infrastructure_name': 'consul01', 'version': '1', 'name': 'consul', 'macfile_resource_name': 'resource_name_test', 'macfile_infrastructure_params': [OrderedDict([('param1', 'value1')])]}
+        macfile_root = {'version': 1, 'name': 'consul'}
+        infrastructure_key = "consul01"
+        resource_name = "resource_name_test"
+        infrastructure = OrderedDict([('params', [OrderedDict([('param1', 'value1')])])])
+        actual_meta = maccli.helper.metadata.metadata_resource(macfile_root, infrastructure_key, resource_name, infrastructure )
+        self.assertEqual(actual_meta, EXPECTED_META)
+

@@ -49,11 +49,11 @@ def run_raw_command(infrastructure_key, command_raw, log_type, key, instances, r
     return resource_processed, is_resource_processed
 
 
-def create_resource(root, infrastructure_key, name, create_bash, rc, stderr, stdout, destroy_bash):
+def create_resource(root, infrastructure_key, name, create_bash, rc, stderr, stdout, destroy_bash, infrastructure):
     """
         create a resource
     """
-    metadata = maccli.helper.metadata.metadata_resource(root, infrastructure_key, name)
+    metadata = maccli.helper.metadata.metadata_resource(root, infrastructure_key, name, infrastructure)
     return maccli.dao.api_resource.create(infrastructure_key, create_bash, rc, stderr, stdout, destroy_bash, metadata)
 
 

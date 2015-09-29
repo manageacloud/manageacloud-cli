@@ -289,7 +289,7 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                         resource_processed, resource_finish = maccli.service.resource.run_raw_command(infrastructure_key, command_raw, log_type, key, instances, roles, infrastructures, actions, processed_resources)
                         if resource_finish:
                             resources_processed_part.append({infrastructure_key: resource_processed})
-                            maccli.service.resource.create_resource(root, infrastructure_key, key, command_raw, resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'], command_destroy)
+                            maccli.service.resource.create_resource(root, infrastructure_key, key, command_raw, resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'], command_destroy, infrastructure)
                             __resource_status(infrastructure_key, resource_processed['cmd'], resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'],
                                               infrastructures, processed_instances, processed_resources + resources_processed_part)
                         else:
@@ -302,7 +302,7 @@ def apply_resources(processed_instances, processed_resources, instances, roles, 
                     resource_processed, resource_finish = maccli.service.resource.run_raw_command(infrastructure_key, command_raw, log_type, key, instances, roles, infrastructures, actions, processed_resources)
                     if resource_finish:
                         resources_processed_part.append({infrastructure_key: resource_processed})
-                        maccli.service.resource.create_resource(root, infrastructure_key, key, command_raw, resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'], command_destroy)
+                        maccli.service.resource.create_resource(root, infrastructure_key, key, command_raw, resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'], command_destroy, infrastructure)
                         __resource_status(infrastructure_key, resource_processed['cmd'], resource_processed['rc'], resource_processed['stderr'], resource_processed['stdout'],
                                           infrastructures, processed_instances, processed_resources + resources_processed_part)
                     else:
@@ -357,7 +357,7 @@ def destroy_resource(resource, instances, resources):
 
     if resource['cmdDestroy']:
 
-        clean_cmd_destroy = maccli.helper.macfile.parse_envs_destroy(resource['cmdDestroy'], instances, resources)
+        clean_cmd_destroy = maccli.helper.macfile.parse_envs_destroy(resource, instances, resources)
         maccli.logger.debug("CMD_DESTROY_CLEAN %s" % clean_cmd_destroy)
         rc = None
         stdout = None

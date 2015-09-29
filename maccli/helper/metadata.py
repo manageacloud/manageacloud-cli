@@ -16,7 +16,7 @@ def metadata_instance(macfile_root, infrastructure_key, role_key, role, infrastr
     return meta
 
 
-def metadata_resource(macfile_root, infrastructure_key, resource_name):
+def metadata_resource(macfile_root, infrastructure_key, resource_name, infrastructure):
     """
     Generate the json metadata to create an instance
     """
@@ -25,6 +25,9 @@ def metadata_resource(macfile_root, infrastructure_key, resource_name):
     meta = macfile_root
     meta['macfile_resource_name'] = resource_name
     meta['macfile_infrastructure_name'] = infrastructure_key
+    if 'params' in infrastructure:
+        meta['macfile_infrastructure_params'] = infrastructure['params']
+
     return meta
 
 

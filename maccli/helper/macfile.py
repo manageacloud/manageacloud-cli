@@ -354,10 +354,12 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
     return text, all_processed
 
 
-def parse_envs_destroy(text, instances, resources):
+def parse_envs_destroy(resource_to_destroy, instances, resources):
     """ parse envs for the destroy event
             - resource.[infrastructure_name].json.jsonValue
+            - infrastructure.param.paramname
     """
+    text = resource_to_destroy['cmdDestroy']
     matches = get_dependencies(text)
     if matches:
         for match in matches:
@@ -387,4 +389,14 @@ def parse_envs_destroy(text, instances, resources):
 
                         text = text.replace("%s.%s.%s" % (type_name, name, action), value)
 
+            elif type_name == "infrastructure" and name == "param":
+
+                if 'macfile_infrastructure_params' in resource_to_destroy['metadata']['infrastructure']:
+                    if action in resource_to_destroy['metadata']['infrastructure']['macfile_infrastructure_params']:
+                        value = resource_to_destroy['metadata']['infrastructure']['macfile_infrastructure_params'][action]
+                        text = text.replace("%s.%s.%s" % (type_name, name, action), value)
+                    else:
+                        maccli.logger.warn("Param %s not found when processing %s.%s.%s to destroy resource" % (action, type_name, name, action))
+                else:
+                    maccli.logger.warn("Warning while destroying resource! Params are not available and are required for %s.%s.%s" % (type_name, name, action))
     return text
