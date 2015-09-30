@@ -152,7 +152,7 @@ def parse_envs_dict(dict, instances, roles, infrastructures, actions, processed_
     return dict, total_processed
 
 
-def parse_envs(text, instances, roles, infrastructures, actions, processed_resources, infrastructure = None):
+def parse_envs(text, instances, roles, infrastructures, actions, processed_resources, infrastructure=None):
     """
         replace the dependencies
 
@@ -205,9 +205,17 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
 
                 elif action in infrastructure['params']:
 
-                    value = infrastructure['params'][action]
-                    text = text.replace("%s.%s.%s" % (type_name, name, action), value)
-                    match_processed = True
+                    # the params value could require a substitution
+                    value_raw = infrastructure['params'][action]
+                    if has_dependencies(value_raw, roles, infrastructures, actions):
+                        value, processed = parse_envs(value_raw, instances, roles, infrastructures, actions, processed_resources, infrastructure)
+                    else:
+                        processed = True
+                        value = value_raw
+
+                    if processed:
+                        text = text.replace("%s.%s.%s" % (type_name, name, action), value)
+                        match_processed = True
 
             # match values that are processed resources
             elif any(name in d for d in processed_resources) and not (action in actions):
@@ -270,7 +278,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
 
                 # bash command might have parameters to be replaced
                 if has_dependencies(bash_command_raw, roles, infrastructures, actions):
-                    bash_command, processed = parse_envs(bash_command_raw, instances, roles, infrastructures, actions, processed_resources)
+                    bash_command, processed = parse_envs(bash_command_raw, instances, roles, infrastructures, actions, processed_resources, infrastructure)
                 else:
                     bash_command = bash_command_raw
 
