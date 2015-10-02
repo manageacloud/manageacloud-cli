@@ -193,7 +193,7 @@ def instance_destroy(ids):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_update(raw_ids):
+def instance_update(raw_ids, cookbook_tag):
     try:
         if raw_ids == ["all"]:  # run in all instances
             ids = service.instance.list_instances()
@@ -203,7 +203,7 @@ def instance_update(raw_ids):
         instances = []
         for id in ids:
             maccli.logger.debug("Updating instance %s " % id['id'])
-            instance = service.instance.update_configuration("", id['id'])
+            instance = service.instance.update_configuration(cookbook_tag, id['id'])
             instances.append(instance)
 
         if instances is not None:
@@ -437,6 +437,33 @@ def infrastructure_search(name, version):
         show_error("Aborting")
     except Exception as e:
         show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def infrastructure_update(name, version, cookbook_tag):
+    try:
+        infrastructures = service.infrastructure.search_instances(name, version)
+
+        if len(infrastructures):
+            infrastructure = infrastructures[0]
+
+            instances = []
+            for instance in infrastructure['cloudServers']:
+                instance_updated = service.instance.update_configuration(cookbook_tag, instance['id'])
+                instances.append(instance_updated)
+
+            if instances is not None:
+                view.view_instance.show_instances(instances)
+        else:
+            maccli.view.view_generic.show("Infrastructure '%s' version '%s' not found" % (name, version))
+
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            traceback.print_exc(file=sys.stdout)
+        else:
+            show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
 
 

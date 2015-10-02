@@ -92,6 +92,8 @@ def add_instance_parser(subparsers):
     update_parser.add_argument('id', nargs='*',
                                 help="Server ID or server name. It also accepts several values. If value is 'all' it applies to all servers.")
 
+    update_parser.add_argument('-c', '--configuration', help='Configuration tag')
+
     # destroy instance
     destroy_parser = instance_subparser.add_parser('destroy',
                                                    help='Destroy an existing instance',
@@ -166,6 +168,12 @@ def add_infrastructure_parser(subparsers):
     instance_parser = inf_subparser.add_parser('destroy', help='Destroy instances and resources')
     instance_parser.add_argument('name', help='Infrastructure name')
     instance_parser.add_argument('version', help='Infrastructure version')
+
+    # infrastructure update
+    instance_parser = inf_subparser.add_parser('update', help='Update instance configuration')
+    instance_parser.add_argument('name', help='Infrastructure name')
+    instance_parser.add_argument('version', help='Infrastructure version')
+    instance_parser.add_argument('-c', '--configuration', help='Configuration tag')
 
     # lifespan
     lifespan_parser = inf_subparser.add_parser('lifespan', help='Manipulate testing instance\'s lifespan')

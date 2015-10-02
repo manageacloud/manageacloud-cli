@@ -82,7 +82,7 @@ def dispatch_cmds(args):
                 show_error("Parameter 'id' is required.")
                 maccli.command_cli.instance_update_help()
             else:
-                maccli.command_cli.instance_update(args.id)
+                maccli.command_cli.instance_update(args.id, args.configuration)
 
         elif args.subcmd == 'destroy':
             if args.id is None:
@@ -130,7 +130,8 @@ def dispatch_cmds(args):
             maccli.command_cli.infrastructure_search(args.name, args.version)
         elif args.subcmd == 'destroy':
             maccli.command_cli.infrastructure_destroy(args.name, args.version)
-
+        elif args.subcmd == 'update':
+            maccli.command_cli.infrastructure_update(args.name, args.version, args.configuration)
         elif args.subcmd == 'lifespan':
             maccli.command_cli.infrastructure_lifespan(args.amount, args.name, args.version)
 
