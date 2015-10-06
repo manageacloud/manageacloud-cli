@@ -21,7 +21,7 @@ def initialize_parser():
     parser.add_argument('--version', action='version', version='%(prog)s ' + maccli.__version__)
     parser.add_argument('-v', '--verbose', action='store_true', help="Show verbose information")
     parser.add_argument('-q', '--quiet', action='store_true', help="Enable loggable output")
-    parser.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--debug', action='store_true', help="Enable debug")
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
     parser_cli.add_login_parser(subparsers)
     parser_cli.add_instance_parser(subparsers)
