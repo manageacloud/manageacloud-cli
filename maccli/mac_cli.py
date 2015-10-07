@@ -3,10 +3,12 @@ import logging
 import codecs
 import copy
 import argparse
+import shlex
 
 import maccli
 import parser_cli
 import maccli.command_cli
+import maccli.interactive
 
 from maccli.helper.exception import InternalError
 from maccli.view.view_generic import show_error
@@ -22,6 +24,7 @@ def initialize_parser():
     parser.add_argument('-v', '--verbose', action='store_true', help="Show verbose information")
     parser.add_argument('-q', '--quiet', action='store_true', help="Enable loggable output")
     parser.add_argument('--debug', action='store_true', help="Enable debug")
+    parser.add_argument('-i', '--interactive', action='store_true', dest="interactive", help="Interactive session - preview feature")
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
     parser_cli.add_login_parser(subparsers)
     parser_cli.add_instance_parser(subparsers)
@@ -146,8 +149,11 @@ def parse_args(self, args):
 def main():
     parser = initialize_parser()
     argv = patch_help_option(sys.argv)
-    args = parser.parse_args(argv)
-    dispatch_cmds(args)
+    if argv == ['-i']:  # interactive session
+        maccli.interactive.start()
+    else:  # Normal session
+        args = parser.parse_args(argv)
+        dispatch_cmds(args)
 
 
 if __name__ == "__main__":
