@@ -506,3 +506,30 @@ def infrastructure_lifespan(amount, name, version):
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def infrastructure_ssh_keys(name, version, known_host):
+    """
+    Diplays ssh keys or adds it to known_hosts
+
+    :param name:
+    :param version:
+    :param known_host:
+    :return:
+    """
+    try:
+        ssh_keys = service.infrastructure.keys(name, version, known_host)
+        if not maccli.quiet:
+            if known_host:
+                for ssh_key in ssh_keys:
+                    show("%s processed" % ssh_key['cloudServer']['ipv4'])
+
+            else:
+                for ssh_key in ssh_keys:
+                    show(ssh_key['stdout'])
+
+    except KeyboardInterrupt:
+       show_error("Aborting")
+    except Exception as e:
+       show_error(e)
+       sys.exit(EXCEPTION_EXIT_CODE)

@@ -134,6 +134,8 @@ def dispatch_cmds(args):
             maccli.command_cli.infrastructure_update(args.name, args.version, args.configuration)
         elif args.subcmd == 'lifespan':
             maccli.command_cli.infrastructure_lifespan(args.amount, args.name, args.version)
+        elif args.subcmd == 'sshkey':
+            maccli.command_cli.infrastructure_ssh_keys(args.name, args.version, args.known_host)
 
 
 def parse_args(self, args):

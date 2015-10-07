@@ -181,6 +181,12 @@ def add_infrastructure_parser(subparsers):
     lifespan_parser.add_argument('-v', '--version', help='Filter by infrastructure version')
     lifespan_parser.add_argument('-n', '--name', help='Filter by infrastructure name')
 
+    # ssh add
+    lifespan_parser = inf_subparser.add_parser('sshkey', help='Gather ssh public keys')
+    lifespan_parser.add_argument('-v', '--version', help='Filter by infrastructure version')
+    lifespan_parser.add_argument('-n', '--name', help='Filter by infrastructure name')
+    lifespan_parser.add_argument('-k', '--known_host', action='store_true', help='Add new ssh keys to known_host file')
+
 
 def add_configuration_parser(subparsers):
     configuration_parser = subparsers.add_parser('configuration', help='Server configuration related operations',
