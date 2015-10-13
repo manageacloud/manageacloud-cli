@@ -178,7 +178,7 @@ def sshkeys(ip, known_host):
     CMD_KEYSCAN = "ssh-keyscan %s"
 
     # add keys to known_host if the key is unique
-    CMD_KNOWNHOST = CMD_KEYSCAN + " 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts"
+    CMD_KNOWNHOST = "mkdir -p ~/.ssh && touch ~/.ssh/known_hosts && " + CMD_KEYSCAN + " 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts"
 
     if known_host:
         cmd = CMD_KNOWNHOST % ip
