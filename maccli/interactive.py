@@ -19,7 +19,8 @@ from prompt_toolkit.contrib.regular_languages.completion import GrammarCompleter
 from prompt_toolkit.contrib.regular_languages.lexer import GrammarLexer
 from prompt_toolkit.layout.lexers import SimpleLexer
 from prompt_toolkit.contrib.regular_languages.compiler import compile
-from maccli.mac_cli import initialize_parser, patch_help_option, dispatch_cmds, maccli
+import maccli.mac_cli
+import maccli
 
 from pygments.token import Token
 
@@ -74,7 +75,7 @@ def start():
 
     history = InMemoryHistory()
 
-    parser = initialize_parser()
+    parser = maccli.mac_cli.initialize_parser()
 
     show("Start typing 'mac', CTRL+C to exit")
     user_aborted = False
@@ -83,9 +84,9 @@ def start():
         try:
             text = prompt('> ', lexer=lexer, completer=completer, style=MacStyle, history=history, auto_suggest=AutoSuggestFromHistory())
             argv_raw = shlex.split(text)
-            argv = patch_help_option(argv_raw)
+            argv = maccli.mac_cli.patch_help_option(argv_raw)
             args = parser.parse_args(argv)
-            dispatch_cmds(args)
+            maccli.mac_cli.dispatch_cmds(args)
             user_aborted = False
         except InternalError as e:
             maccli.logger.debug("Code raised Internal Error", e)

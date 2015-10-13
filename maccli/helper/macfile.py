@@ -6,6 +6,7 @@ __author__ = 'tk421'
 import re
 import maccli
 import maccli.helper.cmd
+import maccli.dao.api_instance
 
 
 def has_dependencies(text, roles, infrastructures, actions):
@@ -345,6 +346,11 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                                 else:
                                     if stderr is not None:
                                         maccli.logger.warn("Error executing ssh action %s: %s" % (ssh_command, stderr))
+
+                                        # auto accept ssh keys if the servers was just created
+                                        if "Host key verification failed" in stderr:
+                                            maccli.dao.api_instance.sshkeys(instance['ipv4'], True)
+
                                     match_processed = False
                                     break
 

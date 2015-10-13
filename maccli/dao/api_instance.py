@@ -1,6 +1,7 @@
 import json
 
 import maccli.helper.http
+import maccli.helper.cmd
 from maccli.view.view_generic import show_error
 
 
@@ -162,3 +163,28 @@ def update(instance_id, lifespan):
         show_error("There is a problem with the input parameters")
 
     return json_response
+
+
+def sshkeys(ip, known_host):
+    """
+
+    Enable the ssh fingerprint in the system
+
+    :param ip: ip to check
+    :param known_host: if the fingerprint should be added to the known_host file
+    :return:
+    """
+    # scans and displays the ssh public key
+    CMD_KEYSCAN = "ssh-keyscan %s"
+
+    # add keys to known_host if the key is unique
+    CMD_KNOWNHOST = CMD_KEYSCAN + " 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts"
+
+    if known_host:
+        cmd = CMD_KNOWNHOST % ip
+    else:
+        cmd = CMD_KEYSCAN % ip
+
+    rc, stdout, stderr = maccli.helper.cmd.run(cmd)
+
+    return rc, stdout, stderr

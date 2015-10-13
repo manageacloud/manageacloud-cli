@@ -1,6 +1,6 @@
 import maccli.dao.api_infrastructure
 import maccli.dao.api_instance
-import maccli.service.instance
+import maccli.helper.cmd
 import maccli
 
 
@@ -54,12 +54,6 @@ def keys(name, input_version, known_host):
         Gather ssh keys
     """
 
-    # scans and displays the ssh public key
-    CMD_KEYSCAN = "ssh-keyscan -t rsa,dsa %s"
-
-    # add keys to known_host if the key is unique
-    CMD_KNOWNHOST = CMD_KEYSCAN + " 2>&1 | sort -u - ~/.ssh/known_hosts > ~/.ssh/tmp_hosts && mv ~/.ssh/tmp_hosts ~/.ssh/known_hosts"
-
     server_status, infrastructure = maccli.dao.api_infrastructure.search_infrastructure(name, input_version)
 
     ssh_keys = []
@@ -70,12 +64,7 @@ def keys(name, input_version, known_host):
                     if input_version is None or input_version == version:
                         for instance in inf['cloudServers']:
                             maccli.logger.debug("Gathering ssh public key for instance %s" % instance['id'])
-                            if known_host:
-                                cmd = CMD_KNOWNHOST % instance['ipv4']
-                            else:
-                                cmd = CMD_KEYSCAN % instance['ipv4']
-
-                            rc, stdout, stderr = maccli.service.instance.ssh_command_instance(instance['id'], cmd)
+                            rc, stdout, stderr = maccli.dao.api_instance.sshkeys(instance['ipv4'], known_host)
                             ssk_key = {'cloudServer': instance, 'stdout': stdout}
                             ssh_keys.append(ssk_key)
 

@@ -3,7 +3,6 @@ import logging
 import codecs
 import copy
 import argparse
-import shlex
 
 import maccli
 import parser_cli
