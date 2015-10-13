@@ -143,7 +143,7 @@ def parse_params(raw, params_raw):
             key, value = param.split("=", 1)
             clean_tmp = clean.replace("{%s}" % key, value)
             if clean == clean_tmp:
-                raise MacParseParamException("Variable %s cloud not be found in macfile" % key)
+                raise MacParseParamException("Variable %s could not be found in macfile" % key)
             clean = clean_tmp
 
     if re.search(r'{([a-zA-Z_\-]*?)}', clean, re.MULTILINE):
