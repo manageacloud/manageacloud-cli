@@ -4,4 +4,3 @@ prettytable
 pexpect
 argparse
 httplib2
-prompt_toolkit
