@@ -1,0 +1,62 @@
+mac: 0.7.1
+description: Elastic Load Balancer
+name: demo
+version: 2.1
+
+actions:
+   set_private_key:
+      bash: |
+        cat >/tmp/privKey <<EOL
+        resource.ssh_pair.json.KeyMaterial
+        EOL
+        chmod 600 /tmp/privKey
+
+   bootstrap:
+      bash: "ssh ubuntu@action.get_public_ip.text.regex(\"PublicIp\": \"([0-9\\.]+)\") -i /tmp/privkey 'sudo apt-get update && sudo apt-get install apache2 -y'"
+
+   get_public_ip:
+      bash: aws ec2 describe-instances --instance-ids i-1c33b6a3
+
+resources:
+
+  elastic load balancer:
+    create bash:
+      aws elb create-load-balancer
+        --load-balancer-name infrastructure.param.name
+        --listeners infrastructure.param.listeners
+        --availability-zones infrastructure.param.availability-zones
+    destroy bash:
+      aws elb delete-load-balancer
+      --load-balancer-name infrastructure.param.name
+
+  e2c create pair:
+    create bash:
+        aws ec2 create-key-pair
+            --key-name infrastructure.param.key-name
+    destroy bash:
+        aws ec2 delete-key-pair
+            --key-name infrastructure.param.key-name
+
+  e2c instance:
+    create bash:
+        aws ec2 run-instances
+            --image-id infrastructure.param.image-id
+            --count 1
+            --instance-type infrastructure.param.instance-type
+            --key-name infrastructure.param.key-name
+            --security-groups default
+
+    destroy bash:
+        aws ec2 terminate-instances
+            --instance-ids resource.my_instance.json.Instances.0.InstanceId
+
+  register lb:
+    create bash:
+      aws elb register-instances-with-load-balancer
+        --load-balancer-name infrastructure.param.name
+        --instances resource.my_instance.json.Instances.0.InstanceId
+
+infrastructures:
+  bootstrap_inf:
+    action: bootstrap
+

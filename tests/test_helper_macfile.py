@@ -169,4 +169,17 @@ class HelperMacfileTestCase(unittest.TestCase):
         self.assertEqual(CMD_CLEAN, actual)
         self.assertTrue(processed)
 
-
+    @mock.patch('maccli.helper.cmd.run')
+    def test_parse_action_regex(self, mock_run):
+        CMD_RAW = "ssh ubuntu@action.get_public_ip.text.regex(\"PublicIp\":\"([0-9\.]+)\") -i /tmp/privkey 'sudo apt-get update && sudo apt-get install apache2 -y'"
+        INSTANCES = []
+        ROLES = []
+        INFRASTRUCTURES = OrderedDict([('bootstrap_inf', OrderedDict([('action', 'bootstrap')]))])
+        ACTIONS = OrderedDict([('set_private_key', OrderedDict([('bash', 'cat >/tmp/privKey <<EOL\nresource.ssh_pair.json.KeyMaterial\nEOL\nchmod 600 /tmp/privKey\n')])), ('bootstrap', OrderedDict([('bash', 'ssh ubuntu@action.get_public_ip.text.regex("PublicIp": "([0-9\\.]+)") -i /tmp/privkey \'sudo apt-get update && sudo apt-get install apache2 -y\'')])), ('get_public_ip', OrderedDict([('bash', 'aws ec2 describe-instances --instance-ids i-1c33b6a3')]))])
+        PROCESSED_RESOURCES = []
+        INFRASTRUCTURE = OrderedDict([('action', 'bootstrap')])
+        CMD_CLEAN = "ssh ubuntu@52.91.191.63 -i /tmp/privkey 'sudo apt-get update && sudo apt-get install apache2 -y'"
+        mock_run.return_value = 0, AWS_DESCRIBE_EC2_INSTANCE, None
+        actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES, INFRASTRUCTURE)
+        self.assertEqual(CMD_CLEAN, actual)
+        self.assertTrue(processed)

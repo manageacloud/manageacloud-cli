@@ -288,6 +288,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                 try:
                     rc, stdout, stderr = maccli.helper.cmd.run(bash_command)
                 except Exception as e:
+                    stderr = e.message
                     maccli.logger.warn("Error executing %s: %s" % (bash_command, e))
 
                 if rc is not None:
@@ -304,6 +305,19 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                                     value = value[int(part)]
                                 else:
                                     value = value[part]
+
+                        # output format is text, and it will be processed with a regular expression
+                        elif action_type == "text":
+                            try:
+                                regex_pattern = match[3]
+                                maccli.logger.debug("Regex marching: %s at value %s " % (regex_pattern, stdout))
+                                regex = re.compile(regex_pattern, re.IGNORECASE)
+                                matches = regex.findall(stdout.strip())
+                                maccli.logger.debug("Matches %s" % matches)
+                                value = matches[0]
+                            except Exception as e:
+                                maccli.logger.debug("Error matching regex %s at value %s because of %s" % (match[3], stdout, e))
+                                maccli.logger.warn("Error matching regex %s at value %s" % (match[3], stdout))
 
                         else:
                             raise NotImplementedError
