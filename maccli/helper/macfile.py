@@ -218,6 +218,10 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                         text = text.replace("%s.%s.%s" % (type_name, name, action), value)
                         match_processed = True
 
+                else:
+                    raise MacParameterNotFound("Can't find value for parameter %s.%s.%s" % (type_name, name, action))
+
+
             # match values that are processed resources
             elif any(name in d for d in processed_resources) and not (action in actions):
                 # search in resources
@@ -387,6 +391,11 @@ def parse_envs_destroy(resource_to_destroy, instances, resources):
             - resource.[infrastructure_name].json.jsonValue
             - infrastructure.param.paramname
     """
+    # print ("================")
+    # print (resource_to_destroy)
+    # print (instances)
+    # print (resources)
+    # print ("================")
     text = resource_to_destroy['cmdDestroy']
     matches = get_dependencies(text)
     if matches:
@@ -401,17 +410,34 @@ def parse_envs_destroy(resource_to_destroy, instances, resources):
                     if name == resource['metadata']['infrastructure']['macfile_infrastructure_name']:
                         parts = action.split(".")
                         action_type = parts.pop(0)
-                        value_json = json.loads(resource['create']['stdout'].strip())
-                        value = value_json
+                        value_raw = resource['create']['stdout'].strip()
+
+                        # original value, just in case we do not find a match
+                        value = "%s.%s.%s" % (type_name, name, action)
 
                         # get value from json structure
                         if action_type == "json":
+                            value_json = json.loads(value_raw)
+                            recursive_value = value_json
                             for part in parts:
                                 if part.isdigit():
-                                    value = value[int(part)]
+                                    recursive_value = recursive_value[int(part)]
                                 else:
-                                    value = value[part]
+                                    recursive_value = recursive_value[part]
 
+                            value = recursive_value
+
+                        elif action_type == "text":
+                            try:
+                                regex_pattern = match[3]
+                                maccli.logger.debug("Regex marching: %s at value %s " % (regex_pattern, value_raw))
+                                regex = re.compile(regex_pattern, re.IGNORECASE)
+                                matches = regex.findall(value_raw.strip())
+                                maccli.logger.debug("Matches %s" % matches)
+                                value = matches[0]
+                            except Exception as e:
+                                maccli.logger.debug("Error matching regex %s at value %s because of %s" % (match[3], value_raw, e))
+                                maccli.logger.warn("Error matching regex %s at value %s" % (match[3], value_raw))
                         else:
                             raise NotImplementedError
 

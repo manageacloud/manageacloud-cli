@@ -1,5 +1,4 @@
 import unittest
-import logging
 import mock
 from maccli.helper.exception import MacParameterNotFound
 
@@ -131,6 +130,15 @@ class HelperMacfileTestCase(unittest.TestCase):
         actual = maccli.helper.macfile.parse_envs_destroy(RESOURCE, INSTANCES, RESOURCES)
         self.assertEqual(CMD_CLEAN, actual)
 
+    def test_parse_envs_destroy_text(self):
+        CMD_CLEAN = "azure network vnet delete -q testnet --json"
+        RESOURCE = {u'create': {u'cmd': u'azure network vnet create infrastructure.param.name --location "infrastructure.param.location" testnet --json && echo "infrastructure.param.name"', u'rc': 0, u'stderr': u'', u'stdout': u'testnet\n'}, u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'create_network', u'macfile_infrastructure_params': {u'name': u'testnet', u'location': u'East US'}, u'version': u'1.0', u'name': u'azure_demo', u'macfile_resource_name': u'network'}}, u'cmdDestroy': u'azure network vnet delete -q resource.create_network.text.regex(.*) --json', u'name': u'create_network', u'cmdCreate': u'azure network vnet create infrastructure.param.name --location "infrastructure.param.location" testnet --json && echo "infrastructure.param.name"'}
+        INSTANCES = []
+        RESOURCES = [{u'create': {u'cmd': u'azure network vnet create infrastructure.param.name --location "infrastructure.param.location" testnet --json && echo "infrastructure.param.name"', u'rc': 0, u'stderr': u'', u'stdout': u'testnet\n'}, u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'create_network', u'macfile_infrastructure_params': {u'name': u'testnet', u'location': u'East US'}, u'version': u'1.0', u'name': u'azure_demo', u'macfile_resource_name': u'network'}}, u'cmdDestroy': u'azure network vnet delete -q resource.create_network.text.regex(.*) --json', u'name': u'create_network', u'cmdCreate': u'azure network vnet create infrastructure.param.name --location "infrastructure.param.location" testnet --json && echo "infrastructure.param.name"'}]
+        actual = maccli.helper.macfile.parse_envs_destroy(RESOURCE, INSTANCES, RESOURCES)
+        self.assertEqual(CMD_CLEAN, actual)
+
+
     def test_parse_envs_infrastructure_params_destroy(self):
         CMD_CLEAN = "aws elb delete-load-balancer --load-balancer-name lb-local-parameters --region us-east-1"
         INSTANCES = []
@@ -183,3 +191,15 @@ class HelperMacfileTestCase(unittest.TestCase):
         actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES, INFRASTRUCTURE)
         self.assertEqual(CMD_CLEAN, actual)
         self.assertTrue(processed)
+
+    @mock.patch('maccli.helper.cmd.run')
+    def test_parse_param_does_not_esists(self, mock_run):
+        CMD_RAW = "azure vm create --vm-name infrastructure.param.name --location infrastructure.param.location --virtual-network-name infrastructure.param.virtual-network-name --rdp 3389 infrastructure.param.name infrastructure.param.image infrastructure.param.username infrastructure.param.password"
+        INSTANCES = []
+        ROLES = []
+        INFRASTRUCTURES = OrderedDict([('create_windows_vm', OrderedDict([('resource', 'windows_vm'), ('params', OrderedDict([('vm-name', 'demo_test'), ('location', 'East US'), ('virtual-network-name', 'testnet'), ('image', 'ad072bd3082149369c449ba5832401ae__Windows-Server-Remote-Desktop-Session-Host-on-Windows-Server-2012-R2-20150828-0350'), ('username', 'username'), ('password', 'MySafePassword!')]))])), ('provision_windows_vm', OrderedDict([('action', 'provision_windows_1')]))])
+        ACTIONS = OrderedDict([('provision_windows_1', OrderedDict([('bash', '"azure vm extension set demo_test CustomScriptExtension Microsoft.Compute 1.4 -i \'{"fileUris":["https://gist.githubusercontent.com/tk421/11a2ec3fad5bcce5de3f/raw/b0ca8770100905a39b2dadd0fec7d159ccc73874/createFolder.ps1"], "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file createFolder.ps1" }\' --json"\n')]))])
+        PROCESSED_RESOURCES = []
+        INFRASTRUCTURE = OrderedDict([('resource', 'windows_vm'), ('params', OrderedDict([('vm-name', 'demo_test'), ('location', 'East US'), ('virtual-network-name', 'testnet'), ('image', 'ad072bd3082149369c449ba5832401ae__Windows-Server-Remote-Desktop-Session-Host-on-Windows-Server-2012-R2-20150828-0350'), ('username', 'username'), ('password', 'MySafePassword!')]))])
+        mock_run.return_value = 0, AWS_DESCRIBE_EC2_INSTANCE, None
+        self.assertRaises(MacParameterNotFound, maccli.helper.macfile.parse_envs, CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES, INFRASTRUCTURE)
