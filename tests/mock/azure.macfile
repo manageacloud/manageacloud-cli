@@ -1,0 +1,57 @@
+mac: 0.9.19
+description: Azure Example
+name: azure_demo
+version: 1.1
+actions:
+  provision_windows_1:
+    bash: >
+      azure vm extension set macdemotest CustomScriptExtension Microsoft.Compute 1.4 -i '{"fileUris":["https://gist.githubusercontent.com/tk421/11a2ec3fad5bcce5de3f/raw/b0ca8770100905a39b2dadd0fec7d159ccc73874/createFolder.ps1"], "commandToExecute": "powershell -ExecutionPolicy Unrestricted -file createFolder.ps1" }' --json
+
+  wait_for_windows:
+    bash: >
+       while ! azure vm list | grep macdemotest | grep ReadyRole ; do echo "Waiting"; sleep 10; done;
+
+resources:
+
+  network:
+    create bash:
+      azure network vnet create --location "infrastructure.param.location" infrastructure.param.name --json
+
+    destroy bash:
+      azure network vnet delete -q infrastructure.param.name --json
+
+  windows_vm:
+    create bash:
+      azure vm create --vm-name infrastructure.param.name
+        --location "infrastructure.param.location"
+        --virtual-network-name infrastructure.param.virtual-network-name
+        --rdp 3389
+        infrastructure.param.name
+        infrastructure.param.image infrastructure.param.username infrastructure.param.password
+        --json
+
+    destroy bash:
+      azure vm delete -q infrastructure.param.name --json
+
+infrastructures:
+  create_network:
+    resource: network
+    params:
+      location: "East US"
+      name: testnet
+
+  create_windows_vm:
+    resource: windows_vm
+    params:
+      name: macdemotest
+      location: "East US"
+      virtual-network-name: testnet
+      image: ad072bd3082149369c449ba5832401ae__Windows-Server-Remote-Desktop-Session-Host-on-Windows-Server-2012-R2-20150828-0350
+      username: username
+      password: MySafePassword01!
+
+  wait_for_windows_vm:
+    action: wait_for_windows
+
+  provision_windows_vm:
+    action: provision_windows_1
