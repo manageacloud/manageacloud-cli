@@ -1,0 +1,174 @@
+mac: 0.9.19
+description: Wordpress Containers
+name: application_{APP_VERSION}
+version: 1.0
+actions:
+   get_id:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
+
+   get_availability_zone:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone
+
+roles:
+  wordpress_template:
+    instance create:
+        branch: master
+        configuration: app
+        environment:
+          - RDS_FQDN: rds-demo.cbhgwxgu29ez.us-east-1.rds.amazonaws.com
+          - RDS_USER: myuser
+          - RDS_PASS: mysecretpass
+          - WORDPRESS_VERSION: {WORDPRESS_VERSION}
+
+resources:
+
+  register_lb:
+    create bash:
+      aws elb register-instances-with-load-balancer
+        --load-balancer-name infrastructure.param.load-balancer-name
+        --instances role.app.get_id
+        --region infrastructure.inf_app.location
+
+  create_image:
+    create bash:
+      aws ec2 create-image
+      --instance-id infrastructure.param.instance-id
+      --name infrastructure.param.name
+      --description infrastructure.param.description
+      --region us-east-1
+
+    destroy bash:
+      aws ec2 deregister-image
+      --image-id resource.create_image_inf.json.ImageId
+      --region us-east-1
+
+  create_launch_configuration:
+    create bash:
+      aws autoscaling create-launch-configuration
+      --launch-configuration-name infrastructure.param.launch-configuration-name
+      --image-id infrastructure.param.image-id
+      --instance-type infrastructure.param.instance-type
+      --security-groups sg-0b215a6f
+      --region us-east-1
+
+    destroy bash:
+      aws autoscaling delete-launch-configuration
+      --launch-configuration-name infrastructure.param.launch-configuration-name
+      --region us-east-1
+
+  create_autoscale_group:
+    create bash:
+      aws autoscaling create-auto-scaling-group
+      --auto-scaling-group-name au-{APP_VERSION}
+      --launch-configuration-name lc-{APP_VERSION}
+      --availability-zones infrastructure.inf_app.get_availability_zone
+      --load-balancer-names lb-wordpress-{APP_VERSION}
+      --health-check-grace-period 300
+      --max-size 5
+      --min-size 1
+      --desired-capacity 1
+      --region us-east-1
+
+    destroy bash:
+      aws autoscaling delete-auto-scaling-group
+      --auto-scaling-group-name au-{APP_VERSION}
+      --region us-east-1
+
+  scale_policy:
+    create bash:
+      aws autoscaling put-scaling-policy
+        --policy-name infrastructure.param.policy-name
+        --auto-scaling-group-name infrastructure.param.auto-scaling-group-name
+        --scaling-adjustment infrastructure.param.scaling-adjustment
+        --adjustment-type ChangeInCapacity
+        --cooldown 300
+        --region us-east-1
+
+  cloudwatch:
+    create bash:
+      aws cloudwatch put-metric-alarm
+        --alarm-name infrastructure.param.alarm-name
+        --metric-name CPUUtilization
+        --namespace AWS/EC2 --statistic Average --period 60
+        --threshold infrastructure.param.threshold
+        --comparison-operator infrastructure.param.comparison-operator
+        --dimensions "Name=AutoScalingGroupName,Value=au-{APP_VERSION}"
+        --evaluation-periods infrastructure.param.evaluation-periods
+        --alarm-actions infrastructure.param.alarm-actions
+        --region us-east-1
+    destroy bash:
+      aws cloudwatch delete-alarms
+        --alarm-name infrastructure.param.alarm-name
+        --region us-east-1
+
+infrastructures:
+  wordpress_server:
+    deployment: testing
+    hardware: t2.micro
+    location: us-east-1
+    name: wordpress
+    provider: amazon
+    release: any
+    role: wordpress_template
+    lifespan: 600
+    amount: 1
+
+  register_lb_inf:
+    resource: register_lb
+    params:
+      load-balancer-name: lb-wordpress-{APP_VERSION}
+      instances: role.wordpress_template.get_id
+
+  create_image_inf:
+    ready: role.app
+    resource: create_image
+    params:
+      instance-id: infrastructure.inf_app.get_id
+      name: img-wordpress-{APP_VERSION}
+      description: img-wordpress-{APP_VERSION}
+
+  create_launch_configuration_inf:
+    resource: create_launch_configuration
+    params:
+      launch-configuration-name: lc-{APP_VERSION}
+      image-id: resource.create_image_inf.json.ImageId
+      instance-type: infrastructure.inf_app.hardware
+
+  create_autoscale_group_inf:
+    resource: create_autoscale_group
+    params:
+      auto-scaling-group-name: au-{APP_VERSION}
+      launch-configuration-name: lc-{APP_VERSION}
+      load-balancer-names: lb-wordpress-{APP_VERSION}
+
+  policy_up_inf:
+    resource: scale_policy
+    params:
+      policy-name: ac-policy-up-uat-{APP_VERSION}
+      auto-scaling-group-name: au-{APP_VERSION}
+      scaling-adjustment: '2'
+
+  policy_down_inf:
+    resource: scale_policy
+    params:
+      policy-name: ac-policy-down-uat-{APP_VERSION}
+      auto-scaling-group-name: au-{APP_VERSION}
+      scaling-adjustment: '-1'
+
+  cloudwatch_add_capacity_inf:
+    resource: cloudwatch
+    params:
+      alarm-name: add-capacity-policy-up-uat-{APP_VERSION}
+      threshold: '10'
+      comparison-operator: GreaterThanOrEqualToThreshold
+      evaluation-periods: '2'
+      alarm-actions: resource.policy_up_inf.json.PolicyARN
+
+  cloudwatch_remove_capacity_inf:
+    resource: cloudwatch
+    params:
+      alarm-name: remove-capacity-policy-down-uat-{APP_VERSION}
+      threshold: '3'
+      comparison-operator: LessThanOrEqualToThreshold
+      evaluation-periods: '45'
+      alarm-actions: resource.policy_down_inf.json.PolicyARN

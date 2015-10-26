@@ -12,6 +12,8 @@ from maccli.helper.unsortable import ordered_load
 import maccli
 from maccli.helper.unsortable import UnsortableOrderedDict
 
+import textwrap
+
 
 """ Yaml file format
 description: Manageacloud CLI
@@ -175,6 +177,8 @@ def parse_macfile(string):
 
     :param raw: R
     :return: root, role and infrastructure contents
+
+    TODO remove "exit" from this method and raise exceptions
     """
     # validate root
     root_params = ['mac', 'version', 'name', 'description', 'infrastructures']
@@ -209,6 +213,21 @@ def parse_macfile(string):
                 except MacParamValidationError, e:
                     show_error(e.message)
                     exit(1)
+
+                if 'environment' in raw['roles'][key_role_root]['instance create']:
+                    environment = raw['roles'][key_role_root]['instance create']['environment']
+                    if not isinstance(environment, list):
+                        error_text = textwrap.dedent(
+                                    """
+                                    'environment' should be a list, however '%s' found.
+
+                                    HINT: the format for 'environment' in role '%s' should be:
+                                    environment:
+                                     - KEY1=VAR1
+                                     - KEY2=VAR2
+                                    """ % (type(environment), key_role_root))
+                        raise MacParseParamException(error_text)
+
     else:
         raw['roles'] = []
 

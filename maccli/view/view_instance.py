@@ -13,17 +13,17 @@ def show_instances(instances):
             type = instance['type']
             if instance['type'] == 'testing' and instance['status'] == "Ready":
                 status = "%s (%im left)" % (instance['status'], instance['lifespan'])
-            else:
-                try:
-                    name = instance['metadata']['infrastructure']['name']
-                    version = instance['metadata']['infrastructure']['version']
-                    if name and version:
-                        type = "%s %s" % (name, version)
-                except KeyError:
-                    # not dangerous, infrastructure informationis not available
-                    maccli.logger.debug("Key error while getting infrastructure information")
 
-                status = instance['status']
+            try:
+                name = instance['metadata']['infrastructure']['name']
+                version = instance['metadata']['infrastructure']['version']
+                if name and version:
+                    type = "%s %s" % (name, version)
+            except KeyError:
+                # not dangerous, infrastructure informationis not available
+                maccli.logger.debug("Key error while getting infrastructure information")
+
+            status = instance['status']
 
             pretty.add_row([instance['servername'], instance['ipv4'], instance['id'], type, status])
         print(pretty)

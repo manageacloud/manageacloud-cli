@@ -203,3 +203,18 @@ class HelperMacfileTestCase(unittest.TestCase):
         INFRASTRUCTURE = OrderedDict([('resource', 'windows_vm'), ('params', OrderedDict([('vm-name', 'demo_test'), ('location', 'East US'), ('virtual-network-name', 'testnet'), ('image', 'ad072bd3082149369c449ba5832401ae__Windows-Server-Remote-Desktop-Session-Host-on-Windows-Server-2012-R2-20150828-0350'), ('username', 'username'), ('password', 'MySafePassword!')]))])
         mock_run.return_value = 0, AWS_DESCRIBE_EC2_INSTANCE, None
         self.assertRaises(MacParameterNotFound, maccli.helper.macfile.parse_envs, CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES, INFRASTRUCTURE)
+
+    @mock.patch('maccli.helper.cmd.run')
+    def test_parse_action_text(self, mock_run):
+        CMD_RAW = 'aws ec2 describe-subnets --output text | grep action.get_first_vpc.text.regex(.*) | cut -f8 | tr \'\n\' \' \''
+        INSTANCES = []
+        ROLES = []
+        INFRASTRUCTURES = OrderedDict([('create_rds_subnet', OrderedDict([('resource', 'rds_subnet_group'), ('params', OrderedDict([('name', 'my_rds_subnet')]))])), ('create rds', OrderedDict([('resource', 'rds'), ('params', OrderedDict([('name', 'rds-demo'), ('master-username', 'myuser'), ('master-user-password', 'mypass')]))]))])
+        ACTIONS = OrderedDict([('get_first_vpc', OrderedDict([('bash', 'aws ec2 describe-subnets --output text | head -n1 | cut -f9')])), ('get_subnets', OrderedDict([('bash', "aws ec2 describe-subnets --output text | grep action.get_first_vpc.text.regex(.*) | cut -f8 | tr '\\n' ' '")]))])
+        PROCESSED_RESOURCES = []
+        INFRASTRUCTURE = OrderedDict([('resource', 'rds_subnet_group'), ('params', OrderedDict([('name', 'my_rds_subnet')]))])
+        CMD_CLEAN = 'aws ec2 describe-subnets --output text | grep vpc-ffc1ca9a | cut -f8 | tr \'\n\' \' \''
+        mock_run.return_value = 0, "vpc-ffc1ca9a", None
+        actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES, INFRASTRUCTURE)
+        self.assertEqual(CMD_CLEAN, actual)
+        self.assertTrue(processed)

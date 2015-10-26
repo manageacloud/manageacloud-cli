@@ -263,7 +263,12 @@ def process_macfile(file, resume, params, quiet, on_failure):
             view.view_generic.show_error(e.message)
             exit(11)
 
-        root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(raw)
+        root, roles, infrastructures, actions, resources = (None,) * 5
+        try:
+            root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(raw)
+        except MacParseParamException, e:
+            view.view_generic.show_error(e.message)
+            exit(12)
 
         if not resume:
 
@@ -281,12 +286,20 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 view.view_generic.show()
                 view.view_generic.show()
                 view.view_generic.show(
-                    "Instances must be destroyed before attempting to create another "
+                    "Instances and resources must be destroyed before attempting to create another "
                     "infrastructure using the same version.")
                 view.view_generic.show("")
-                view.view_generic.show("To destroy instances:")
-                view.view_generic.show("    mac instance destroy <instance id or name>")
+                view.view_generic.show("To destroy the complete infrastructure:")
+                view.view_generic.show("    mac infrastructure destroy <infrastructure name> <infrastructure version>")
                 view.view_generic.show("")
+                view.view_generic.show("To view the infrastructure available:")
+                view.view_generic.show("    mac infrastructure list")
+                view.view_generic.show("")
+                view.view_generic.show("To view the resources and instances in a infrastructure:")
+                view.view_generic.show("    mac infrastructure items")
+                view.view_generic.show("")
+
+
                 exit(7)
 
             if quiet:

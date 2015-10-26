@@ -154,6 +154,16 @@ def parse_envs_dict(dict, instances, roles, infrastructures, actions, processed_
 
 
 def parse_envs(text, instances, roles, infrastructures, actions, processed_resources, infrastructure=None):
+    # print("=============")
+    # print(text)
+    # print(instances)
+    # print(roles)
+    # print(infrastructures)
+    # print(actions)
+    # print(processed_resources)
+    # print(infrastructure)
+    # print("=============")
+
     """
         replace the dependencies
 
@@ -299,16 +309,22 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                     if rc == 0:
                         parts = action.split(".")
                         action_type = parts.pop(0)
-                        value_json = json.loads(stdout.strip())
-                        value = value_json
+                        value_raw = stdout.strip()
+
+                        # original value, just in case we do not find a match
+                        value = "%s.%s.%s" % (type_name, name, action)
 
                         # get value from json structure
                         if action_type == "json":
+                            value_json = json.loads(value_raw)
+                            recursive_value = value_json
                             for part in parts:
                                 if part.isdigit():
-                                    value = value[int(part)]
+                                    recursive_value = recursive_value[int(part)]
                                 else:
-                                    value = value[part]
+                                    recursive_value = recursive_value[part]
+
+                            value = recursive_value
 
                         # output format is text, and it will be processed with a regular expression
                         elif action_type == "text":

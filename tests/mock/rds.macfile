@@ -1,0 +1,61 @@
+mac: 0.9.19
+description: RDS
+name: rds_demo
+version: 1.1
+actions:
+
+   get_first_vpc:
+      bash: aws ec2 describe-subnets --output text | head -n1 | cut -f9
+
+   get_subnets:
+      bash: aws ec2 describe-subnets --output text | grep action.get_first_vpc.text.regex(.*) | cut -f8 | tr '\n' ' '
+
+resources:
+
+  rds_subnet_group:
+    create bash:
+        aws rds create-db-subnet-group
+          --db-subnet-group-name infrastructure.param.name
+          --db-subnet-group-description infrastructure.param.name
+          --subnet-ids action.get_subnets.text.regex(.*)
+          --region us-east-1
+
+    destroy bash:
+        while aws rds describe-db-instances --output text | grep resource.create_rds.json.DBInstance.DBInstanceIdentifier ; do sleep 10; done > /dev/null &&
+        aws rds delete-db-subnet-group
+          --db-subnet-group-name infrastructure.param.name
+          --region us-east-1
+
+
+  rds:
+    create bash:
+      aws rds create-db-instance
+        --db-instance-identifier infrastructure.param.name
+        --allocated-storage 20
+        --db-instance-class db.t1.micro
+        --engine mysql
+        --engine-version 5.6.23
+        --master-username infrastructure.param.master-username
+        --master-user-password infrastructure.param.master-user-password
+        --db-subnet-group-name resource.create_rds_subnet.json.DBSubnetGroup.DBSubnetGroupName
+        --auto-minor-version-upgrade
+        --region us-east-1
+
+    destroy bash:
+      aws rds delete-db-instance
+        --db-instance-identifier resource.create_rds.json.DBInstance.DBInstanceIdentifier
+        --skip-final-snapshot
+
+infrastructures:
+
+  create_rds_subnet:
+    resource: rds_subnet_group
+    params:
+      name: my_rds_subnet
+
+  create_rds:
+    resource: rds
+    params:
+      name: rds-demo
+      master-username: myuser
+      master-user-password: mysecretpass

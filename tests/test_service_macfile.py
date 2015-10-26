@@ -87,3 +87,6 @@ class MacfileServiceTestCase(unittest.TestCase):
     def test_parse_params_missing(self):
         self.assertRaises(MacParseParamException, maccli.service.macfile.parse_params, MOCK_MACFILE_PARAMS, MACFILE_PARAMS_ONE_MISSING)
 
+    def test_invalid_roles_environment(self):
+        self.assertRaises(MacParseParamException, maccli.service.macfile.parse_macfile, MOCK_MACFILE_PARAMS_INVALID_ROLES_ENVIRONMENT)
+

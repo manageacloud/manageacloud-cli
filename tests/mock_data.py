@@ -47,6 +47,41 @@ MACFILE_PARAMS_VALID = ['VERSION=1.0', 'LOCATION=us-central1-c', 'AMOUNT=1']
 MACFILE_PARAMS_EMPTY = []
 MACFILE_PARAMS_ONE_MISSING = ['VERSION=1.0', 'LOCATION=us-central1-c']
 
+MOCK_MACFILE_PARAMS_INVALID_ROLES_ENVIRONMENT = """
+mac: 0.9.19
+description: Wordpress Containers
+name: application_1
+version: 1.0
+actions:
+   get_id:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
+
+   get_availability_zone:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone
+
+roles:
+  wordpress_template:
+    instance create:
+        branch: master
+        configuration: app
+        environment:
+          RDS_FQDN: rds-demo.cbhgwxgu29ez.us-east-1.rds.amazonaws.com
+          RDS_USER: myuser
+          RDS_PASS: mysecretpass
+          WORDPRESS_VERSION: 4.3.1-apache
+
+infrastructures:
+  wordpress_server:
+    deployment: testing
+    hardware: t2.micro
+    location: us-east-1
+    name: wordpress
+    provider: amazon
+    release: any
+    role: wordpress_template
+    lifespan: 600
+    amount: 1
+"""
 MOCK_MACFILE_PARAMS = """mac: 0.5a1
 description: Manageacloud CLI
 name: manageacloud.com
