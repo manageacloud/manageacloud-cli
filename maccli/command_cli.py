@@ -5,6 +5,7 @@ import sys
 import time
 from os.path import join, expanduser
 import traceback
+import threading
 
 import service.auth
 import service.instance
@@ -87,23 +88,37 @@ def instance_ssh(raw_ids, command):
         ids = service.instance.list_instances(name_or_ids=raw_ids)
 
     try:
+        # array for job list
+        jobs = []
+
         for id in ids:
             if command is None:
                 service.instance.ssh_interactive_instance(id['id'])
             else:
-                maccli.view.view_generic.showc("[%s]" % id['servername'], GREEN)
-                rc, stdout, stderr = service.instance.ssh_command_instance(id['id'], command)
-                if stdout:
-                    maccli.view.view_generic.show(stdout)
-                if stderr:
-                    maccli.view.view_generic.showc(stderr, RED)
-                maccli.view.view_generic.show()
+                # define and add job
+                t = threading.Thread(target=run_cmd_simple,args=(id["servername"], id["id"], command))
+                jobs.append(t)
+
+        for j in jobs:
+            j.start()
+        for j in jobs:
+            j.join()
 
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def run_cmd_simple(server_name, raw_id, command):
+    rc, stdout, stderr = service.instance.ssh_command_instance(raw_id, command)
+    maccli.view.view_generic.showc("[%s]" % server_name, GREEN)
+    if stdout:
+        maccli.view.view_generic.show(stdout)
+    if stderr:
+        maccli.view.view_generic.showc(stderr, RED)
+    maccli.view.view_generic.show()
 
 
 def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
