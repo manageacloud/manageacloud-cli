@@ -1,0 +1,85 @@
+mac: 0.9.6
+description: Productify
+name: demo
+version: {INF_VERSION}
+resources:
+roles:
+  app:
+    instance create:
+      branch: master
+      configuration: java_war_demo
+      environment:
+        - RDS_FQDN: wf-us-uat-productify.cpaswkgu8jiq.us-east-1.rds.amazonaws.com
+        - RDS_USER: myuser
+        - RDS_PASS: mysecretpass
+actions:
+   get_id:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
+
+
+resources:
+
+  build_lb:
+    create bash:
+      aws elb create-load-balancer
+        --load-balancer-name infrastructure.param.load-balancer-name
+        --listeners infrastructure.param.listeners
+        --availability-zones infrastructure.param.availability-zones
+        --region infrastructure.servers.location
+    destroy bash:
+      aws elb delete-load-balancer
+      --load-balancer-name infrastructure.param.load-balancer-name
+      --region us-east-1
+
+  health_check:
+    create bash:
+      aws elb configure-health-check
+        --load-balancer-name infrastructure.param.load-balancer-name
+        --health-check infrastructure.param.health-check
+        --region us-east-1
+
+  connetion_draining:
+    create bash:
+      aws elb modify-load-balancer-attributes --load-balancer-name infrastructure.param.load-balancer-name
+      --load-balancer-attributes "{\"ConnectionDraining\":{\"Enabled\":true,\"Timeout\":300}}"
+      --region us-east-1
+
+
+  register_lb:
+    create bash:
+      aws elb register-instances-with-load-balancer
+        --load-balancer-name infrastructure.param.load-balancer-name
+        --instances role.app.get_id
+        --region infrastructure.servers.location
+
+infrastructures:
+
+  build_lb_inf:
+    resource: build_lb
+    params:
+      load-balancer-name: lb-demo-{INF_VERSION}
+      listeners: Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=8080
+      availability-zones: us-east-1b us-east-1c us-east-1d us-east-1e
+
+  connetion_draining_inf:
+    resource: connetion_draining
+    params:
+      load-balancer-name: lb-demo-{INF_VERSION}
+
+  servers:
+    deployment: testing
+    hardware: t2.micro
+    location: us-east-1
+    name: app
+    provider: amazon
+    release: any
+    role: app
+    lifespan: 1440
+    amount: 2
+
+
+  register_lb_inf:
+    resource: register_lb
+    params:
+      load-balancer-name: lb-demo-{INF_VERSION}
+      instances: role.app.get_id

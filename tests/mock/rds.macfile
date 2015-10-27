@@ -10,6 +10,10 @@ actions:
    get_subnets:
       bash: aws ec2 describe-subnets --output text | grep action.get_first_vpc.text.regex(.*) | cut -f8 | tr '\n' ' '
 
+   wait_for_rds:
+      bash: while ! aws rds describe-db-instances --output text | grep ENDPOINT; do sleep 10; done
+
+
 resources:
 
   rds_subnet_group:
@@ -59,3 +63,6 @@ infrastructures:
       name: rds-demo
       master-username: myuser
       master-user-password: mysecretpass
+
+  is_rd_built:
+    action: wait_for_rds
