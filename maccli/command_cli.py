@@ -96,7 +96,7 @@ def instance_ssh(raw_ids, command):
                 service.instance.ssh_interactive_instance(id['id'])
             else:
                 # define and add job
-                t = threading.Thread(target=run_cmd_simple,args=(id["servername"], id["id"], command))
+                t = threading.Thread(target=_run_cmd_simple,args=(id["servername"], id["id"], command))
                 jobs.append(t)
 
         for j in jobs:
@@ -111,7 +111,7 @@ def instance_ssh(raw_ids, command):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def run_cmd_simple(server_name, raw_id, command):
+def _run_cmd_simple(server_name, raw_id, command):
     rc, stdout, stderr = service.instance.ssh_command_instance(raw_id, command)
     maccli.view.view_generic.showc("[%s]" % server_name, GREEN)
     if stdout:
