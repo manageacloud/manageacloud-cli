@@ -29,6 +29,7 @@ def initialize_parser():
     parser_cli.add_instance_parser(subparsers)
     parser_cli.add_configuration_parser(subparsers)
     parser_cli.add_infrastructure_parser(subparsers)
+    parser_cli.add_provider_parser(subparsers)
     return parser
 
 
@@ -47,6 +48,10 @@ def patch_help_option(argv=sys.argv):
 
         if args[1] == 'configuration':
             maccli.command_cli.configuration_help()
+
+        if args[1] == 'provider':
+            maccli.command_cli.provider_help()
+
 
     return args[1:]
 
@@ -138,6 +143,10 @@ def dispatch_cmds(args):
             maccli.command_cli.infrastructure_lifespan(args.amount, args.name, args.version)
         elif args.subcmd == 'sshkey':
             maccli.command_cli.infrastructure_ssh_keys(args.name, args.version, args.known_host)
+
+    elif args.cmd == "provider":
+        if args.subcmd == 'credential':
+            maccli.command_cli.credentials(args.provider, args.clientid, args.key, args.force_file)
 
 
 def parse_args(self, args):

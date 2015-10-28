@@ -66,3 +66,9 @@ def _has_colours(stream):
         return False
 
 
+def show_provider_help():
+    print("")
+    print("Show more help:")
+    print("")
+    print("    mac provider -h")
+    print("")

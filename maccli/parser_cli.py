@@ -134,6 +134,27 @@ def add_instance_parser(subparsers):
     lifespan_parser.add_argument('amount', type=int, help='New server lifespan in minutes')
 
 
+def add_provider_parser(subparsers):
+    inf_parser = subparsers.add_parser('provider',
+                                       help='Provider operations',
+                                       description='Provider related operations')
+
+    inf_subparser = inf_parser.add_subparsers(title='provider operations', dest='subcmd')
+
+    # provider save credentials
+    credentials_parser = inf_subparser.add_parser('credential', help='Save cloud supplier credentials',
+                                              description='Allows to activate a new cloud supplier. '
+                                                          'Those credentials are used if you want to create new instances (or "roles" in the "macfiles"). '
+                                                          'For more information to provide the correct credentials please go to '
+                                                          'https://manageacloud.com/article/orchestration/cli/provider/credential')
+    credentials_parser.add_argument('provider',
+                               choices=["manageacloud", "rackspaceus", "rackspaceuk", "amazon", "digitalocean", "gce"],
+                               help="Select the public cloud provider.")
+    credentials_parser.add_argument('clientid', help='User identification: clientId, username, etc')
+    credentials_parser.add_argument('key', help='Secret information: password, key, pem, etc. If argument is an existing file path the contents of the file will be used.')
+    credentials_parser.add_argument('-f', '--force-file', action='store_true', help='Force "key" as file path.')
+
+
 def add_infrastructure_parser(subparsers):
     """ infrastructure parser"""
     inf_parser = subparsers.add_parser('infrastructure',

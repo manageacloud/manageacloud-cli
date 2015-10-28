@@ -230,6 +230,28 @@ def instance_update(raw_ids, cookbook_tag):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
+def provider_help():
+    view.view_generic.show_provider_help()
+
+
+def credentials(provider, clientid, key_raw, force_file):
+    """
+    Save the credential's supplier if are correct.
+
+    :param provider:
+    :param clientid:
+    :param key_raw: This might be a path. If so, the credentials are stored in the file.
+    :return:
+    """
+    try:
+        service.provider.save_credentials(provider, clientid, key_raw, force_file)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+
 def instance_help():
     view.view_instance.show_instance_help()
 

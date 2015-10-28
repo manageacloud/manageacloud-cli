@@ -1,5 +1,7 @@
+import json
 import maccli.helper.http
 from maccli.config import RELEASE_ANY
+from maccli.view.view_generic import show_error
 
 
 def get_locations(cookbook_tag, provider):
@@ -32,3 +34,27 @@ def get_hardwares(provider, location, cookbook_tag, release):
             print ("")
 
     return status_code, json
+
+
+def credentials(provider, client, key):
+
+    params = {
+        'provider': provider,
+        'client': client,
+        'key': key
+    }
+
+    json_request = json.dumps(params)
+
+    status_code, json_raw, raw = maccli.helper.http.send_request("POST", "/provider/credentials", data=json_request)
+
+    if status_code == 400:
+        show_error("Error while building request: " + raw)
+
+    if status_code == 404:
+        show_error("Error while building request: " + raw)
+
+    if status_code == 401:
+        show_error("Error while building request: " + raw)
+
+    return status_code, json_raw
