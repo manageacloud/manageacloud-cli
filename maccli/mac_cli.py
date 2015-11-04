@@ -22,6 +22,7 @@ def initialize_parser():
     parser.add_argument('--version', action='version', version='%(prog)s ' + maccli.__version__)
     parser.add_argument('-v', '--verbose', action='store_true', help="Show verbose information")
     parser.add_argument('-q', '--quiet', action='store_true', help="Enable loggable output")
+    parser.add_argument('-s', '--disable-strict-host', action='store_true', help="Disable Strict Host Key Checking. It sets the SSH parameter -o 'StrictHostKeyChecking no' when connecting to the instances.")
     parser.add_argument('--debug', action='store_true', help="Enable debug")
     #parser.add_argument('-i', '--interactive', action='store_true', dest="interactive", help="Interactive session - preview feature")
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
@@ -66,6 +67,7 @@ def dispatch_cmds(args):
         logging.basicConfig(level=logging.WARN)
 
     maccli.quiet = args.quiet
+    maccli.disable_strict_host_check = args.disable_strict_host
 
     maccli.logger.debug("Args options %s: " % args)
 

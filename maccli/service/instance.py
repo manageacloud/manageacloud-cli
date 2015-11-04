@@ -69,6 +69,12 @@ def ssh_command_instance(instance_id, cmd):
 
         instance = maccli.dao.api_instance.credentials(instance_id)
 
+        # strict host check
+        ssh_params = ""
+        if maccli.disable_strict_host_check:
+            maccli.logger.debug("SSH String Host Checking disabled")
+            ssh_params = "-o 'StrictHostKeyChecking no'"
+
         if instance is None:
             raise InstanceDoesNotExistException(instance_id)
 
@@ -82,14 +88,14 @@ def ssh_command_instance(instance_id, cmd):
                     with open(tmp_fpath[1], "wb") as f:
                         f.write(bytes(instance['privateKey']))
 
-                    command = "ssh %s@%s -i %s %s" % (instance['user'], instance['ip'], f.name, cmd)
+                    command = "ssh %s %s@%s -i %s %s" % (ssh_params, instance['user'], instance['ip'], f.name, cmd)
                     rc, stdout, stderr = maccli.helper.cmd.run(command)
 
                 finally:
                     os.remove(tmp_fpath[1])
             else:
                 """ Authentication with password """
-                command = "ssh %s@%s %s" % (instance['user'], instance['ip'], cmd)
+                command = "ssh %s %s@%s %s" % (ssh_params, instance['user'], instance['ip'], cmd)
                 child = pexpect.spawn(command)
                 i = child.expect(['.* password:', "yes/no"], timeout=120)
                 if i == 1:
@@ -132,6 +138,13 @@ def ssh_interactive_instance(instance_id):
     stdout = None
     instance = maccli.dao.api_instance.credentials(instance_id)
 
+    # strict host check
+    ssh_params = ""
+    maccli.logger.debug("maccli.strict_host_check: " + str(maccli.disable_strict_host_check))
+    if maccli.disable_strict_host_check:
+        maccli.logger.debug("SSH String Host Checking disabled")
+        ssh_params = "-o 'StrictHostKeyChecking no'"
+
     if instance is not None:
 
         if instance['privateKey']:
@@ -141,7 +154,7 @@ def ssh_interactive_instance(instance_id):
                 with open(tmp_fpath[1], "wb") as f:
                     f.write(bytes(instance['privateKey']))
 
-                command = "ssh %s@%s -i %s " % (instance['user'], instance['ip'], f.name)
+                command = "ssh %s %s@%s -i %s " % (ssh_params, instance['user'], instance['ip'], f.name)
                 os.system(command)
 
             finally:
@@ -149,7 +162,7 @@ def ssh_interactive_instance(instance_id):
 
         else:
             """ Authentication with password """
-            command = "ssh %s@%s" % (instance['user'], instance['ip'])
+            command = "ssh %s %s@%s" % (ssh_params, instance['user'], instance['ip'])
             child = pexpect.spawn(command)
             i = child.expect(['.* password:', "yes/no"], timeout=60)
             if i == 1:
@@ -160,6 +173,7 @@ def ssh_interactive_instance(instance_id):
             child.interact()
 
     return stdout
+
 
 def create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
                     environments, hd, port, net, metadata=None, applyChanges=True):

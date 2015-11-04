@@ -24,3 +24,6 @@ quiet = False
 
 #: pwd
 pwd = os.getcwd()
+
+#: pwd
+disable_strict_host_check = False
