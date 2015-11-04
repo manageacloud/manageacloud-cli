@@ -168,7 +168,7 @@ def add_infrastructure_parser(subparsers):
                                               description='Create an infrastructure loading a macfile')
 
     # get file path
-    macfile_parser.add_argument('file', nargs=1, help='Path to Macfile')
+    macfile_parser.add_argument('file', nargs=1, help='Path or URL to Macfile')
     macfile_parser.add_argument('--resume', action='store_true', help="Resume infrastructure creation")
     macfile_parser.add_argument('-p', '--param', nargs='*', help="Add parameters to be replaced in the macfile")
     macfile_parser.add_argument('--on_failure', choices=[MACFILE_ON_FAILURE_DESTROY_ALL, MACFILE_ON_FAILURE_DESTROY_OTHERS],

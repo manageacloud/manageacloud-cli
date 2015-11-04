@@ -1,6 +1,7 @@
 from __future__ import print_function
 from collections import OrderedDict
 import os
+import urllib
 
 import yaml
 import yaml.representer
@@ -159,13 +160,19 @@ def parse_params(raw, params_raw):
 
 def load_macfile(path):
 
-    # this is going to be the PWD to run commands
-    maccli.pwd = os.path.dirname(os.path.realpath(path))
+    if os.path.exists(path):  # open file
+        # this is going to be the PWD to run commands
+        maccli.pwd = os.path.dirname(os.path.realpath(path))
 
-    # open file
-    stream = open(path, "r")
+        maccli.logger.info("Path %s exists, trying to open file", path)
+        stream = open(path, "r")
+        contents = stream.read()
+    else:  # try url
+        maccli.logger.info("Path does not exists, assuming %s is an URL" % path)
+        f = urllib.urlopen(path)
+        contents = f.read()
 
-    return stream.read()
+    return contents
 
 
 def parse_macfile(string):
