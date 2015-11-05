@@ -174,6 +174,7 @@ class Mock_args(object):
         self.verbose = False
         self.cmd = cmd
         self.subcmd = subcmd
+        self.disable_strict_host = None
 
 
 class MockInstanceCreate_args(Mock_args):
@@ -183,6 +184,7 @@ class MockInstanceCreate_args(Mock_args):
         self.verbose = False
         self.cmd = cmd
         self.subcmd = subcmd
+        self.disable_strict_host = None
         self.configuration = None
         self.deployment = None
         self.location = None
@@ -204,6 +206,7 @@ class MockInstanceDestroy_args(Mock_args):
         self.debug = False
         self.quiet = False
         self.verbose = False
+        self.disable_strict_host = None
         self.cmd = cmd
         self.subcmd = subcmd
         self.name = name
@@ -215,6 +218,7 @@ class MockConfiguration_Args(Mock_args):
         self.debug = False
         self.quiet = False
         self.verbose = False
+        self.disable_strict_host = None
         self.cmd = cmd
         self.subcmd = subcmd
         self.keyword = keyword
@@ -226,6 +230,7 @@ class MockInstanceSSH_args(MockInstanceDestroy_args):
         self.debug = False
         self.quiet = False
         self.verbose = False
+        self.disable_strict_host = None
         self.cmd = cmd
         self.subcmd = subcmd
         self.id = instance_id
