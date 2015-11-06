@@ -134,6 +134,25 @@ def add_instance_parser(subparsers):
     lifespan_parser.add_argument('amount', type=int, help='New server lifespan in minutes')
 
 
+def add_resource_parser(subparsers):
+    inf_parser = subparsers.add_parser('resource',
+                                       help='Resource operations',
+                                       description='Resource related operations')
+
+    inf_subparser = inf_parser.add_subparsers(title='resource operations', dest='subcmd')
+
+    # provider save credentials
+    #stderr_parser = inf_subparser.add_parser('get_stderr', help='Get error output from resource',
+    #                                              description='Gets the error output from a resource ')
+    stdout_parser = inf_subparser.add_parser('get_stdout', help='Get output from resource',
+                                            description='Get output from resource. Use the command "mac infrastructure items" to get a list of available resources.')
+
+    stdout_parser.add_argument('infrastructure_name', help="Infrastructure name")
+    stdout_parser.add_argument('infrastructure_version', help="Infrastructure version")
+    stdout_parser.add_argument('resource_name', help="Resource name ")
+    stdout_parser.add_argument('key', nargs='?', help='Parses the output using "json" or "text.regex". Example: json.My_Key, text.regex(.*)')
+
+
 def add_provider_parser(subparsers):
     inf_parser = subparsers.add_parser('provider',
                                        help='Provider operations',

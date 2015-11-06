@@ -1,4 +1,5 @@
 import json
+import urllib
 
 import maccli.helper.http
 from maccli.view.view_generic import show_error
@@ -6,6 +7,17 @@ from maccli.view.view_generic import show_error
 
 def get_list():
     status_code, json, raw = maccli.helper.http.send_request("GET", "/resources")
+    return json
+
+
+def get(inf_name, inf_version, resource_name):
+    params = {
+        'inf_name': inf_name,
+        'inf_version': inf_version,
+        'name': resource_name
+    }
+    querystring = "?" + urllib.urlencode(params, True)
+    status_code, json, raw = maccli.helper.http.send_request("GET", "/resource%s" % querystring)
     return json
 
 

@@ -28,6 +28,7 @@ def initialize_parser():
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
     parser_cli.add_login_parser(subparsers)
     parser_cli.add_instance_parser(subparsers)
+    parser_cli.add_resource_parser(subparsers)
     parser_cli.add_configuration_parser(subparsers)
     parser_cli.add_infrastructure_parser(subparsers)
     parser_cli.add_provider_parser(subparsers)
@@ -52,7 +53,6 @@ def patch_help_option(argv=sys.argv):
 
         if args[1] == 'provider':
             maccli.command_cli.provider_help()
-
 
     return args[1:]
 
@@ -149,6 +149,10 @@ def dispatch_cmds(args):
     elif args.cmd == "provider":
         if args.subcmd == 'credential':
             maccli.command_cli.credentials(args.provider, args.clientid, args.key, args.force_file)
+
+    elif args.cmd == "resource":
+        if args.subcmd == 'get_stdout':
+            maccli.command_cli.resouce_get_stdout(args.infrastructure_name, args.infrastructure_version, args.resource_name, args.key)
 
 
 def parse_args(self, args):

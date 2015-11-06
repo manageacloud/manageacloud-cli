@@ -252,6 +252,24 @@ def credentials(provider, clientid, key_raw, force_file):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
+def resouce_get_stdout(infrastructure_name, infrastructure_version, resource_name, key):
+
+    try:
+        output = service.resource.get_resource_value(infrastructure_name, infrastructure_version, resource_name, key)
+        if isinstance(output,basestring):
+            sys.stdout.write(output)
+        else:
+            print(output)
+
+    except KeyError:
+        show_error("Key '%s' not found" % key)
+    except KeyboardInterrupt:
+        show_error("Aborting")
+    except Exception as e:
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)
+
+
 def instance_help():
     view.view_instance.show_instance_help()
 
