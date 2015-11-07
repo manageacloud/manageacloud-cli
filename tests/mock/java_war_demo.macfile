@@ -1,5 +1,5 @@
 mac: 0.9.6
-description: Productify
+description: Java WAR demo
 name: demo
 version: {INF_VERSION}
 resources:
@@ -9,9 +9,10 @@ roles:
       branch: master
       configuration: java_war_demo
       environment:
-        - RDS_FQDN: wf-us-uat-productify.cpaswkgu8jiq.us-east-1.rds.amazonaws.com
+        - RDS_FQDN: myrds.us-east-1.rds.amazonaws.com
         - RDS_USER: myuser
         - RDS_PASS: mysecretpass
+        - WAR_VERSION: {WAR_VERSION}
 actions:
    get_id:
       ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
