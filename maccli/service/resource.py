@@ -84,9 +84,13 @@ def get_resource_value(inf_name, inf_version, resource_name, key):
         Gets the resource
     """
     resource = maccli.dao.api_resource.get(inf_name, inf_version, resource_name)
+
     stdout_raw = resource['create']['stdout']
     stdout = ""
-    if key[:4] == "json":
+
+    if key is None:
+        stdout = stdout_raw
+    elif key[:4] == "json":
         stdout_json = json.loads(stdout_raw.strip())
         if key == "json":
             stdout = json.dumps(stdout_json, indent=4)

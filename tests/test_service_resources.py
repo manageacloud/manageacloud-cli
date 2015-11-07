@@ -39,3 +39,11 @@ class ResourceTestCase(unittest.TestCase):
         clean = '{\n    "DNSName": "my-demo-load-balancer-1589716593.us-east-1.elb.amazonaws.com"\n}\n'
         response = maccli.service.resource.get_resource_value("demo", "1.0", "load balancer 01", "text")
         self.assertEqual(response, clean)
+
+    @mock.patch('maccli.dao.api_resource.get')
+    def test_resource_get_none(self, mock):
+        mock.return_value = DEFAULT_RESOURCE
+        clean = '{\n    "DNSName": "my-demo-load-balancer-1589716593.us-east-1.elb.amazonaws.com"\n}\n'
+        response = maccli.service.resource.get_resource_value("demo", "1.0", "load balancer 01", None)
+        self.assertEqual(response, clean)
+

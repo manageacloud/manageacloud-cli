@@ -7,6 +7,7 @@ import argparse
 import maccli
 import parser_cli
 import maccli.command_cli
+from maccli.lib.aliases import AliasedSubParsersAction
 #import maccli.interactive
 
 from maccli.helper.exception import InternalError
@@ -19,6 +20,7 @@ sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 def initialize_parser():
     # Top parser
     parser = argparse.ArgumentParser(description="Manageacloud.com CLI", prog='mac')
+    parser.register('action', 'parsers', AliasedSubParsersAction)
     parser.add_argument('--version', action='version', version='%(prog)s ' + maccli.__version__)
     parser.add_argument('-v', '--verbose', action='store_true', help="Show verbose information")
     parser.add_argument('-q', '--quiet', action='store_true', help="Enable loggable output")

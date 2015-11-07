@@ -61,3 +61,7 @@ class MacParameterNotFound(Exception):
     """Parameter has not been found"""
     pass
 
+
+class MacJsonException(Exception):
+    """Parameter has not been found"""
+    pass

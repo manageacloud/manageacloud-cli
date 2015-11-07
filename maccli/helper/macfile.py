@@ -1,6 +1,6 @@
 import json
 from maccli.helper.exception import InstanceNotReadyException, InstanceDoesNotExistException, BashException, \
-    MacParameterNotFound
+    MacParameterNotFound, MacJsonException
 import maccli.service.instance
 __author__ = 'tk421'
 import re
@@ -439,7 +439,11 @@ def parse_envs_destroy(resource_to_destroy, instances, resources):
                                 if part.isdigit():
                                     recursive_value = recursive_value[int(part)]
                                 else:
-                                    recursive_value = recursive_value[part]
+                                    try:
+                                        recursive_value = recursive_value[part]
+                                    except TypeError:
+                                        raise MacJsonException("The parameter %s doesn't fit at %s.\n\n\n"
+                                                               "Are you trying to operate a list as a dictionary ?\n\n" % (part, recursive_value))
 
                             value = recursive_value
 

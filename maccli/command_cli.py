@@ -28,7 +28,7 @@ from view.view_generic import GREEN, RED
 from config import AUTH_SECTION, USER_OPTION, APIKEY_OPTION, MAC_FILE, EXCEPTION_EXIT_CODE, CONFIGURATION_FAILED, \
     CREATION_FAILED
 from maccli.helper.exception import MacParseEnvException, MacErrorCreatingTier, MacParseParamException, \
-    MacResourceException
+    MacResourceException, MacJsonException
 
 
 def help():
@@ -551,7 +551,12 @@ def infrastructure_destroy(name, version):
                 time.sleep(5)  # give some time to instances to free resources
 
             for resource in infrastructure['resources']:
-                maccli.facade.macfile.destroy_resource(resource, infrastructure['cloudServers'], infrastructure['resources'])
+                try:
+                    maccli.facade.macfile.destroy_resource(resource, infrastructure['cloudServers'], infrastructure['resources'])
+                except MacJsonException as e:
+                    maccli.view.view_generic.showc("\nError while destroying resource %s\n\n" % resource['name'], RED)
+                    maccli.view.view_generic.showc("Error while navigating json! %s\n" % e.message, RED)
+
         else:
             maccli.view.view_generic.show("Infrastructure '%s' version '%s' not found" % (name, version))
 

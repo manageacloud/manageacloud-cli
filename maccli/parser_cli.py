@@ -8,7 +8,8 @@ def add_login_parser(subparsers):
 
 
 def add_instance_parser(subparsers):
-    instance_parser = subparsers.add_parser('instance', help='Instance related operations',
+    instance_parser = subparsers.add_parser('instance', aliases='i6n',
+                                            help='Instance related operations',
                                             description='Server instances operations')
 
     instance_subparser = instance_parser.add_subparsers(title='mac instance commands', dest='subcmd')
@@ -176,7 +177,7 @@ def add_provider_parser(subparsers):
 
 def add_infrastructure_parser(subparsers):
     """ infrastructure parser"""
-    inf_parser = subparsers.add_parser('infrastructure',
+    inf_parser = subparsers.add_parser('infrastructure', aliases=('i12e'),
                                        help='Infrastructure operations',
                                        description='Infrastructure related operations')
 
