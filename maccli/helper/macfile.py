@@ -225,7 +225,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                         value = value_raw
 
                     if processed:
-                        text = text.replace("%s.%s.%s" % (type_name, name, action), value)
+                        text = text.replace("%s.%s.%s" % (type_name, name, action), str(value))
                         match_processed = True
 
                 else:

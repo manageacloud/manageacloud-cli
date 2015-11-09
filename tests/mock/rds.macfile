@@ -35,10 +35,10 @@ resources:
     create bash:
       aws rds create-db-instance
         --db-instance-identifier infrastructure.param.name
-        --allocated-storage 20
-        --db-instance-class db.t1.micro
-        --engine mysql
-        --engine-version 5.6.23
+        --allocated-storage infrastructure.param.allocated-storage
+        --db-instance-class infrastructure.param.db-instance-class
+        --engine infrastructure.param.engine
+        --engine-version infrastructure.param.engine-version
         --master-username infrastructure.param.master-username
         --master-user-password infrastructure.param.master-user-password
         --db-subnet-group-name resource.create_rds_subnet.json.DBSubnetGroup.DBSubnetGroupName
@@ -63,6 +63,10 @@ infrastructures:
       name: rds-demo
       master-username: myuser
       master-user-password: mysecretpass
+      db-instance-class: db.t1.micro
+      allocated-storage: 20
+      engine: mysql
+      engine-version: 5.6.23
 
   is_rd_built:
     action: wait_for_rds

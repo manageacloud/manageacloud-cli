@@ -79,7 +79,7 @@ def dispatch_cmds(args):
     elif maccli.user is None:
         maccli.command_cli.no_credentials()
 
-    elif args.cmd == 'instance':
+    elif args.cmd == 'instance' or args.cmd == 'i6e':
 
         if args.subcmd == 'create':
             if args.yaml:
@@ -132,7 +132,7 @@ def dispatch_cmds(args):
         elif args.subcmd == 'search':
             maccli.command_cli.configuration_search(args.keyword, args.url)
 
-    elif args.cmd == "infrastructure":
+    elif args.cmd == "infrastructure" or args.cmd == 'i12e':
         if args.subcmd == 'list':
             maccli.command_cli.infrastructure_list()
         elif args.subcmd == 'macfile':

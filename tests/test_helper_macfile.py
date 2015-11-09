@@ -218,3 +218,18 @@ class HelperMacfileTestCase(unittest.TestCase):
         actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES, INFRASTRUCTURE)
         self.assertEqual(CMD_CLEAN, actual)
         self.assertTrue(processed)
+
+    @mock.patch('maccli.helper.cmd.run')
+    def test_param_integer(self, mock_run):
+        CMD_RAW = "aws rds create-db-instance --db-instance-identifier infrastructure.param.name --allocated-storage infrastructure.param.allocated-storage --db-instance-class infrastructure.param.db-instance-class --engine infrastructure.param.engine --engine-version infrastructure.param.engine-version --master-username infrastructure.param.master-username --master-user-password infrastructure.param.master-user-password --db-subnet-group-name resource.create_rds_subnet.json.DBSubnetGroup.DBSubnetGroupName --auto-minor-version-upgrade --region us-east-1"
+        INSTANCES = []
+        ROLES = []
+        INFRASTRUCTURES = OrderedDict([('create_rds_subnet', OrderedDict([('resource', 'rds_subnet_group'), ('params', OrderedDict([('name', 'my_rds_subnet')]))])), ('create_rds', OrderedDict([('resource', 'rds'), ('params', OrderedDict([('name', 'rds-demo'), ('master-username', 'myuser'), ('master-user-password', 'mysecretpass'), ('db-instance-class', 'db.t1.micro'), ('allocated-storage', 20), ('engine', 'mysql'), ('engine-version', '5.6.23')]))])), ('is_rd_built', OrderedDict([('action', 'wait_for_rds')]))])
+        ACTIONS = OrderedDict([('get_first_vpc', OrderedDict([('bash', 'aws ec2 describe-subnets --output text | head -n1 | cut -f9')])), ('get_subnets', OrderedDict([('bash', "aws ec2 describe-subnets --output text | grep action.get_first_vpc.text.regex(.*) | cut -f8 | tr '\\n' ' '")])), ('wait_for_rds', OrderedDict([('bash', 'while ! aws rds describe-db-instances --output text | grep ENDPOINT; do sleep 10; done')]))])
+        PROCESSED_RESOURCES = []
+        INFRASTRUCTURE = OrderedDict([('resource', 'rds'), ('params', OrderedDict([('name', 'rds-demo'), ('master-username', 'myuser'), ('master-user-password', 'mysecretpass'), ('db-instance-class', 'db.t1.micro'), ('allocated-storage', 20), ('engine', 'mysql'), ('engine-version', '5.6.23')]))])
+        CMD_CLEAN = "aws rds create-db-instance --db-instance-identifier rds-demo --allocated-storage 20 --db-instance-class db.t1.micro --engine mysql --engine-version mysql-version --master-username myuser --master-user-password mysecretpass --db-subnet-group-name resource.create_rds_subnet.json.DBSubnetGroup.DBSubnetGroupName --auto-minor-version-upgrade --region us-east-1"
+        mock_run.return_value = 0, "MOCK_RETURN", None
+        actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, ROLES, INFRASTRUCTURES, ACTIONS, PROCESSED_RESOURCES, INFRASTRUCTURE)
+        self.assertEqual(CMD_CLEAN, actual)
+        self.assertFalse(processed)

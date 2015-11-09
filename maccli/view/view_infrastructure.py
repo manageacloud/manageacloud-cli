@@ -31,7 +31,7 @@ def show_infrastructure_instances(infrastructure):
     if is_output:
         print(pretty)
     else:
-        print("There is no active instances in infrastructure")
+        print("There are no active instances in infrastructure")
 
 
 def show_resources_in_infrastructure(infrastructures):
