@@ -132,7 +132,7 @@ def dispatch_cmds(args):
         elif args.subcmd == 'search':
             maccli.command_cli.configuration_search(args.keyword, args.url)
 
-    elif args.cmd == "infrastructure" or args.cmd == 'i12e':
+    elif args.cmd == "infrastructure" or args.cmd == 'infra':
         if args.subcmd == 'list':
             maccli.command_cli.infrastructure_list()
         elif args.subcmd == 'macfile':

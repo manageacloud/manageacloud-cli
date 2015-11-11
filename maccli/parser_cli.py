@@ -8,7 +8,7 @@ def add_login_parser(subparsers):
 
 
 def add_instance_parser(subparsers):
-    instance_parser = subparsers.add_parser('instance', aliases='i6n',
+    instance_parser = subparsers.add_parser('instance', aliases='ins',
                                             help='Instance related operations',
                                             description='Server instances operations')
 
@@ -177,7 +177,7 @@ def add_provider_parser(subparsers):
 
 def add_infrastructure_parser(subparsers):
     """ infrastructure parser"""
-    inf_parser = subparsers.add_parser('infrastructure', aliases=('i12e'),
+    inf_parser = subparsers.add_parser('infrastructure', aliases=('infra'),
                                        help='Infrastructure operations',
                                        description='Infrastructure related operations')
 
