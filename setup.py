@@ -35,10 +35,10 @@ setup(
     include_package_data=True,
     author='R3Systems Pty Ltd',
     author_email='support@manageacloud.com',
-    description='Automation Swiss Army knife',
+    description='Technology agnostic orchestration framework',
     license='Apache v2',
-    keywords='manageacloud docker puppet chef saltstack ansible bash rackspace aws digitalocean '
-             'gce google compute engine multicloud multi-cloud orchestration ci cd continuous integration deployment a/b testing',
+    keywords='manageacloud environment infrastructure deployment blue green docker puppet chef saltstack ansible bash rackspace aws digitalocean azure'
+             'gce google compute engine multicloud multi-cloud orchestration ci cd continuous integration delivery deployment a/b testing',
     url='https://manageacloud.com',
     test_suite='tests',
     classifiers=[
@@ -46,7 +46,9 @@ setup(
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
+        'Intended Audience :: Information Technology',
         'Intended Audience :: Science/Research',
+        'System :: Installation/Setup',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX',
         'Programming Language :: Python'
