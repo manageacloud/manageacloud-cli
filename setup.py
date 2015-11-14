@@ -48,7 +48,6 @@ setup(
         'Intended Audience :: System Administrators',
         'Intended Audience :: Information Technology',
         'Intended Audience :: Science/Research',
-        'System :: Installation/Setup',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX',
         'Programming Language :: Python'
