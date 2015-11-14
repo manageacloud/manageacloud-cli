@@ -28,7 +28,7 @@ def show_instances(instances):
             pretty.add_row([instance['servername'], instance['ipv4'], instance['id'], type, status])
         print(pretty)
     else:
-        print("There is no active instances")
+        print("There are no active instances")
 
 
 def show_instance(instance):
