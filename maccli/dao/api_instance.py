@@ -1,4 +1,5 @@
 import json
+from maccli.helper.exception import FactError
 
 import maccli.helper.http
 import maccli.helper.cmd
@@ -128,6 +129,9 @@ def facts(instance_id):
 
     if status_code == 400:
         show_error("There is a problem with the input parameters")
+
+    if status_code == 503:
+        raise FactError("Facts are not available yet.")
 
     return json_response
 

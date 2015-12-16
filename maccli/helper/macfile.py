@@ -27,7 +27,7 @@ def has_dependencies(text, roles, infrastructures, actions):
             type_name = match[0]
             name = match[1]
             action = match[2]
-            maccli.logger.debug("Match found: type '%s' name '%s' action '%s' " % (type_name, name, action))
+            maccli.logger.debug("1 - Match found: type '%s' name '%s' action '%s' " % (type_name, name, action))
             if type_name == "role" and name in roles or type_name == "infrastructure" and name in infrastructures:
                 if action in actions:
                     has_deps = True
@@ -188,7 +188,7 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
             type_name = match[0]
             name = match[1]
             action = match[2]
-            maccli.logger.debug("Match found: type '%s' name '%s' action '%s' " % (type_name, name, action))
+            maccli.logger.debug("2 - Match found: type '%s' name '%s' action '%s' " % (type_name, name, action))
 
             # now we process the variables depending on the strategy to solve
 
@@ -393,6 +393,8 @@ def parse_envs(text, instances, roles, infrastructures, actions, processed_resou
                 # This parameter cannot be executed
                 if not name in infrastructures:
                     raise MacParameterNotFound("The parameter %s.%s has not been found while processing %s " % (type_name, name, text))
+                else:
+                    maccli.logger.warn("The parameter %s.%s.%s has not been found" % (type_name, name, action))
 
             all_processed = all_processed and match_processed
 
@@ -419,7 +421,7 @@ def parse_envs_destroy(resource_to_destroy, instances, resources):
             type_name = match[0]
             name = match[1]
             action = match[2]
-            maccli.logger.debug("Match found: type '%s' name '%s' action '%s' " % (type_name, name, action))
+            maccli.logger.debug("3 - Match found: type '%s' name '%s' action '%s' " % (type_name, name, action))
 
             if type_name == "resource":
                 for resource in resources:

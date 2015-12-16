@@ -11,8 +11,10 @@ def show_instances(instances):
     if len(instances):
         for instance in instances:
             type = instance['type']
-            if instance['type'] == 'testing' and instance['status'] == "Ready":
+            if instance['lifespan'] > 0 and instance['status'] == "Ready":
                 status = "%s (%im left)" % (instance['status'], instance['lifespan'])
+            else:
+                status = instance['status']
 
             try:
                 name = instance['metadata']['infrastructure']['name']
@@ -23,8 +25,6 @@ def show_instances(instances):
                 # not dangerous, infrastructure informationis not available
                 maccli.logger.debug("Key error while getting infrastructure information")
 
-            status = instance['status']
-
             pretty.add_row([instance['servername'], instance['ipv4'], instance['id'], type, status])
         print(pretty)
     else:
@@ -33,7 +33,7 @@ def show_instances(instances):
 
 def show_instance(instance):
     pretty = PrettyTable(["Instance name", "IP", "Instance ID", "Type", "Status"])
-    if instance['type'] == 'testing' and instance['status'] == "Ready":
+    if instance['lifespan'] > 0 and instance['status'] == "Ready":
         status = "%s (%im left)" % (instance['status'], instance['lifespan'])
     else:
         status = instance['status']

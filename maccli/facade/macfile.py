@@ -90,6 +90,7 @@ def parse_instance_envs(env_raws, instances):
                     We substitute the value by the given role
                     Format existing_role.PROPERTY
                 """
+                maccli.logger.info(".PUBLIC_IP fact (%s)" % val)
                 role_name, property = val.split(".", 1)
                 try:
                     ips = []
@@ -109,6 +110,7 @@ def parse_instance_envs(env_raws, instances):
                     raise MacParseEnvException("Error while parsing env PUBLIC_IP", key, val)
 
             elif val.endswith(".PRIVATE_IP"):
+                maccli.logger.info(".PRIVATE_IP fact (%s)" % val)
                 role_name, property = val.split(".", 1)
                 try:
                     ips = []
@@ -137,6 +139,7 @@ def parse_instance_envs(env_raws, instances):
                     raise MacParseEnvException("Error while parsing env PRIVATE_IP", key, val)
 
             elif ".FACT." in val:
+                maccli.logger.info(".FACT. fact (%s)" % val)
                 role_name, fact, property = val.split(".", 2)
 
                 try:

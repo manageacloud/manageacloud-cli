@@ -38,8 +38,9 @@ def send_request(method, path, auth=None, data=None, **kwargs):
         if status_code != 204:
             # Try to parse the response.
             try:
-                json_content = json.loads(content)
-            except Exception:
+                json_content = json.loads(content.decode('utf-8', 'ignore'))
+            except Exception as e:
+                maccli.logger.error("Error parsing json: %s", e)
                 raise MacApiError("JSON Parse Error (%s %s). Response: %s" % (method, url, content))
         else:
             json_content = None
