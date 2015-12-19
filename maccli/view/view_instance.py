@@ -11,7 +11,7 @@ def show_instances(instances):
     if len(instances):
         for instance in instances:
             type = instance['type']
-            if instance['lifespan'] > 0 and instance['status'] == "Ready":
+            if 'lifespan' in instance and instance['lifespan'] > 0 and instance['status'] == "Ready":
                 status = "%s (%im left)" % (instance['status'], instance['lifespan'])
             else:
                 status = instance['status']
@@ -33,7 +33,7 @@ def show_instances(instances):
 
 def show_instance(instance):
     pretty = PrettyTable(["Instance name", "IP", "Instance ID", "Type", "Status"])
-    if instance['lifespan'] > 0 and instance['status'] == "Ready":
+    if 'lifespan' in instance and instance['lifespan'] > 0 and instance['status'] == "Ready":
         status = "%s (%im left)" % (instance['status'], instance['lifespan'])
     else:
         status = instance['status']
@@ -114,7 +114,7 @@ def show_create_example_with_parameters(cookbook_tag, deployment, location, serv
     if servername is not None and servername != "":
         output += " -n " + servername
 
-    if provider is not None and provider != "manageacloud":
+    if provider is not None and provider != "default":
         output += " -p " + provider
 
     if release is not None and release != "any":

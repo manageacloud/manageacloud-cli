@@ -9,7 +9,7 @@ import maccli.command_cli
 
 
 DEFAULT_DEPLOYMENT = "testing"
-DEFAULT_PROVIDER = "manageacloud"
+DEFAULT_PROVIDER = "default"
 DEFAULT_LIFESPAN = 90
 DEFAULT_BRANCH = "master"
 DEFAULT_RELEASE = "any"

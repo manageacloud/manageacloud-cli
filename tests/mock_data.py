@@ -411,7 +411,7 @@ OUTPUT_CREATE_INSTANCE_ONLY_CONFIGURATION_NO_LOCATIONS = '''--location parameter
 
 Available locations:
 
-There is not locations available for configuration cookbook_tag and provider manageacloud
+There is not locations available for configuration cookbook_tag and provider default
 
 Show more help:
 

@@ -147,7 +147,7 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
 
                 view.view_instance.show_instance_help()
         elif deployment == "production" and hardware is None or \
-                                        deployment == "testing" and provider is not "manageacloud" and hardware is None:
+                                        deployment == "testing" and provider is not "default" and hardware is None:
             hardwares = service.provider.list_hardwares(provider, location, cookbook_tag, release)
             show()
             show("--hardware not found. You must choose the hardware.")

@@ -35,13 +35,12 @@ def add_instance_parser(subparsers):
     create_parser.add_argument('-d', '--deployment', default="testing", choices=["testing", "production"],
                                help="Choose the type of server. Testing servers will has a limited lifespan (default is 'testing')")
 
-    create_parser.add_argument('-b', '--branch', default="master", choices=["development", "master"],
-                               help="Select the branch. This only applies if the provider is 'manageacloud'. "
-                                    "(default is 'master')")
+    create_parser.add_argument('-b', '--branch', default="master", choices=["development", "master"], help=argparse.SUPPRESS)
+                               # help="Select the branch. This only applies if the provider is 'manageacloud (default is 'master')")
 
-    create_parser.add_argument('-p', '--provider', default="manageacloud",
-                               choices=["manageacloud", "rackspaceus", "rackspaceuk", "amazon", "digitalocean", "gce"],
-                               help="Select the public cloud provider. (default is 'manageacloud')")
+    create_parser.add_argument('-p', '--provider', default="default",
+                               choices=["default", "rackspaceus", "rackspaceuk", "amazon", "digitalocean", "gce"],
+                               help="Select the public cloud provider. (default is 'default')")
 
     create_parser.add_argument('-n', '--name',
                                help='Server name (default will be a random name)')
@@ -168,7 +167,7 @@ def add_provider_parser(subparsers):
                                                           'For more information to provide the correct credentials please go to '
                                                           'https://manageacloud.com/article/orchestration/cli/provider/credential')
     credentials_parser.add_argument('provider',
-                               choices=["manageacloud", "rackspaceus", "rackspaceuk", "amazon", "digitalocean", "gce"],
+                               choices=["rackspaceus", "rackspaceuk", "amazon", "digitalocean", "gce"],
                                help="Select the public cloud provider.")
     credentials_parser.add_argument('clientid', help='User identification: clientId, username, etc')
     credentials_parser.add_argument('key', help='Secret information: password, key, pem, etc. If argument is an existing file path the contents of the file will be used.')
