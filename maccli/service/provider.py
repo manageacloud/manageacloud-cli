@@ -4,15 +4,11 @@ from maccli.config import RELEASE_ANY
 from maccli.view.view_generic import show_error, show
 
 
-def list_locations(cookbook_tag, provider_id, release):
+def list_locations(provider_id, release):
     """
         List available instances in the account
     """
-    server_status, raw_locations = maccli.dao.api_provider.get_locations(cookbook_tag, provider_id)
-
-    if server_status == 404:
-        print("Server configuration " + cookbook_tag + " not found")
-        raw_locations = None
+    server_status, raw_locations = maccli.dao.api_provider.get_locations(provider_id)
 
     clean_locations = []
 
@@ -26,11 +22,11 @@ def list_locations(cookbook_tag, provider_id, release):
     return clean_locations
 
 
-def list_hardwares(provider, location, cookbook_tag, release):
+def list_hardwares(provider, location, release):
     """
         List available hardware for given configuration
     """
-    server_status, response = maccli.dao.api_provider.get_hardwares(provider, location, cookbook_tag, release)
+    server_status, response = maccli.dao.api_provider.get_hardwares(provider, location, release)
 
     return response
 

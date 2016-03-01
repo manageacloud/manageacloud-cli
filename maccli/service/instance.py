@@ -1,6 +1,8 @@
 import os
 import tempfile
 import time
+import urllib
+import urlparse
 
 import pexpect
 
@@ -175,13 +177,14 @@ def ssh_interactive_instance(instance_id):
     return stdout
 
 
-def create_instance(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
+def create_instance(cookbook_tag, bootstrap, deployment, location, servername, provider, release, release_version,
+                    branch, hardware, lifespan,
                     environments, hd, port, net, metadata=None, applyChanges=True):
     """
         List available instances in the account
     """
-    return maccli.dao.api_instance.create(cookbook_tag, deployment, location, servername, provider, release, branch,
-                                          hardware, lifespan, environments, hd, port, net, metadata, applyChanges)
+    #return maccli.dao.api_instance.create(cookbook_tag, bootstrap, deployment, location, servername, provider, release, release_version,
+    #                                      branch, hardware, lifespan, environments, hd, port, net, metadata, applyChanges)
 
 
 def destroy_instance(instanceid):
@@ -217,7 +220,7 @@ def facts(instance_id):
     return maccli.dao.api_instance.facts(instance_id)
 
 
-def log(instance_id):
+def log(instance_id, follow):
     """
 
     Returns server logs
@@ -225,7 +228,12 @@ def log(instance_id):
     :param instance_id;
     :return:
     """
-    return maccli.dao.api_instance.log(instance_id)
+    if follow:
+        logs = maccli.dao.api_instance.log_follow(instance_id)
+    else:
+        logs = maccli.dao.api_instance.log(instance_id)
+
+    return logs
 
 
 def lifespan(instance_id, amount):

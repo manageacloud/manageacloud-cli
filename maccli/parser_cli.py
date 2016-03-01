@@ -29,14 +29,16 @@ def add_instance_parser(subparsers):
 
     create_parser.add_argument('-c', '--configuration', help='Configuration tag')
 
+    create_parser.add_argument('-b', '--bootstrap', help='Bash script or file to run')
+
     create_parser.add_argument('-l', '--location',
                                help='Location name. If no provided, the list of available locations will be displayed.')
 
     create_parser.add_argument('-d', '--deployment', default="testing", choices=["testing", "production"],
                                help="Choose the type of server. Testing servers will has a limited lifespan (default is 'testing')")
 
-    create_parser.add_argument('-b', '--branch', default="master", choices=["development", "master"], help=argparse.SUPPRESS)
-                               # help="Select the branch. This only applies if the provider is 'manageacloud (default is 'master')")
+    #create_parser.add_argument('-b', '--branch', default="master", choices=["development", "master"], help=argparse.SUPPRESS)
+    #                          # help="Select the branch. This only applies if the provider is 'manageacloud (default is 'master')")
 
     create_parser.add_argument('-p', '--provider', default="default",
                                choices=["default", "rackspaceus", "rackspaceuk", "amazon", "digitalocean", "gce"],
@@ -48,8 +50,12 @@ def add_instance_parser(subparsers):
     create_parser.add_argument('-r', '--release', default="any",
                                choices=["any", "ubuntu", "centos", "debian", "amazon"],
                                help="Choose the distribution (default is 'any', which is the "
-                                    "best match for 'configuration' parameter)")
+                                    "best match for 'configuration' parameter). Required for 'bootstrap' parameter.")
 
+    create_parser.add_argument('-rv', '--release-version',
+                               choices=["wheezy", "jessie", "trusty", "utopic", "vivid", "6.5", "7"],
+                               help="Distribution version: Debian Wheezy or Jessie, Ubuntu Trusty or Utopic, CentOS 6.5 or 7."
+                                    "Required for 'bootstrap' parameter.")
     create_parser.add_argument('-hw', '--hardware',
                                help="Choose the hardware settings. It only applies if parameter 'deployment' is 'production'. "
                                     "If this parameter is not set, the list of the available hardware will be displayed.")
@@ -125,6 +131,9 @@ def add_instance_parser(subparsers):
                                                             'the configuration to an instance')
 
     logs_parser.add_argument('id', help='Server ID or server name')
+
+    logs_parser.add_argument('-f', '--follow', action='store_true', default=False,
+                             help="Output appends data as server is configured.")
 
     # lifespan operations
     lifespan_parser = instance_subparser.add_parser('lifespan',

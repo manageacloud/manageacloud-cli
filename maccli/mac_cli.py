@@ -85,8 +85,9 @@ def dispatch_cmds(args):
             if args.yaml:
                 maccli.command_cli.convert_to_yaml(args)
             else:
-                maccli.command_cli.instance_create(args.configuration, args.deployment, args.location, args.name,
-                                                   args.provider, args.release, args.branch, args.hardware, args.lifespan,
+                maccli.command_cli.instance_create(args.configuration, args.bootstrap, args.deployment, args.location, args.name,
+                                                   #args.provider, args.release, args.release_version, args.branch, args.hardware, args.lifespan,
+                                                   args.provider, args.release, args.release_version, "master", args.hardware, args.lifespan,
                                                    args.environment, args.hd, args.net, args.port)
         elif args.subcmd == 'update':
             if args.id is None:
@@ -109,7 +110,7 @@ def dispatch_cmds(args):
             maccli.command_cli.instance_fact(args.id)
 
         elif args.subcmd == 'log':
-            maccli.command_cli.instance_log(args.id)
+            maccli.command_cli.instance_log(args.id, args.follow)
 
         elif args.subcmd == 'lifespan':
             maccli.command_cli.instance_lifespan(args.id, args.amount)

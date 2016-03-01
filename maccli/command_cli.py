@@ -1,11 +1,16 @@
 import getpass
 import ConfigParser
 import logging
+import os
 import sys
 import time
 from os.path import join, expanduser
 import traceback
 import threading
+import urllib
+from urllib2 import URLError
+import urllib2
+import urlparse
 
 import service.auth
 import service.instance
@@ -121,14 +126,16 @@ def _run_cmd_simple(server_name, raw_id, command):
     maccli.view.view_generic.show()
 
 
-def instance_create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
-                    environments, hd, port, net):
+def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servername, provider, release, release_version,
+                    branch, hardware, lifespan, environments, hd, port, net):
+    # TODO check if cookbook_tag exists
+    # TODO validate bootstrap inputs
     try:
-        if cookbook_tag is None:
+        if cookbook_tag is None and bootstrap_raw is None:
             view.view_instance.show_instance_create_help()
 
         elif location is None:
-            locations_json = service.provider.list_locations(cookbook_tag, provider, release)
+            locations_json = service.provider.list_locations(provider, release)
             if locations_json is not None:
                 show()
                 show("--location parameter not set. You must choose the location.")
@@ -148,7 +155,7 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
                 view.view_instance.show_instance_help()
         elif deployment == "production" and hardware is None or \
                                         deployment == "testing" and provider is not "default" and hardware is None:
-            hardwares = service.provider.list_hardwares(provider, location, cookbook_tag, release)
+            hardwares = service.provider.list_hardwares(provider, location, release)
             show()
             show("--hardware not found. You must choose the hardware.")
             show()
@@ -160,22 +167,53 @@ def instance_create(cookbook_tag, deployment, location, servername, provider, re
                                                                        provider, release, branch, hardwares[0]['id'])
         else:
             """ Execute create instance """
-            instance = service.instance.create_instance(cookbook_tag, deployment, location, servername, provider,
-                                                        release,
-                                                        branch, hardware, lifespan, environments, hd, port, net)
-            if instance is not None:
-                view.view_instance.show_instance(instance)
 
-            view.view_generic.show("")
-            view.view_generic.show("To monitor the creation progress:")
-            view.view_generic.show("")
-            view.view_generic.show("watch mac instance list")
-            view.view_generic.show("")
+            # load the bootstrap file properly
+            if bootstrap_raw is not None:
+                if os.path.exists(bootstrap_raw):  # it is a file
+                    # this is going to be the PWD to run commands
+                    maccli.pwd = os.path.dirname(os.path.realpath(bootstrap_raw))
+                    maccli.logger.info("Path %s exists, trying to open file", bootstrap_raw)
+                    stream = open(bootstrap_raw, "r")
+                    bootstrap = stream.read()
+                elif _is_url(bootstrap_raw):  # try url
+                    maccli.logger.info("%s looks like an URL, trying to open URL" % bootstrap_raw)
+                    f = urllib2.urlopen(bootstrap_raw)
+                    bootstrap = f.read()
+                else:  # values are bash executable
+                    bootstrap = bootstrap_raw
+            else:
+                bootstrap = bootstrap_raw
+
+            if cookbook_tag == "" and bootstrap == "":
+                show_error("Server contains no configuration")
+            else:
+                instance = service.instance.create_instance(cookbook_tag, bootstrap, deployment, location,
+                                                            servername, provider, release, release_version,
+                                                            branch, hardware, lifespan, environments, hd, port, net)
+                if instance is not None:
+                    view.view_instance.show_instance(instance)
+
+                view.view_generic.show("")
+                view.view_generic.show("Monitor the progress of all servers:")
+                view.view_generic.show("")
+                view.view_generic.show("    watch mac instance list")
+                view.view_generic.show("")
+                view.view_generic.show("Tail server logs:")
+                view.view_generic.show("")
+                view.view_generic.show("    mac instance log -f %s" % instance['id'])
+                view.view_generic.show("")
     except KeyboardInterrupt:
         show_error("Aborting")
+    except URLError:
+        show_error("Can't open URL %s" % bootstrap_raw)
     except Exception as e:
         show_error(e)
         sys.exit(EXCEPTION_EXIT_CODE)
+
+
+def _is_url(url):
+    return bool(urlparse.urlparse(url).scheme)
 
 
 def instance_destroy_help():
@@ -459,10 +497,20 @@ def instance_fact(instance_id):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_log(instance_id):
+def instance_log(instance_id, follow):
     try:
-        json = service.instance.log(instance_id)
-        view.view_instance.show_logs(json)
+        if follow:
+            while True:
+                logs = maccli.service.instance.log(instance_id, follow)
+                if logs == "":
+                    time.sleep(5)
+                else:
+                    view.view_generic.show(logs)
+                    time.sleep(1)
+        else:
+            json = service.instance.log(instance_id, False)
+            view.view_instance.show_logs(json)
+
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:

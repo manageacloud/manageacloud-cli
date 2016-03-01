@@ -25,17 +25,19 @@ def credentials(instance_id):
     return json_response
 
 
-def create(cookbook_tag, deployment, location, servername, provider, release, branch, hardware, lifespan,
-           environments, hd, port, net, metadata, applyChanges):
+def create(cookbook_tag, bootstrap, deployment, location, servername, provider, release, release_version,
+           branch, hardware, lifespan, environments, hd, port, net, metadata, applyChanges):
     """
      Creates a new instance
 
     :param cookbook_tag:
+    :param bootstrap:
     :param deployment:
     :param location:
     :param servername:
     :param provider:
     :param release:
+    :param release_version:
     :param branch:
     :param hardware:
     :param lifespan:
@@ -46,11 +48,13 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
 
     params = {
         'cookbook_tag': cookbook_tag,
+        'bootstrap': bootstrap,
         'deployment': deployment,
         'location': location,
         'servername': servername,
         'provider': provider,
         'release': release,
+        'release_version': release_version,
         'branch': branch,
         'hardware': hardware,
         'lifespan': lifespan,
@@ -63,6 +67,8 @@ def create(cookbook_tag, deployment, location, servername, provider, release, br
     }
 
     json_request = json.dumps(params)
+
+    print(json_request)
 
     status_code, json_response, raw = maccli.helper.http.send_request("POST", "/instance", data=json_request)
 
@@ -147,6 +153,19 @@ def log(instance_id):
         show_error("There is a problem with the input parameters")
 
     return json_response
+
+
+def log_follow(instance_id):
+
+    status_code, json_response, raw = maccli.helper.http.send_request("GET", "/logf/%s" % instance_id)
+
+    if status_code == 404:
+        show_error("Server not found")
+
+    if status_code == 400:
+        show_error("There is a problem with the input parameters")
+
+    return json_response['payload']
 
 
 def update(instance_id, lifespan):

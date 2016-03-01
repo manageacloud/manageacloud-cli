@@ -12,7 +12,9 @@ DEFAULT_DEPLOYMENT = "testing"
 DEFAULT_PROVIDER = "manageacloud"
 DEFAULT_BRANCH = "master"
 DEFAULT_RELEASE = "any"
+DEFAULT_RELEASE_VERSION = ""
 DEFAULT_CONFIGURATION = "cookbook_tag"
+DEFAULT_BOOTSTRAP = ""
 DEFAULT_LOCATION = "sfo1"
 DEFAULT_SERVERNAME = "server_name"
 DEFAULT_SERVER_ID = "serverid"
@@ -44,9 +46,9 @@ class AuthTestCase(unittest.TestCase):
     @mock.patch('maccli.helper.http.send_request')
     def test_instance_create(self, mock):
         mock.return_value = (200, MOCK_RESPONSE_INSTANCE_CREATE_JSON, MOCK_RESPONSE_INSTANCE_CREATE_JSON_RAW)
-        json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION,
+        json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_BOOTSTRAP, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION,
                                                        DEFAULT_SERVERNAME,
-                                                       DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
+                                                       DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_RELEASE_VERSION, DEFAULT_BRANCH,
                                                        DEFAULT_HARDWARE, DEFAULT_LIFESPAN, DEFAULT_ENVIRONMENT,
                                                        DEFAULT_HD, DEFAULT_PORT, DEFAULT_NET, DEFAULT_METADATA, DEFAULT_APPLYCHANGES)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
@@ -58,9 +60,9 @@ class AuthTestCase(unittest.TestCase):
     @mock.patch('maccli.helper.http.send_request')
     def test_instance_create_error(self, mock):
         mock.return_value = (400, None, "Error Response")
-        json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION,
+        json_response = maccli.dao.api_instance.create(DEFAULT_CONFIGURATION, DEFAULT_BOOTSTRAP, DEFAULT_DEPLOYMENT, DEFAULT_LOCATION,
                                                        DEFAULT_SERVERNAME,
-                                                       DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_BRANCH,
+                                                       DEFAULT_PROVIDER, DEFAULT_RELEASE, DEFAULT_RELEASE_VERSION, DEFAULT_BRANCH,
                                                        DEFAULT_HARDWARE, DEFAULT_LIFESPAN, DEFAULT_ENVIRONMENT,
                                                        DEFAULT_HD, DEFAULT_PORT, DEFAULT_NET, DEFAULT_METADATA, DEFAULT_APPLYCHANGES)
         mock.assert_called_once_with("POST", "/instance", data=MOCK_INSTANCE_CREATE_PARAMETERS_JSON_RAW)
