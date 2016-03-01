@@ -200,8 +200,8 @@ def parse_macfile(string):
     # validate roles
     expected_roles = []
     role_root_params = ["instance create"]
-    role_params = ['configuration']
-    role_optional_params = ['branch', 'hd', 'lifespan', 'environment']
+    role_params = []  # mandatory parameters
+    role_optional_params = ['branch', 'hd', 'lifespan', 'environment', 'configuration', 'bootstrap bash']
 
     if 'roles' in raw:
         if raw['roles'] is None:
@@ -220,6 +220,11 @@ def parse_macfile(string):
                 except MacParamValidationError, e:
                     show_error(e.message)
                     exit(1)
+
+                if 'configuration' in raw['roles'][key_role_root]['instance create'] and 'bootstrap bash' in raw['roles'][key_role_root]['instance create']:
+                    raise MacParseParamException("'configuration' or 'bootstrap bash' are exclusive at role '%s'" % key_role_root)
+                elif not ('configuration' in raw['roles'][key_role_root]['instance create'] or 'bootstrap bash' in raw['roles'][key_role_root]['instance create']):
+                    raise MacParseParamException("'configuration' or 'bootstrap bash' is required for role '%s'" % key_role_root)
 
                 if 'environment' in raw['roles'][key_role_root]['instance create']:
                     environment = raw['roles'][key_role_root]['instance create']['environment']

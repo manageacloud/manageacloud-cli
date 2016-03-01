@@ -183,8 +183,8 @@ def create_instance(cookbook_tag, bootstrap, deployment, location, servername, p
     """
         List available instances in the account
     """
-    #return maccli.dao.api_instance.create(cookbook_tag, bootstrap, deployment, location, servername, provider, release, release_version,
-    #                                      branch, hardware, lifespan, environments, hd, port, net, metadata, applyChanges)
+    return maccli.dao.api_instance.create(cookbook_tag, bootstrap, deployment, location, servername, provider, release, release_version,
+                                          branch, hardware, lifespan, environments, hd, port, net, metadata, applyChanges)
 
 
 def destroy_instance(instanceid):
@@ -247,7 +247,7 @@ def lifespan(instance_id, amount):
     return maccli.dao.api_instance.update(instance_id, amount)
 
 
-def update_configuration(cookbook_tag, instance_id, new_metadata=None):
+def update_configuration(cookbook_tag, bootstrap, instance_id, new_metadata=None):
     """
     Update server configuration with given cookbook
 
@@ -256,7 +256,7 @@ def update_configuration(cookbook_tag, instance_id, new_metadata=None):
     :return:
     """
 
-    return maccli.dao.api_instance.update_configuration(cookbook_tag, instance_id, new_metadata)
+    return maccli.dao.api_instance.update_configuration(cookbook_tag, bootstrap, instance_id, new_metadata)
 
 
 def create_instances_for_role(root, infrastructure, roles, infrastructure_key, quiet):
@@ -306,6 +306,18 @@ def create_tier(role, infrastructure, metadata, quiet):
     except KeyError:
         pass
 
+    configuration = None
+    try:
+        configuration = role["configuration"]
+    except KeyError:
+        pass
+
+    bootstrap = None
+    try:
+        bootstrap = role["bootstrap bash"]
+    except KeyError:
+        pass
+
     port = None
     try:
         port = infrastructure["port"]
@@ -330,6 +342,12 @@ def create_tier(role, infrastructure, metadata, quiet):
     except KeyError:
         pass
 
+    release_version = None
+    try:
+        release_version = infrastructure["release_version"]
+    except KeyError:
+        pass
+
     branch = None
     try:
         branch = infrastructure["branch"]
@@ -348,9 +366,9 @@ def create_tier(role, infrastructure, metadata, quiet):
         amount = infrastructure['amount']
 
     for x in range(0, amount):
-        instance = maccli.dao.api_instance.create(role["configuration"], deployment,
+        instance = maccli.dao.api_instance.create(configuration, bootstrap, deployment,
                                                   infrastructure["location"], infrastructure["name"],
-                                                  provider, release, branch, hardware, lifespan,
+                                                  provider, release, release_version, branch, hardware, lifespan,
                                                   environment, hd, port, net, metadata, False)
         instances.append(instance)
         maccli.logger.info("Creating instance '%s'" % (instance['id']))

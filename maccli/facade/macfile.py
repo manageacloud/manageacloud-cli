@@ -200,7 +200,18 @@ def apply_instance_infrastructure_changes(instances, infrastructure_name, versio
     action = False
     for instance in configuration_pending:
         maccli.logger.debug("[%s] Checking instance " % instance['servername'])
-        cookbook_tag = instance['metadata']['system']['role']['cookbook_tag']
+
+        #
+        #    This cookbook tag must change to implement the configurations async.
+        #
+        cookbook_tag = ""
+        if 'cookbook_tag' in instance['metadata']['system']['role']:
+            cookbook_tag = instance['metadata']['system']['role']['cookbook_tag']
+
+        bootstrap = ""
+        if 'bootstrap' in instance['metadata']['system']['role']:
+            bootstrap = instance['metadata']['system']['role']['bootstrap']
+
         instance_id = instance['id']
 
         # if there are dynamic variables
@@ -214,7 +225,7 @@ def apply_instance_infrastructure_changes(instances, infrastructure_name, versio
             maccli.logger.debug("[%s] Process %s" % (instance['servername'], processed))
             if processed:
                 action = True
-                maccli.service.instance.update_configuration(cookbook_tag, instance_id, metadata_new)
+                maccli.service.instance.update_configuration(cookbook_tag, bootstrap, instance_id, metadata_new)
                 processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
                 if quiet:
                     maccli.view.view_generic.show("Applying configuration to %s" % instance['servername'])
@@ -227,7 +238,7 @@ def apply_instance_infrastructure_changes(instances, infrastructure_name, versio
         else:
             action = True
             maccli.logger.debug("[%s] Processing ")
-            maccli.service.instance.update_configuration(cookbook_tag, instance_id)
+            maccli.service.instance.update_configuration(cookbook_tag, bootstrap, instance_id)
             processing_instances = maccli.service.instance.list_by_infrastructure(infrastructure_name, version)
             if quiet:
                 maccli.view.view_generic.show("Applying configuration to %s" % instance['servername'])

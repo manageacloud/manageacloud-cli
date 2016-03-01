@@ -1,0 +1,21 @@
+mac: 1.0
+description: Bootstrap configuration
+name: demo
+version: '1.0'
+
+roles:
+
+  app:
+    instance create:
+      bootstrap bash: |
+        apt-get update
+        apt-get install nginx -y
+
+infrastructures:
+  running_app:
+    name: app
+    provider: digitalocean
+    location: ams3
+    hardware: 512mb
+    release: ubuntu
+    role: app

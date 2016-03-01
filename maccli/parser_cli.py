@@ -100,6 +100,8 @@ def add_instance_parser(subparsers):
 
     update_parser.add_argument('-c', '--configuration', help='Configuration tag')
 
+    update_parser.add_argument('-b', '--bootstrap', help='Bash script or file to run')
+
     # destroy instance
     destroy_parser = instance_subparser.add_parser('destroy',
                                                    help='Destroy an existing instance',

@@ -246,7 +246,7 @@ def instance_destroy(ids):
         sys.exit(EXCEPTION_EXIT_CODE)
 
 
-def instance_update(raw_ids, cookbook_tag):
+def instance_update(raw_ids, cookbook_tag, bootstrap):
     try:
         if raw_ids == ["all"]:  # run in all instances
             ids = service.instance.list_instances()
@@ -256,7 +256,7 @@ def instance_update(raw_ids, cookbook_tag):
         instances = []
         for id in ids:
             maccli.logger.debug("Updating instance %s " % id['id'])
-            instance = service.instance.update_configuration(cookbook_tag, id['id'])
+            instance = service.instance.update_configuration(cookbook_tag, bootstrap, id['id'])
             instances.append(instance)
 
         if instances is not None:
@@ -565,7 +565,7 @@ def infrastructure_update(name, version, cookbook_tag):
 
             instances = []
             for instance in infrastructure['cloudServers']:
-                instance_updated = service.instance.update_configuration(cookbook_tag, instance['id'])
+                instance_updated = service.instance.update_configuration(cookbook_tag, "", instance['id'])
                 instances.append(instance_updated)
 
             if instances is not None:

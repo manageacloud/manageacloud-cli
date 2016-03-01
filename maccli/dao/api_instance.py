@@ -20,7 +20,7 @@ def credentials(instance_id):
         show_error("Server not found")
 
     if status_code == 400:
-        show_error("There is a problem with the input parametrs")
+        show_error("There is a problem with the input parameters")
 
     return json_response
 
@@ -82,7 +82,7 @@ def create(cookbook_tag, bootstrap, deployment, location, servername, provider, 
     return json_response
 
 
-def update_configuration(cookbook_tag, instance_id, new_metadata):
+def update_configuration(cookbook_tag, bootstrap, instance_id, new_metadata):
     """
      Creates a new instance
 
@@ -93,6 +93,7 @@ def update_configuration(cookbook_tag, instance_id, new_metadata):
 
     params = {
         'cookbook_tag': cookbook_tag,
+        'bootstrap': bootstrap,
         'instance_id': instance_id,
         'metadata': new_metadata
     }
