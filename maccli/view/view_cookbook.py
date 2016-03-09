@@ -15,9 +15,9 @@ def show_configurations(cookbooks):
         print("Search more at %s/cookbooks" % maccli.domain)
         print("")
     else:
+        print("")
         print("There are not configurations available")
         print("")
-        print("You can create a new server configuration at %s" % maccli.domain)
 
 
 def show_configurations_url(cookbooks):

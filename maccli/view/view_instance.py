@@ -98,18 +98,18 @@ def show_instance_ssh_help():
     print("")
 
 
-def show_create_example_with_parameters(cookbook_tag, deployment, location, servername, provider, release, branch,
-                                        hardware):
+def show_create_example_with_parameters(cookbook_tag, bootstrap, deployment, location, servername, provider,
+                                        release, release_version, branch, hardware):
     output = "mac instance create "
 
     if cookbook_tag is not None and cookbook_tag != "":
         output += " -c " + cookbook_tag
 
+    if bootstrap is not None and bootstrap != "":
+        output += " -b " + bootstrap
+
     if deployment is not None and deployment != "testing":
         output += " -d " + deployment
-
-    if location is not None and location != "":
-        output += " -l " + location
 
     if servername is not None and servername != "":
         output += " -n " + servername
@@ -118,10 +118,16 @@ def show_create_example_with_parameters(cookbook_tag, deployment, location, serv
         output += " -p " + provider
 
     if release is not None and release != "any":
-        output += " -r " + release
+        if release_version:
+            output += " -r %s:%s" % (release, release_version)
+        else:
+            output += " -r %s" % release
 
     if branch is not None and branch != "master":
         output += " -r " + branch
+
+    if location is not None and location != "":
+        output += " -l " + location
 
     if hardware is not None and hardware != "":
         output += " -hw " + hardware

@@ -48,14 +48,17 @@ def add_instance_parser(subparsers):
                                help='Server name (default will be a random name)')
 
     create_parser.add_argument('-r', '--release', default="any",
-                               choices=["any", "ubuntu", "centos", "debian", "amazon"],
+                               choices=["any", "ubuntu", "ubuntu:trusty", "ubuntu:utopic", "ubuntu:vivid",
+                                        "centos", "centos:6.5", "centos:7",
+                                        "debian", "debian:wheezy", "debian:jessie",
+                                        "amazon"],
                                help="Choose the distribution (default is 'any', which is the "
                                     "best match for 'configuration' parameter). Required for 'bootstrap' parameter.")
 
     create_parser.add_argument('-rv', '--release-version',
                                choices=["wheezy", "jessie", "trusty", "utopic", "vivid", "6.5", "7"],
-                               help="Distribution version: Debian Wheezy or Jessie, Ubuntu Trusty or Utopic, CentOS 6.5 or 7."
-                                    "Required for 'bootstrap' parameter.")
+                               help="Distribution version: Debian Wheezy or Jessie, Ubuntu Trusty, Utopic or Vivid, CentOS 6.5 or 7.")
+
     create_parser.add_argument('-hw', '--hardware',
                                help="Choose the hardware settings. It only applies if parameter 'deployment' is 'production'. "
                                     "If this parameter is not set, the list of the available hardware will be displayed.")

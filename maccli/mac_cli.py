@@ -79,7 +79,7 @@ def dispatch_cmds(args):
     elif maccli.user is None:
         maccli.command_cli.no_credentials()
 
-    elif args.cmd == 'instance' or args.cmd == 'i6e':
+    elif args.cmd == 'instance' or args.cmd == 'ins':
 
         if args.subcmd == 'create':
             if args.yaml:

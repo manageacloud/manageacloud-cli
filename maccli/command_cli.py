@@ -43,7 +43,12 @@ def help():
 def login():
     try:
         view.view_generic.show("")
-        view.view_generic.show("If you don't have credentials, please register at https://manageacloud.com")
+        view.view_generic.show("If you are using Manageacloud SaaS and you don't have credentials, please register at https://manageacloud.com")
+        view.view_generic.show("")
+        view.view_generic.show("If you are using Manageacloud Community please set the following variable:")
+        view.view_generic.show("    export MAC=http://my_community_server/api/v1/")
+        view.view_generic.show("")
+        view.view_generic.show("More information at http://manageacloud/docs/getting-started/install")
         view.view_generic.show("")
         username = raw_input("Username or email: ")
         password = getpass.getpass()
@@ -126,8 +131,17 @@ def _run_cmd_simple(server_name, raw_id, command):
     maccli.view.view_generic.show()
 
 
-def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servername, provider, release, release_version,
+def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servername, provider, release_raw, release_version_raw,
                     branch, hardware, lifespan, environments, hd, port, net):
+
+    # allow format release:release_version, ie ubuntu:trusty
+    if ":" in release_raw:
+        release, release_version = release_raw.split(":", 1)
+    else:
+        release = release_raw
+        release_version = release_version_raw
+
+
     # TODO check if cookbook_tag exists
     # TODO validate bootstrap inputs
     try:
@@ -144,9 +158,10 @@ def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servernam
                 show()
                 if len(locations_json):
                     view.view_location.show_locations(locations_json)
-                    view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment,
+                    view.view_instance.show_create_example_with_parameters(cookbook_tag, bootstrap_raw, deployment,
                                                                            locations_json[0]['id'], servername,
-                                                                           provider, release, branch, hardware)
+                                                                           provider, release, release_version,
+                                                                           branch, hardware)
 
                 else:
                     show("There is not locations available for configuration %s and provider %s" % (
@@ -163,8 +178,8 @@ def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servernam
             show()
             view.view_hardware.show_hardwares(hardwares)
             if (len(hardwares) > 0):
-                view.view_instance.show_create_example_with_parameters(cookbook_tag, deployment, location, servername,
-                                                                       provider, release, branch, hardwares[0]['id'])
+                view.view_instance.show_create_example_with_parameters(cookbook_tag, bootstrap_raw, deployment, location, servername,
+                                                                       provider, release, release_version, branch, hardwares[0]['id'])
         else:
             """ Execute create instance """
 
@@ -261,6 +276,15 @@ def instance_update(raw_ids, cookbook_tag, bootstrap):
 
         if instances is not None:
             view.view_instance.show_instances(instances)
+
+        view.view_generic.show("")
+        view.view_generic.show("To track configuration changes")
+        view.view_generic.show("")
+        for id in ids:
+            view.view_generic.show("    mac instance log -f %s" % id['id'])
+
+        view.view_generic.show("")
+
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:
