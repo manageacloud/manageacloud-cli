@@ -166,6 +166,8 @@ def ssh_interactive_instance(instance_id):
             """ Authentication with password """
             command = "ssh %s %s@%s" % (ssh_params, instance['user'], instance['ip'])
             child = pexpect.spawn(command)
+            (rows, cols) = gettermsize()
+            child.setwinsize(rows, cols)  # set the child to the size of the user's term
             i = child.expect(['.* password:', "yes/no"], timeout=60)
             if i == 1:
                 child.sendline("yes")
@@ -175,6 +177,15 @@ def ssh_interactive_instance(instance_id):
             child.interact()
 
     return stdout
+
+
+def gettermsize():
+    """ horrible non-portable hack to get the terminal size to transmit
+        to the child process spawned by pexpect """
+    (rows, cols) = os.popen("stty size").read().split() # works on Mac OS X, YMMV
+    rows = int(rows)
+    cols = int(cols)
+    return rows, cols
 
 
 def create_instance(cookbook_tag, bootstrap, deployment, location, servername, provider, release, release_version,
