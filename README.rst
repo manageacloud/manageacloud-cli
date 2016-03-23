@@ -40,7 +40,7 @@ You can also use ``pip install``:
 
 .. sourcecode:: bash
 
-    pip install mac --pre
+    pip install mac
 
 Community version of Manageacloud Framework
 -------------------------------------------

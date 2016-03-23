@@ -37,7 +37,7 @@ You can install the CLI and any required dependency by executing:
 
 You can also use ``pip install``:
 
-    pip install mac --pre
+    pip install mac
 
 Community version of Manageacloud Framework
 -------------------------------------------

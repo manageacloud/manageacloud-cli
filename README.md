@@ -30,7 +30,7 @@ curl -sSL https://manageacloud.com/mac | bash
 You can also use ``pip install``:
 
 ```sh
-pip install mac --pre
+pip install mac
 ```
 
 ## Community version of Manageacloud Framework
