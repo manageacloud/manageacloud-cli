@@ -415,11 +415,12 @@ Show more help:
 
 '''
 
-OUTPUT_CREATE_INSTANCE_ONLY_CONFIGURATION_NO_LOCATIONS = '''--location parameter not set. You must choose the location.
+OUTPUT_CREATE_INSTANCE_ONLY_CONFIGURATION_NO_LOCATIONS = '''
+--location parameter not set. You must choose the location.
 
 Available locations:
 
-There is not locations available for configuration cookbook_tag and provider default
+There is not locations available for 'any' and provider 'default'
 
 Show more help:
 

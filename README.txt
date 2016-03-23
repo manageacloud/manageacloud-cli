@@ -3,6 +3,8 @@ mac
 
 Manageacloud is a flexible orchestration platform. It allows you to create, destroy and organise servers and infrastructures.
 
+Fork me on GitHub! - https://github.com/manageacloud/manageacloud-cli
+
 Features
 --------
  - Orchestrate servers
@@ -20,7 +22,7 @@ Features
  - Trigger events via WebHooks
  - Although Manageacloud is technology agnostic, we have created some shortcuts for easier operation with Amazon Web Services, Google Compute Engine, Rackspace and Digital Ocean
 
-Documentation: https://manageacloud.com/docs>
+Documentation: https://manageacloud.com/docs
 Quickstart guide: https://manageacloud.com/quickstart
 
 Installation
