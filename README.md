@@ -1,32 +1,76 @@
 # mac
-Manageacloud is an orchestration platform that ensures repeatable, production-ready standardised architectures.
+Manageacloud is a flexible orchestration platform. It allows you to create, destroy and organise servers and infrastructures.
 
-Manageacloud is Technology Agnostic. Any technology that runs in bash can be easily integrated.
+## Features
+ - Orchestrate servers
+ - Orchestrate production ready infrastructure (golden images, autoscaling groups, load balancers, etc)
+ - Versioning servers and infrastructure
+ - Empower Continuous Delivery
+ - View who is the owner of the resources (servers and infrastructure)
+ - Interact with your servers using a Command Line Interface, REST Api or Web Interface
+ - Manage access to servers
+ - Convert your infrastructure into code
+ - Orchestrate servers using your existing automation codes (eg Docker, Puppet, Chef, SaltStack, etc)
+ - Test server configurations easily
+ - Integrate any technology that can be operated from the command line interface or an API
+ - Keep the history (including logs) of servers and infrastructure
+ - Trigger events via WebHooks
+ - Although Manageacloud is technology agnostic, we have created some shortcuts for easier operation with Amazon Web Services, Google Compute Engine, Rackspace and Digital Ocean
 
-Manageacloud uses your existing automation programming codes to orchestrate architectures.
+# Installation
 
-Access to the [documentation](https://manageacloud.com/docs) or to the [quickstart guide](https://manageacloud.com/quickstart) to learn more.
-
-mac is very useful for uses cases such as:
- - [Orchestration of infrastructures](https://manageacloud.com/case-study/geographically-disperse-infrastructures)
- - [Continuous Integration](https://manageacloud.com/case-study/continuous-integration)
- - [Disaster Recovery](https://manageacloud.com/case-study/disaster-recovery)
- - [Continuous Delivery/Deployment, Blue-green deployments](https://manageacloud.com/case-study/continuous-delivery)
- - [Cloud benchmarking](https://manageacloud.com/case-study/cloud-benchmark)
- - [A/B Testing](https//manageacloud.com/case-study/ab-testing)
-
-
-## Installing the CLI
+## Command Line Interface
 
 You can install the CLI and any required dependency by executing:
+
 ```sh
 curl -sSL https://manageacloud.com/mac | bash
 ```
 
 You can also use ``pip install``:
+
 ```sh
 pip install mac --pre
 ```
+
+## Community version of Manageacloud Framework
+
+The community version of Manageacloud includes the server backend and the command line interface. 
+Please [read here](https://manageacloud.com/docs/getting-started/install) how to install it.
+
+# Examples
+
+## Standalone applications
+
+To create a new server and install apache for Ubuntu
+
+```sh
+mac instance create -b "apt-get update && apt-get install apache2 -y" -r ubuntu:trusty
+```
+
+To create a new server and install apache for CentOS
+
+```sh
+mac instance create -b "apt-get update && apt-get install apache2 -y" -r centos:7
+```
+
+To install Wordpress
+```sh
+mac instance create -c basic_wordpress_installation
+```
+
+## Infrastructures
+
+You can learn more about how to orchestrate infrastructure using our [quickstart guide](https://manageacloud.com/quickstart)
+
+The following example:
+ - Creates an instance and a load balancer in AWS
+ - Deploys an application and version *version_2*
+ 
+```sh
+mac -s infrastructure macfile https://goo.gl/ezRWx1 -p INF_VERSION=2 APP_BRANCH=version_2
+```
+
 
 ## Build status
 
