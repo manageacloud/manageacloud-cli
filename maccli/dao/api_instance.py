@@ -68,8 +68,6 @@ def create(cookbook_tag, bootstrap, deployment, location, servername, provider, 
 
     json_request = json.dumps(params)
 
-    print(json_request)
-
     status_code, json_response, raw = maccli.helper.http.send_request("POST", "/instance", data=json_request)
 
     if status_code == 400:
