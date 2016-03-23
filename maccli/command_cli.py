@@ -164,10 +164,17 @@ def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servernam
                                                                            branch, hardware)
 
                 else:
-                    show("There is not locations available for configuration %s and provider %s" % (
-                        cookbook_tag, provider))
+                    type = None
+                    if release is not None:
+                        type = release
+
+                    if type is None and cookbook_tag is not None:
+                        type = cookbook_tag
+
+                    show("There is not locations available for '%s' and provider '%s'" % (type, provider))
 
                 view.view_instance.show_instance_help()
+
         elif deployment == "production" and hardware is None or \
                                         deployment == "testing" and provider is not "default" and hardware is None:
             hardwares = service.provider.list_hardwares(provider, location, release)
