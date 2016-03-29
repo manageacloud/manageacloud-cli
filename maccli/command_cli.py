@@ -379,8 +379,10 @@ def convert_to_yaml(args):
 
 def process_macfile(file, resume, params, quiet, on_failure):
     try:
+        # save the PWD
+        maccli.pwd = os.path.dirname(os.path.realpath(file))
 
-        raw = maccli.service.macfile.load_macfile(file)
+        raw = maccli.helper.macfile.load_macfile(file)
         try:
             raw = maccli.service.macfile.parse_params(raw, params)
         except MacParseParamException, e:

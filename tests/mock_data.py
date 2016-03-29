@@ -528,3 +528,213 @@ MOCK_PARSE_MACFILE_V2_EXPECTED_RESOURCES = OrderedDict([('build_lb', OrderedDict
 AWS_DESCRIBE_ROUTE_RAW = '{"RouteTables": [ { "Associations": [ { "RouteTableAssociationId": "rtbassoc-44d2b020", "Main": true, "RouteTableId": "rtb-147bde70" } ], "RouteTableId": "rtb-147bde70", "VpcId": "vpc-6b51a10f", "PropagatingVgws": [], "Tags": [], "Routes": [  { "GatewayId": "local", "DestinationCidrBlock": "10.0.0.0/16", "State": "active", "Origin": "CreateRouteTable"  }]}]}'
 
 AWS_DESCRIBE_EC2_INSTANCE = '{"Reservations":[{"OwnerId":"389627443023","ReservationId":"r-75cd86a3","Groups":[],"Instances":[{"Monitoring":{"State":"disabled"},"PublicDnsName":"ec2-52-91-191-63.compute-1.amazonaws.com","State":{"Code":16,"Name":"running"},"EbsOptimized":false,"LaunchTime":"2015-10-14T07:58:49.000Z","PublicIpAddress":"52.91.191.63","PrivateIpAddress":"172.31.51.26","ProductCodes":[],"VpcId":"vpc-ffc1ca9a","StateTransitionReason":"","InstanceId":"i-1c33b6a3","ImageId":"ami-c53d7ba0","PrivateDnsName":"ip-172-31-51-26.ec2.internal","KeyName":"MyDemoPair","SecurityGroups":[{"GroupName":"default","GroupId":"sg-aa31c1cd"}],"ClientToken":"","SubnetId":"subnet-15086e3e","InstanceType":"t2.micro","NetworkInterfaces":[{"Status":"in-use","MacAddress":"12:d7:75:cd:a0:19","SourceDestCheck":true,"VpcId":"vpc-ffc1ca9a","Description":"","Association":{"PublicIp":"52.91.191.63","PublicDnsName":"ec2-52-91-191-63.compute-1.amazonaws.com","IpOwnerId":"system.zim.mapped"},"NetworkInterfaceId":"eni-8c5431ad","PrivateIpAddresses":[{"PrivateDnsName":"ip-172-31-51-26.ec2.internal","Association":{"PublicIp":"52.91.191.63","PublicDnsName":"ec2-52-91-191-63.compute-1.amazonaws.com","IpOwnerId":"system.zim.mapped"},"Primary":true,"PrivateIpAddress":"172.31.51.26"}],"PrivateDnsName":"ip-172-31-51-26.ec2.internal","Attachment":{"Status":"attached","DeviceIndex":0,"DeleteOnTermination":true,"AttachmentId":"eni-attach-5d35602d","AttachTime":"2015-10-14T07:58:49.000Z"},"Groups":[{"GroupName":"default","GroupId":"sg-aa31c1cd"}],"SubnetId":"subnet-15086e3e","OwnerId":"389627443023","PrivateIpAddress":"172.31.51.26"}],"SourceDestCheck":true,"Placement":{"Tenancy":"default","GroupName":"","AvailabilityZone":"us-east-1b"},"Hypervisor":"xen","BlockDeviceMappings":[{"DeviceName":"/dev/sda1","Ebs":{"Status":"attached","DeleteOnTermination":true,"VolumeId":"vol-d77ba53b","AttachTime":"2015-10-14T07:58:52.000Z"}}],"Architecture":"x86_64","RootDeviceType":"ebs","RootDeviceName":"/dev/sda1","VirtualizationType":"hvm","AmiLaunchIndex":0}]}]}'
+
+MOCK_BASIC_INHERITANCE = """
+mac: 1.0.0
+description: Scaled and Load-Balanced Application
+name: demo
+version: '1.0'
+parents:
+  aws: aws-autoscale.abstract.macfile
+
+roles:
+  app:
+    instance create:
+      bootstrap bash: |
+        sudo apt-get update
+        sudo apt-get install nginx -y
+      environment:
+      - DB_IP: 127.0.0.1
+      - APP_BRANCH: master
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  # create E2C instance using the configuration for role 'app'
+  aws.image_base_inf:
+    name: app
+    provider: amazon
+    location: us-east-1
+    hardware: t1.micro
+    role: app
+    release: ubuntu
+    amount: 1
+
+  aws.*:
+        """
+
+MOCK_SINGLE_INHERITANCE = """
+mac: 1.0.0
+description: Scaled and Load-Balanced Application
+name: demo
+version: '1.0'
+parents:
+  aws: aws-autoscale.abstract.macfile
+
+roles:
+  app:
+    instance create:
+      bootstrap bash: |
+        sudo apt-get update
+        sudo apt-get install nginx -y
+      environment:
+      - DB_IP: 127.0.0.1
+      - APP_BRANCH: master
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  # create E2C instance using the configuration for role 'app'
+  aws.image_base_inf:
+    name: app
+    provider: amazon
+    location: us-east-1
+    hardware: t1.micro
+    role: app
+    release: ubuntu
+    amount: 1
+
+  aws.create_image_inf:
+
+  aws.*:
+        """
+
+MOCK_SOME_VALUES_INHERITANCE = """
+mac: 1.0.0
+description: Scaled and Load-Balanced Application
+name: demo
+version: '1.0'
+parents:
+  aws: aws-autoscale.abstract.2.macfile
+
+roles:
+  app:
+    instance create:
+      bootstrap bash: |
+        sudo apt-get update
+        sudo apt-get install nginx -y
+      environment:
+      - DB_IP: 127.0.0.1
+      - APP_BRANCH: master
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  # create E2C instance using the configuration for role 'app'
+  aws.image_base_inf:
+    location: us-east-1
+    hardware: t1.micro
+    role: app
+    release: ubuntu
+    amount: 1
+
+  aws.create_image_inf:
+
+  aws.*:
+        """
+
+MOCK_OVERRIDE_VALUES_INHERITANCE = """
+mac: 1.0.0
+description: Scaled and Load-Balanced Application
+name: demo
+version: '1.0'
+parents:
+  aws: aws-autoscale.abstract.2.macfile
+
+roles:
+  app:
+    instance create:
+      bootstrap bash: |
+        sudo apt-get update
+        sudo apt-get install nginx -y
+      environment:
+      - DB_IP: 127.0.0.1
+      - APP_BRANCH: master
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  # create E2C instance using the configuration for role 'app'
+  aws.image_base_inf:
+    name: override
+    location: us-east-1
+    hardware: t1.micro
+    role: app
+    release: ubuntu
+    amount: 1
+
+  aws.create_image_inf:
+
+  aws.*:
+        """
+
+MOCK_OVERRIDE_ACTION = """
+mac: 1.0.0
+description: Scaled and Load-Balanced Application
+name: demo
+version: '1.0'
+parents:
+  aws: aws-autoscale.abstract.2.macfile
+
+roles:
+  app:
+    instance create:
+      bootstrap bash: |
+        sudo apt-get update
+        sudo apt-get install nginx -y
+      environment:
+      - DB_IP: 127.0.0.1
+      - APP_BRANCH: master
+actions:
+   get_id:
+      ssh: overrided action
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  # create E2C instance using the configuration for role 'app'
+  aws.image_base_inf:
+    name: override
+    location: us-east-1
+    hardware: t1.micro
+    role: app
+    release: ubuntu
+    amount: 1
+
+  aws.create_image_inf:
+
+  aws.*:
+        """
+
+MOCK_OVERRIDE_RESOURCE = """
+mac: 1.0.0
+description: Scaled and Load-Balanced Application
+name: demo
+version: '1.0'
+parents:
+  aws: aws-autoscale.abstract.2.macfile
+
+roles:
+  app:
+    instance create:
+      bootstrap bash: |
+        sudo apt-get update
+        sudo apt-get install nginx -y
+      environment:
+      - DB_IP: 127.0.0.1
+      - APP_BRANCH: master
+resources:
+   build_lb:
+      create bash:
+        overrided resource
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  # create E2C instance using the configuration for role 'app'
+  aws.image_base_inf:
+    name: override
+    location: us-east-1
+    hardware: t1.micro
+    role: app
+    release: ubuntu
+    amount: 1
+
+  aws.create_image_inf:
+
+  aws.*:
+        """

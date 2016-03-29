@@ -12,6 +12,8 @@ from maccli.helper.exception import MacParamValidationError, MacParseParamExcept
 from maccli.helper.unsortable import ordered_load
 import maccli
 from maccli.helper.unsortable import UnsortableOrderedDict
+import maccli.dao.inheritance
+
 
 import textwrap
 
@@ -158,25 +160,9 @@ def parse_params(raw, params_raw):
     return clean
 
 
-def load_macfile(path):
+def parse_macfile(macfile_raw):
 
-    if os.path.exists(path):  # open file
-        # this is going to be the PWD to run commands
-        maccli.pwd = os.path.dirname(os.path.realpath(path))
-
-        maccli.logger.info("Path %s exists, trying to open file", path)
-        stream = open(path, "r")
-        contents = stream.read()
-    else:  # try url
-        maccli.logger.info("Path does not exists, assuming %s is an URL" % path)
-        f = urllib.urlopen(path)
-        contents = f.read()
-
-    return contents
-
-
-def parse_macfile(string):
-    raw = ordered_load(string, yaml.SafeLoader)
+    raw = maccli.dao.inheritance.resolve_inheritance(macfile_raw)
 
     """
 
@@ -276,6 +262,15 @@ def parse_macfile(string):
             """ Infrastructure related with a resource"""
             infrastructure_optional_params = ['resource', 'action', 'ready', 'params']
             validate_param(raw_infrastructure_keys, None, infrastructure_optional_params)
+
+        # check that the format of 'ready' is role.app
+        if 'ready' in raw['infrastructures'][key_infrastructure_root]:
+            ready_value = raw['infrastructures'][key_infrastructure_root]['ready']
+            ready_regex = re.compile('role\.[a-zA-Z\+]')
+            print(ready_value)
+            if not ready_regex.match(ready_value):
+                show_error("'ready' parameter on '%s' at infrastructure section should have the format 'role.my_role_name'" % key_infrastructure_root)
+                exit(1)
 
     # validate actions
     if 'actions' in raw.keys():

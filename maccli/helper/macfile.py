@@ -1,4 +1,6 @@
 import json
+import os
+import urllib
 from maccli.helper.exception import InstanceNotReadyException, InstanceDoesNotExistException, BashException, \
     MacParameterNotFound, MacJsonException
 import maccli.service.instance
@@ -7,6 +9,27 @@ import re
 import maccli
 import maccli.helper.cmd
 import maccli.dao.api_instance
+
+
+def load_macfile(path):
+    """
+    :param path: initial file load
+    :return:
+    """
+    if os.path.exists(path) or os.path.exists("%s/%s" % (maccli.pwd, path)):  # open file
+        # this is going to be the PWD to run commands
+        if os.path.exists("%s/%s" % (maccli.pwd, path)):
+            path = "%s/%s" % (maccli.pwd, path)
+
+        maccli.logger.info("Path %s exists, trying to open file", path)
+        stream = open(path, "r")
+        contents = stream.read()
+    else:  # try url
+        maccli.logger.info("Path does not exists, assuming %s is an URL" % path)
+        f = urllib.urlopen(path)
+        contents = f.read()
+
+    return contents
 
 
 def has_dependencies(text, roles, infrastructures, actions):

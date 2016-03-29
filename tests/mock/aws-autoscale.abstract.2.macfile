@@ -60,6 +60,8 @@ defaults:  # defaults defines the default values and order to execute
 
   # create E2C instance using the configuration for role 'app'
   image_base_inf:
+    name: app
+    provider: amazon
 
   # create the load balancer
   build_lb_inf:

@@ -4,11 +4,11 @@ import unittest
 import sys
 import yaml
 
-
 import mock
 
 from mock_data import *
 import maccli.service.macfile
+import maccli.helper.macfile
 from maccli.helper.exception import MacParseEnvException, MacParseParamException
 
 
@@ -28,18 +28,18 @@ class MacfileServiceTestCase(unittest.TestCase):
         pass
 
     def test_open_file(self):
-        contents = maccli.service.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
+        contents = maccli.helper.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
         root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
 
     def test_open_file_no_order(self):
-        contents = maccli.service.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
+        contents = maccli.helper.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
         root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
         self.assertNotEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_NO_ORDER_INF, default_flow_style=False))
 
     def test_no_roles(self):
-        contents = maccli.service.macfile.load_macfile("%s/vpc.aws.macfile" % self.mock_path)
+        contents = maccli.helper.macfile.load_macfile("%s/vpc.aws.macfile" % self.mock_path)
         root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(contents)
         self.assertEquals(yaml.dump(root, default_flow_style=False), yaml.dump({'version': '1.0', 'name': 'demo'}, default_flow_style=False))
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump([], default_flow_style=False))
@@ -52,18 +52,18 @@ class MacfileServiceTestCase(unittest.TestCase):
         self.assertEqual(yaml, MOCK_MACFILE)
 
     def test_open_file_port(self):
-        contents = maccli.service.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
+        contents = maccli.helper.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
         root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
 
     def test_parse_infrastructure_params(self):
-        contents = maccli.service.macfile.load_macfile("%s/infrastructure.params.macfile" % self.mock_path)
+        contents = maccli.helper.macfile.load_macfile("%s/infrastructure.params.macfile" % self.mock_path)
         root, _, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_INFRASTURCTURE_PARAMS, default_flow_style=False))
 
     def test_open_file_infrastructure(self):
-        contents = maccli.service.macfile.load_macfile("%s/infrastructure.aws.macfile" % self.mock_path)
+        contents = maccli.helper.macfile.load_macfile("%s/infrastructure.aws.macfile" % self.mock_path)
         root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(contents)
 
         self.assertEquals(yaml.dump(root, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_ROOT, default_flow_style=False))

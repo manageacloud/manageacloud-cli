@@ -67,6 +67,7 @@ defaults:  # defaults defines the default values and order to execute
 
   # create the AMI from the E2C instance created before
   create_image_inf:
+    ready: role.app
     resource: create_image
 
   # create launch configuration

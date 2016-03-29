@@ -3,7 +3,7 @@ description: Scaled and Load-Balanced Application
 name: demo
 version: '1.0'
 parents:
-  aws: aws-autoscale.abstract.macfile
+  aws: aws-autoscale.abstract.example.macfile
 
 roles:
   app:
@@ -18,7 +18,7 @@ roles:
 infrastructures:  # infrastructures runs everything. The order is preserved.
 
   # create E2C instance using the configuration for role 'app'
-  image_base_inf:
+  aws.image_base_inf:
     name: app
     provider: amazon
     location: us-east-1
@@ -27,4 +27,4 @@ infrastructures:  # infrastructures runs everything. The order is preserved.
     release: ubuntu
     amount: 1
 
-  aws.*
+  aws.*:
