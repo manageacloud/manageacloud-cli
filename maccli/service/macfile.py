@@ -267,7 +267,7 @@ def parse_macfile(macfile_raw):
         if 'ready' in raw['infrastructures'][key_infrastructure_root]:
             ready_value = raw['infrastructures'][key_infrastructure_root]['ready']
             ready_regex = re.compile('role\.[a-zA-Z\+]')
-            print(ready_value)
+            #print(ready_value)
             if not ready_regex.match(ready_value):
                 show_error("'ready' parameter on '%s' at infrastructure section should have the format 'role.my_role_name'" % key_infrastructure_root)
                 exit(1)

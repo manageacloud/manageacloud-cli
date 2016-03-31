@@ -7,7 +7,6 @@ import time
 from os.path import join, expanduser
 import traceback
 import threading
-import urllib
 from urllib2 import URLError
 import urllib2
 import urlparse
@@ -21,6 +20,7 @@ import service.infrastructure
 import maccli.facade.macfile
 import maccli.service.configuration
 import maccli.helper.macfile
+import maccli.helper.cmd
 from view.view_generic import show_error, show
 import view.view_location
 import view.view_instance
@@ -380,7 +380,7 @@ def convert_to_yaml(args):
 def process_macfile(file, resume, params, quiet, on_failure):
     try:
         # save the PWD
-        maccli.pwd = os.path.dirname(os.path.realpath(file))
+        maccli.helper.cmd.update_pwd(file)
 
         raw = maccli.helper.macfile.load_macfile(file)
         try:

@@ -1,7 +1,16 @@
+import os
 import subprocess
+from rfc3987 import parse
 
 from maccli.helper.exception import MacApiError, MacAuthError, BashException
 import maccli
+
+
+def update_pwd(path_or_url):
+    try:
+        parse(path_or_url, rule='URI')
+    except ValueError as e:
+        maccli.pwd = os.path.dirname(os.path.realpath(path_or_url))
 
 
 def run(command):

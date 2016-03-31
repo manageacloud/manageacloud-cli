@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from mock_data import *
@@ -10,6 +11,9 @@ import maccli.helper.cmd
 
 
 class CmdTestCase(unittest.TestCase):
+
+    def setUp(self):
+        maccli.pwd = os.getcwd()
 
     def test_working_command(self):
         rc, stdout, stderr = maccli.helper.cmd.run("true")
@@ -52,3 +56,14 @@ class CmdTestCase(unittest.TestCase):
         self.assertEqual(rc, 2)
         self.assertEqual(stdout, '')
         self.assertEqual(stderr, 'ls: cannot access *: No such file or directory\n')
+
+    def test_file(self):
+        path = '/this/is/a'
+        myfile = path + '/path'
+        maccli.helper.cmd.update_pwd(myfile)
+        self.assertEqual(maccli.pwd, path)
+
+    def test_url(self):
+        old_pwd = maccli.pwd
+        maccli.helper.cmd.update_pwd('https://manageacloud.com/my/path')
+        self.assertEqual(maccli.pwd, old_pwd)
