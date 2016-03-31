@@ -57,11 +57,17 @@ class CmdTestCase(unittest.TestCase):
         self.assertEqual(stdout, '')
         self.assertEqual(stderr, 'ls: cannot access *: No such file or directory\n')
 
-    def test_file(self):
-        path = '/this/is/a'
+    def test_absolute_path(self):
+        path = '/this/is/absolute'
         myfile = path + '/path'
         maccli.helper.cmd.update_pwd(myfile)
         self.assertEqual(maccli.pwd, path)
+
+    def test_relative_path(self):
+        path = 'is/relative'
+        myfile = path + '/path'
+        maccli.helper.cmd.update_pwd(myfile)
+        self.assertEqual(maccli.pwd, os.getcwd() + "/" + path)
 
     def test_url(self):
         old_pwd = maccli.pwd
