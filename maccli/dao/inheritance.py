@@ -1,13 +1,15 @@
 from collections import OrderedDict
+from maccli.helper.exception import MacParseParamException
 from maccli.helper.unsortable import ordered_load, yaml
 import maccli.helper.macfile
 
 
-def resolve_inheritance(macfile_str):
+def resolve_inheritance(macfile_str, params):
     """
     Loads the macfile and solves the inheritance
     """
-    raw = ordered_load(macfile_str, yaml.SafeLoader)
+    raw = maccli.helper.macfile.parse_params(macfile_str, params)
+    raw = ordered_load(raw, yaml.SafeLoader)
 
     if 'parents' in raw:  # there is inheritance
 
@@ -15,6 +17,7 @@ def resolve_inheritance(macfile_str):
         parents_raw = {}
         for parent in raw['parents']:
             parent_raw = maccli.helper.macfile.load_macfile(raw['parents'][parent])
+            parent_raw = maccli.helper.macfile.parse_params(parent_raw, params)
             parents_raw[parent] = ordered_load(parent_raw, yaml.SafeLoader)
 
         # lets read the original file and paste all the information from the parent class
@@ -92,8 +95,11 @@ def resolve_inheritance(macfile_str):
                     if default_values is not None:
                         for default_key in default_values:
                             default_value = default_values[default_key]
-                            if default_key not in raw_values:
+                            if default_key not in raw_values:  # add the key
                                 raw_values[default_key] = default_value
+                            else:  # merge the key
+                                raw_values[default_key] = _merge_dictionaries(default_value, raw_values[default_key])
+
                     maccli.logger.debug("Inheritance single adds to infrastructure %s", section)
                     clean_infrastructures.update({section: raw_values})
                 else:
@@ -108,3 +114,11 @@ def resolve_inheritance(macfile_str):
         del raw['parents']
 
     return raw
+
+
+def _merge_dictionaries(base, new_values):
+    total = base
+    for key in new_values:
+        value = new_values[key]
+        total[key] = value
+    return total

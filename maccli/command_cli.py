@@ -21,6 +21,7 @@ import maccli.facade.macfile
 import maccli.service.configuration
 import maccli.helper.macfile
 import maccli.helper.cmd
+import maccli.dao.inheritance
 from view.view_generic import show_error, show
 import view.view_location
 import view.view_instance
@@ -383,15 +384,17 @@ def process_macfile(file, resume, params, quiet, on_failure):
         maccli.helper.cmd.update_pwd(file)
 
         raw = maccli.helper.macfile.load_macfile(file)
+
+        macfile_raw = None
         try:
-            raw = maccli.service.macfile.parse_params(raw, params)
+            macfile_raw = maccli.dao.inheritance.resolve_inheritance(raw, params)
         except MacParseParamException, e:
             view.view_generic.show_error(e.message)
             exit(11)
 
         root, roles, infrastructures, actions, resources = (None,) * 5
         try:
-            root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(raw)
+            root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(macfile_raw)
         except MacParseParamException, e:
             view.view_generic.show_error(e.message)
             exit(12)

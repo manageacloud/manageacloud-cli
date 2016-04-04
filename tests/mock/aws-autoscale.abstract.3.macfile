@@ -1,0 +1,21 @@
+resources:
+
+    # creates AMI from the role 'app'
+   create_image:
+      create bash:
+          aws ec2 create-image
+            --instance-id infrastructure.image_base_inf.get_id
+            --name DemoApplication3
+            --description MyDemoApplication
+            --region infrastructure.image_base_inf.location
+
+
+defaults:  # defaults defines the default values and order to execute
+
+  # create the AMI from the E2C instance created before
+  create_image_inf:
+    resource: create_image
+    params:
+      param1: 1
+      param2: 2
+      param3: 3

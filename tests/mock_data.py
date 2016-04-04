@@ -738,3 +738,73 @@ infrastructures:  # infrastructures runs everything. The order is preserved.
 
   aws.*:
         """
+
+MOCK_OVERRIDE_PARAMS = """
+mac: 1.0.0
+description: Scaled and Load-Balanced Application
+name: demo
+version: '1.0'
+parents:
+  aws: aws-autoscale.abstract.3.macfile
+
+roles:
+  app:
+    instance create:
+      bootstrap bash: |
+        sudo apt-get update
+        sudo apt-get install nginx -y
+      environment:
+      - DB_IP: 127.0.0.1
+      - APP_BRANCH: master
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  aws.create_image_inf:
+    params:
+      param1: 9
+
+  aws.*:
+        """
+
+MOCK_OVERRIDE_PARAMS_1 = """
+mac: 1.0.0
+description: Scaled and Load-Balanced nginx
+name: {INF_NAME}
+version: {INF_VERSION}
+parents:
+  aws: /home/tk421/code/lib/aws/aws-autoscale.abstract.macfile
+
+roles:
+  app:
+    instance create:
+      bootstrap bash: |
+        sudo apt-get update
+        sudo apt-get install nginx -y
+
+infrastructures:  # infrastructures runs everything. The order is preserved.
+
+  # create E2C instance using the configuration for role 'app'
+  aws.image_base_inf:
+    name: app
+    provider: amazon
+    location: us-east-1
+    hardware: t1.micro
+    role: app
+    release: ubuntu:trusty
+    amount: 1
+
+  aws.build_lb_inf:
+
+  aws.register_lb_inf:
+
+  aws.create_image_inf:
+
+  aws.create_launch_configuration_inf:
+
+  aws.create_autoscale_group_inf:
+    params:
+      desired-capacity: 1
+
+  aws.*:
+
+"""

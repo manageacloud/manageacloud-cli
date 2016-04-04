@@ -104,6 +104,10 @@ def validate_param(actual, expected, optional=None):
         error = "Incorrect file format. The following parameters are unexpected:\n"
         for p in unexpected_optional:
             error += " - %s\n" % p
+        error += "\n"
+        error += "Required: %s\n" % expected
+        if optional is not None:
+            error += "Optional: %s\n" % optional
         raise MacParamValidationError(error)
 
     notpresent = is_present(actual, expected)
@@ -137,33 +141,7 @@ def is_unexpected(actual, expected):
     return unexpected
 
 
-def parse_params(raw, params_raw):
-    """
-    The content of macfiles might have parameters to parse.
-    """
-
-    clean = raw
-    if params_raw is not None:
-        for param in params_raw:
-            key, value = param.split("=", 1)
-            clean_tmp = clean.replace("{%s}" % key, value)
-            if clean == clean_tmp:
-                raise MacParseParamException("Variable %s could not be found in macfile" % key)
-            clean = clean_tmp
-
-    if re.search(r'{([a-zA-Z_\-]*?)}', clean, re.MULTILINE):
-        raise MacParseParamException("MACFILE contains parameters that were not available:\n"
-                                     "\n"
-                                     "%s"
-                                     "\n"
-                                     "Available parameters %s" % (clean, str(params_raw)))
-    return clean
-
-
-def parse_macfile(macfile_raw):
-
-    raw = maccli.dao.inheritance.resolve_inheritance(macfile_raw)
-
+def parse_macfile(raw):
     """
 
     Parse and validates the macfile and returns structured contents
@@ -271,6 +249,12 @@ def parse_macfile(macfile_raw):
             if not ready_regex.match(ready_value):
                 show_error("'ready' parameter on '%s' at infrastructure section should have the format 'role.my_role_name'" % key_infrastructure_root)
                 exit(1)
+
+        # check if there is at least a 'resource' 'action' or 'role'
+        if not ('resource' in raw['infrastructures'][key_infrastructure_root] or 'action' in raw['infrastructures'][key_infrastructure_root] or
+                'role' in raw['infrastructures'][key_infrastructure_root]):
+            show_error("Infrastructure '%s' requires at least one value" % key_infrastructure_root)
+            exit(1)
 
     # validate actions
     if 'actions' in raw.keys():

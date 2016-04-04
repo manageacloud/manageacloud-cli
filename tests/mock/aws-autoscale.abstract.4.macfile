@@ -1,0 +1,141 @@
+
+actions:
+   # will be executed on the instances to fetch information
+   get_id:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/instance-id
+
+   get_availability_zone:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/placement/availability-zone
+
+   get_security_groups:
+      ssh: wget -q -O - http://169.254.169.254/latest/meta-data/security-groups
+
+resources:
+   # resources creates configurations in the cloud.
+
+   # creates load balancer
+   build_lb:
+      create bash:
+        aws elb create-load-balancer
+          --load-balancer-name lb-{INF_NAME}-{INF_VERSION}
+          --listeners Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80
+          --region infrastructure.image_base_inf.location
+          --availability-zones role.app.get_availability_zone
+      destroy bash:
+        aws elb delete-load-balancer
+        --load-balancer-name lb-{INF_NAME}-{INF_VERSION}
+        --region infrastructure.image_base_inf.location
+
+  # register in the lb the instance that we just created
+   register_lb:
+      create bash:
+        aws elb register-instances-with-load-balancer
+          --load-balancer-name infrastructure.param.load-balancer-name
+          --instances infrastructure.param.instances
+          --region infrastructure.image_base_inf.location
+
+    # creates AMI from the role 'app'
+   create_image:
+      create bash:
+          aws ec2 create-image
+            --instance-id infrastructure.image_base_inf.get_id
+            --name img-{INF_NAME}-{INF_VERSION}
+            --description img-{INF_NAME}-{INF_VERSION}
+            --region infrastructure.image_base_inf.location
+      destroy bash:
+        aws ec2 deregister-image
+        --image-id resource.create_image_inf.json.ImageId
+        --region infrastructure.image_base_inf.location
+
+   create_launch_configuration:
+      create bash:
+          aws autoscaling create-launch-configuration
+            --launch-configuration-name lc-{INF_NAME}-{INF_VERSION}
+            --image-id resource.create_image_inf.json.ImageId
+            --instance-type infrastructure.image_base_inf.hardware
+            --security-groups role.app.get_security_groups
+            --region infrastructure.image_base_inf.location
+      destroy bash:
+        aws autoscaling delete-launch-configuration
+        --launch-configuration-name lc-{INF_NAME}-{INF_VERSION}
+        --region infrastructure.image_base_inf.location
+
+   create_autoscale_group:
+      create bash:
+          aws autoscaling create-auto-scaling-group
+            --auto-scaling-group-name asg-{INF_NAME}-{INF_VERSION}
+            --launch-configuration-name lc-{INF_NAME}-{INF_VERSION}
+            --availability-zones role.app.get_availability_zone
+            --load-balancer-names lb-{INF_NAME}-{INF_VERSION}
+            --max-size infrastructure.param.max-size
+            --min-size infrastructure.param.min-size
+            --desired-capacity infrastructure.param.desired-capacity
+            --region infrastructure.image_base_inf.location
+
+      destroy bash: |
+        #!/bin/sh
+        aws autoscaling update-auto-scaling-group --auto-scaling-group-name asg-{INF_NAME}-{INF_VERSION} --min-size 0 --max-size 0 --desired-capacity 0 --region us-east-1
+        INSTANCES=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names asg-{INF_NAME}-{INF_VERSION} --query "AutoScalingGroups[0].Instances[*].InstanceId" --output text --region infrastructure.image_base_inf.location )
+        if [ ! -z "$INSTANCES" ]
+        then
+              aws ec2 wait instance-terminated --instance-ids $INSTANCES --region infrastructure.image_base_inf.location
+        fi
+        sleep 10
+        aws autoscaling delete-auto-scaling-group --auto-scaling-group-name asg-{INF_NAME}-{INF_VERSION} --force-delete --region infrastructure.image_base_inf.location
+
+
+   scale_policy:
+      create bash:
+          aws autoscaling put-scaling-policy
+            --policy-name infrastructure.param.policy-name
+            --auto-scaling-group-name asg-{INF_NAME}-{INF_VERSION}
+            --scaling-adjustment infrastructure.param.scaling-adjustment
+            --adjustment-type ChangeInCapacity
+            --cooldown 300
+            --region infrastructure.image_base_inf.location
+
+defaults:  # defaults defines the default values and order to execute
+
+  # create E2C instance using the configuration for role 'app'
+  image_base_inf:
+
+  # create the load balancer
+  build_lb_inf:
+    resource: build_lb
+
+  register_lb_inf:
+    resource: register_lb
+    params:
+      load-balancer-name: lb-{INF_NAME}-{INF_VERSION}
+      instances: role.app.get_id
+
+  # create the AMI from the E2C instance created before
+  create_image_inf:
+    ready: role.app
+    resource: create_image
+
+  # create launch configuration
+  create_launch_configuration_inf:
+    resource: create_launch_configuration
+
+  # create autoscale group
+  create_autoscale_group_inf:
+    resource: create_autoscale_group
+    params:
+      max-size: 5
+      min-size: 1
+      desired-capacity: 2
+
+  policy_up_inf:
+    resource: scale_policy
+    params:
+      policy-name: ac-up-policy-{INF_NAME}-{INF_VERSION}
+      auto-scaling-group-name: asg-{INF_NAME}-{INF_VERSION}
+      scaling-adjustment: '2'
+
+  policy_down_inf:
+    resource: scale_policy
+    params:
+      policy-name: ac-down-policy-{INF_NAME}-{INF_VERSION}
+      auto-scaling-group-name: asg-{INF_NAME}-{INF_VERSION}
+      scaling-adjustment: '-1'

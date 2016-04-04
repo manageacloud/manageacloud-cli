@@ -2,7 +2,7 @@ import json
 import os
 import urllib
 from maccli.helper.exception import InstanceNotReadyException, InstanceDoesNotExistException, BashException, \
-    MacParameterNotFound, MacJsonException
+    MacParameterNotFound, MacJsonException, MacParseParamException
 import maccli.service.instance
 __author__ = 'tk421'
 import re
@@ -499,3 +499,27 @@ def parse_envs_destroy(resource_to_destroy, instances, resources):
                 else:
                     maccli.logger.warn("Warning while destroying resource! Params are not available and are required for %s.%s.%s" % (type_name, name, action))
     return text
+
+
+def parse_params(raw, params_raw):
+    """
+    The content of macfiles might have parameters to parse.
+    """
+
+    clean = raw
+    if params_raw is not None:
+        for param in params_raw:
+            key, value = param.split("=", 1)
+            clean_tmp = clean.replace("{%s}" % key, value)
+            if clean == clean_tmp:
+                raise MacParseParamException("Variable %s could not be found in macfile" % key)
+            clean = clean_tmp
+
+    if re.search(r'{([a-zA-Z_\-]*?)}', clean, re.MULTILINE):
+        raise MacParseParamException("MACFILE contains parameters that were not available:\n"
+                                     "\n"
+                                     "%s"
+                                     "\n"
+                                     "Available parameters %s" % (clean, str(params_raw)))
+
+    return clean
