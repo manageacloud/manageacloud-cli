@@ -9,6 +9,7 @@ import mock
 from mock_data import *
 import maccli.service.macfile
 import maccli.helper.macfile
+import maccli.dao.inheritance
 from maccli.helper.exception import MacParseEnvException, MacParseParamException
 
 
@@ -29,18 +30,21 @@ class MacfileServiceTestCase(unittest.TestCase):
 
     def test_open_file(self):
         contents = maccli.helper.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
-        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
+        macfile_raw = maccli.dao.inheritance.resolve_inheritance(contents, [])
+        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(macfile_raw)
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
 
     def test_open_file_no_order(self):
         contents = maccli.helper.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
-        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
+        macfile_raw = maccli.dao.inheritance.resolve_inheritance(contents, [])
+        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(macfile_raw)
         self.assertNotEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_NO_ORDER_INF, default_flow_style=False))
 
     def test_no_roles(self):
         contents = maccli.helper.macfile.load_macfile("%s/vpc.aws.macfile" % self.mock_path)
-        root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(contents)
+        macfile_raw = maccli.dao.inheritance.resolve_inheritance(contents, [])
+        root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(macfile_raw)
         self.assertEquals(yaml.dump(root, default_flow_style=False), yaml.dump({'version': '1.0', 'name': 'demo'}, default_flow_style=False))
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump([], default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(OrderedDict([('vpc_inf', OrderedDict([('resource', 'create_vpc')])), ('subnet_inf', OrderedDict([('resource', 'create_subnet')])), ('subnet_enable_public_ips_inf', OrderedDict([('resource', 'subnet_enable_public_ips')])), ('internet_gateway_inf', OrderedDict([('resource', 'create_internet_gateway')])), ('attach_internet_gateway_to_vpc', OrderedDict([('resource', 'attach_internet_gateway')])), ('attach_route_to_internet_gateway', OrderedDict([('resource', 'create_route')]))]), default_flow_style=False))
@@ -53,18 +57,21 @@ class MacfileServiceTestCase(unittest.TestCase):
 
     def test_open_file_port(self):
         contents = maccli.helper.macfile.load_macfile("%s/aws-medium-pgbench.macfile" % self.mock_path)
-        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
+        macfile_raw = maccli.dao.inheritance.resolve_inheritance(contents, [])
+        root, roles, infrastructures, _, _ = maccli.service.macfile.parse_macfile(macfile_raw)
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_ROLE, default_flow_style=False))
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_AWS_INF, default_flow_style=False))
 
     def test_parse_infrastructure_params(self):
         contents = maccli.helper.macfile.load_macfile("%s/infrastructure.params.macfile" % self.mock_path)
-        root, _, infrastructures, _, _ = maccli.service.macfile.parse_macfile(contents)
+        macfile_raw = maccli.dao.inheritance.resolve_inheritance(contents, [])
+        root, _, infrastructures, _, _ = maccli.service.macfile.parse_macfile(macfile_raw)
         self.assertEquals(yaml.dump(infrastructures, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_INFRASTURCTURE_PARAMS, default_flow_style=False))
 
     def test_open_file_infrastructure(self):
         contents = maccli.helper.macfile.load_macfile("%s/infrastructure.aws.macfile" % self.mock_path)
-        root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(contents)
+        macfile_raw = maccli.dao.inheritance.resolve_inheritance(contents, [])
+        root, roles, infrastructures, actions, resources = maccli.service.macfile.parse_macfile(macfile_raw)
 
         self.assertEquals(yaml.dump(root, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_ROOT, default_flow_style=False))
         self.assertEquals(yaml.dump(roles, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_ROLES, default_flow_style=False))
@@ -74,19 +81,17 @@ class MacfileServiceTestCase(unittest.TestCase):
         #self.assertEquals(yaml.dump(resources, default_flow_style=False), yaml.dump(MOCK_PARSE_MACFILE_V2_EXPECTED_RESOURCES, default_flow_style=False))
 
     def test_parse_params_valid(self):
-        raw_params = maccli.service.macfile.parse_params(MOCK_MACFILE_PARAMS, MACFILE_PARAMS_VALID)
+        raw_params, found = maccli.helper.macfile.parse_params(MOCK_MACFILE_PARAMS, MACFILE_PARAMS_VALID)
         self.assertEqual(raw_params, MOCK_MACFILE_PARAMS_VALID)
 
     def test_parse_params_valid_2(self):
-        raw_params = maccli.service.macfile.parse_params(MOCK_MACFILE_PARAMS_2, MACFILE_PARAMS_EMPTY)
+        raw_params, found = maccli.helper.macfile.parse_params(MOCK_MACFILE_PARAMS_2, MACFILE_PARAMS_EMPTY)
         self.assertEqual(raw_params, MOCK_MACFILE_PARAMS_2)
 
     def test_parse_params_invalid(self):
-        self.assertRaises(MacParseParamException, maccli.service.macfile.parse_params, MOCK_MACFILE_PARAMS, MACFILE_PARAMS_INVALID)
+        self.assertRaises(MacParseParamException, maccli.helper.macfile.parse_params, MOCK_MACFILE_PARAMS, MACFILE_PARAMS_INVALID)
 
     def test_parse_params_missing(self):
-        self.assertRaises(MacParseParamException, maccli.service.macfile.parse_params, MOCK_MACFILE_PARAMS, MACFILE_PARAMS_ONE_MISSING)
+        self.assertRaises(MacParseParamException, maccli.helper.macfile.parse_params, MOCK_MACFILE_PARAMS, MACFILE_PARAMS_ONE_MISSING)
 
-    def test_invalid_roles_environment(self):
-        self.assertRaises(MacParseParamException, maccli.service.macfile.parse_macfile, MOCK_MACFILE_PARAMS_INVALID_ROLES_ENVIRONMENT)
 

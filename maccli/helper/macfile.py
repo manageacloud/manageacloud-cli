@@ -507,12 +507,13 @@ def parse_params(raw, params_raw):
     """
 
     clean = raw
+    params_found = []
     if params_raw is not None:
         for param in params_raw:
             key, value = param.split("=", 1)
             clean_tmp = clean.replace("{%s}" % key, value)
-            if clean == clean_tmp:
-                raise MacParseParamException("Variable %s could not be found in macfile" % key)
+            if clean != clean_tmp:
+                params_found.append(key)
             clean = clean_tmp
 
     if re.search(r'{([a-zA-Z_\-]*?)}', clean, re.MULTILINE):
@@ -522,4 +523,4 @@ def parse_params(raw, params_raw):
                                      "\n"
                                      "Available parameters %s" % (clean, str(params_raw)))
 
-    return clean
+    return clean, params_found

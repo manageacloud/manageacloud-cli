@@ -8,7 +8,9 @@ def resolve_inheritance(macfile_str, params):
     """
     Loads the macfile and solves the inheritance
     """
-    raw = maccli.helper.macfile.parse_params(macfile_str, params)
+    params_found = []
+    raw, found = maccli.helper.macfile.parse_params(macfile_str, params)
+    params_found += found
     raw = ordered_load(raw, yaml.SafeLoader)
 
     if 'parents' in raw:  # there is inheritance
@@ -17,7 +19,8 @@ def resolve_inheritance(macfile_str, params):
         parents_raw = {}
         for parent in raw['parents']:
             parent_raw = maccli.helper.macfile.load_macfile(raw['parents'][parent])
-            parent_raw = maccli.helper.macfile.parse_params(parent_raw, params)
+            parent_raw, found = maccli.helper.macfile.parse_params(parent_raw, params)
+            params_found += found
             parents_raw[parent] = ordered_load(parent_raw, yaml.SafeLoader)
 
         # lets read the original file and paste all the information from the parent class
@@ -110,6 +113,11 @@ def resolve_inheritance(macfile_str, params):
             maccli.logger.debug("Inheritance defines clean infrastructure %s", clean_infrastructures)
             raw['infrastructures'] = clean_infrastructures
 
+        if len(set(params_found)) != len(set(params)):
+            # remove found parameters
+            missing_parameters = [x for x in params if x.split("=")[0] not in params_found]
+            raise MacParseParamException("Variable(s) %s could not be found in macfile" % missing_parameters)
+
         # remove the parents
         del raw['parents']
 
@@ -117,8 +125,12 @@ def resolve_inheritance(macfile_str, params):
 
 
 def _merge_dictionaries(base, new_values):
-    total = base
-    for key in new_values:
-        value = new_values[key]
-        total[key] = value
+    if isinstance(new_values, basestring):
+        total = new_values
+    else:
+        total = base
+        for key in new_values:
+            value = new_values[key]
+            total[key] = value
+
     return total

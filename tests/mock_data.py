@@ -47,7 +47,8 @@ MACFILE_PARAMS_VALID = ['VERSION=1.0', 'LOCATION=us-central1-c', 'AMOUNT=1']
 MACFILE_PARAMS_EMPTY = []
 MACFILE_PARAMS_ONE_MISSING = ['VERSION=1.0', 'LOCATION=us-central1-c']
 
-MOCK_MACFILE_PARAMS_INVALID_ROLES_ENVIRONMENT = """
+# more than invalid is that is not using "-"m which this version
+MOCK_MACFILE_PARAMS_ROLES_ENVIRONMENT_NO_DASH = """
 mac: 0.9.19
 description: Wordpress Containers
 name: application_1
