@@ -99,13 +99,20 @@ def ssh_command_instance(instance_id, cmd):
                 """ Authentication with password """
                 command = "ssh %s %s@%s %s" % (ssh_params, instance['user'], instance['ip'], cmd)
                 child = pexpect.spawn(command)
-                i = child.expect(['.* password:', "yes/no"], timeout=120)
-                if i == 1:
+                (rows, cols) = gettermsize()
+                child.setwinsize(rows, cols)  # set the child to the size of the user's term
+                i = child.expect(['.* password:', "yes/no", '(.*)'], timeout=60)
+                if i == 0:
+                    child.sendline(instance['password'])
+                    child.expect(pexpect.EOF, timeout=120)
+                elif i == 1:
                     child.sendline("yes")
-                    child.expect('.* password:', timeout=120)
+                    child.expect('.* password:', timeout=60)
+                    child.sendline(instance['password'])
+                    child.expect(pexpect.EOF, timeout=120)
+                elif i == 2:
+                    child.expect(pexpect.EOF, timeout=120)
 
-                child.sendline(instance['password'])
-                child.expect(pexpect.EOF, timeout=120)
                 output = child.before
 
                 while child.isalive():
@@ -168,13 +175,18 @@ def ssh_interactive_instance(instance_id):
             child = pexpect.spawn(command)
             (rows, cols) = gettermsize()
             child.setwinsize(rows, cols)  # set the child to the size of the user's term
-            i = child.expect(['.* password:', "yes/no"], timeout=60)
-            if i == 1:
+            i = child.expect(['.* password:', "yes/no", '[#\$] '], timeout=60)
+            if i == 0:
+                child.sendline(instance['password'])
+                child.interact()
+            elif i == 1:
                 child.sendline("yes")
                 child.expect('.* password:', timeout=60)
-
-            child.sendline(instance['password'])
-            child.interact()
+                child.sendline(instance['password'])
+                child.interact()
+            elif i == 2:
+                child.sendline("\n")
+                child.interact()
 
     return stdout
 
