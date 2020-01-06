@@ -20,7 +20,7 @@ def get_auth_header(auth = None):
 def send_request(method, path, auth=None, data=None, **kwargs):
     json_content = None
     url = urljoin(maccli.base_url, path.strip("/"))
-    maccli.logger.info("%s %s %s" % (method, url, kwargs.get('data', '')))
+    maccli.logger.info("%s %s %s %s" % (method, url, data, kwargs.get('data', '')))
     # construct headers
     headers = {'Content-Type': 'application/json', 'User-Agent': 'python-manageacloud/v%s' % maccli.__version__}
     headers.update(get_auth_header(auth))

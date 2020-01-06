@@ -49,13 +49,13 @@ class CmdTestCase(unittest.TestCase):
         rc, stdout, stderr = maccli.helper.cmd.run("ls '*'")
         self.assertEqual(rc, 2)
         self.assertEqual(stdout, '')
-        self.assertEqual(stderr, 'ls: cannot access *: No such file or directory\n')
+        self.assertEqual(stderr, 'ls: cannot access \'*\': No such file or directory\n')
 
     def test_double_quotes(self):
         rc, stdout, stderr = maccli.helper.cmd.run('ls "*"')
         self.assertEqual(rc, 2)
         self.assertEqual(stdout, '')
-        self.assertEqual(stderr, 'ls: cannot access *: No such file or directory\n')
+        self.assertEqual(stderr, 'ls: cannot access \'*\': No such file or directory\n')
 
     def test_absolute_path(self):
         path = '/this/is/absolute'

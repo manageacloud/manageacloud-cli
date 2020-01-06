@@ -18,6 +18,11 @@ class ParserCliTestCase(unittest.TestCase):
         self.assertEqual(maccli.parser_cli.validate_environment("A_VALUE=dos2"), {'A_VALUE':'dos2'})
         self.assertEqual(maccli.parser_cli.validate_environment("a_value=dos2"), {'a_value':'dos2'})
         self.assertEqual(maccli.parser_cli.validate_environment("a_value=dos2=3"), {'a_value':'dos2=3'})
+        self.assertEqual(maccli.parser_cli.validate_environment("""a_value=UNO
+        DOS
+        TRES"""), {'a_value':'''UNO
+        DOS
+        TRES'''})
         self.assertEqual(maccli.parser_cli.validate_environment("BENCH_CREATION=-i -s 70"), {'BENCH_CREATION':'-i -s 70'})
 
     def test_validate_hd(self):

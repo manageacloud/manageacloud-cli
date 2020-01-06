@@ -269,7 +269,7 @@ def validate_environment(input):
         Checks that the input parameter has the format
         KEY=VALUE
     """
-    a = re.compile("^[A-Z0-9\_\-]+\=.+$", re.IGNORECASE)
+    a = re.compile("^[A-Z0-9\_\-]+\=(.|\n)+$", re.IGNORECASE)
     match = a.match(input)
     if not match:
         msg = "'%s' environment contains invalid characters or the format KEY=VALUE is not correct" % input
