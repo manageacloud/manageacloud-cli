@@ -2,20 +2,20 @@
 Manageacloud is a flexible orchestration platform. It allows you to create, destroy and organise servers and infrastructures.
 
 ## Features
- - Orchestrate servers
- - Orchestrate production ready infrastructure (golden images, autoscaling groups, load balancers, etc)
- - Versioning servers and infrastructure
- - Empower Continuous Delivery
- - View who is the owner of the resources (servers and infrastructure)
- - Interact with your servers using a Command Line Interface, REST Api or Web Interface
- - Manage access to servers
- - Convert your infrastructure into code
- - Orchestrate servers using your existing automation codes (eg Docker, Puppet, Chef, SaltStack, etc)
- - Test server configurations easily
- - Integrate any technology that can be operated from the command line interface or an API
- - Keep the history (including logs) of servers and infrastructure
- - Trigger events via WebHooks
- - Although Manageacloud is technology agnostic, we have created some shortcuts for easier operation with Amazon Web Services, Google Compute Engine, Rackspace and Digital Ocean
+- Orchestrate servers
+- Orchestrate production ready infrastructure (golden images, autoscaling groups, load balancers, etc)
+- Versioning servers and infrastructure
+- Empower Continuous Delivery
+- View who is the owner of the resources (servers and infrastructure)
+- Interact with your servers using a Command Line Interface, REST Api or Web Interface
+- Manage access to servers
+- Convert your infrastructure into code
+- Orchestrate servers using your existing automation codes (eg Docker, Puppet, Chef, SaltStack, etc)
+- Test server configurations easily
+- Integrate any technology that can be operated from the command line interface or an API
+- Keep the history (including logs) of servers and infrastructure
+- Trigger events via WebHooks
+- Although Manageacloud is technology agnostic, we have created some shortcuts for easier operation with Amazon Web Services, Google Compute Engine, Rackspace and Digital Ocean
 
 # Installation
 
@@ -71,14 +71,3 @@ The following example:
 mac -s infrastructure macfile https://goo.gl/ezRWx1 -p INF_VERSION=2 APP_BRANCH=version_2
 ```
 
-
-## Build status
-
-Distribution  | Status
-------------- | -------------
-[Ubuntu Ubuntu Vivid Vervet 15.04](https://manageacloud.com/configuration/mac) | [![Ubuntu Ubuntu Vivid Vervet 15.04](https://manageacloud.com/configuration/mac/build/8/image)](https://manageacloud.com/configuration/mac/builds)
-[Debian Wheezy 7.0](https://manageacloud.com/configuration/mac) | [![Debian Wheezy 7.0](https://manageacloud.com/configuration/mac/build/1/image)](https://manageacloud.com/configuration/mac/builds)
-[Ubuntu Trusty Tahr 14.04](https://manageacloud.com/configuration/mac) | [![Ubuntu Trusty Tahr 14.04](https://manageacloud.com/configuration/mac/build/2/image)](https://manageacloud.com/configuration/mac/builds)
-[Debian Jessie 8](https://manageacloud.com/configuration/mac) | [![Debian Jessie 8](https://manageacloud.com/configuration/mac/build/7/image)](https://manageacloud.com/configuration/mac/builds)
-[CentOS 7](https://manageacloud.com/configuration/mac) | [![CentOS 7](https://manageacloud.com/configuration/mac/build/5/image)](https://manageacloud.com/configuration/mac/builds)
-[Ubuntu Utopic Unicorn 14.10](https://manageacloud.com/configuration/mac) | [![Ubuntu Utopic Unicorn 14.10](https://manageacloud.com/configuration/mac/build/6/image)](https://manageacloud.com/configuration/mac/builds)
