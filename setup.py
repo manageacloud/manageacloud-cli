@@ -20,11 +20,20 @@ def find_version(*file_paths):
     raise RuntimeError('Unable to find version string.')
 
 
+def find_long_description():
+    this_directory = os.path.abspath(os.path.dirname(__file__))
+    with open(os.path.join(this_directory, 'README.rst')) as f:
+        long_description = f.read()
+    return long_description
+
+
 with open('requirements.txt') as f:
     install_requires = f.read().splitlines()
 
 setup(
     name='mac',
+    long_description=find_long_description(),
+    long_description_content_type='text/x-rst',
     version=find_version('maccli', '__init__.py'),
     packages=find_packages(),
     install_requires=install_requires,
@@ -33,7 +42,7 @@ setup(
             ['mac = maccli.mac_cli:main']
     },
     include_package_data=True,
-    author='R3Systems Pty Ltd',
+    author='Manageacloud Services Pty LTD',
     author_email='support@manageacloud.com',
     description='Technology agnostic orchestration framework',
     license='Apache v2',
@@ -42,7 +51,7 @@ setup(
     url='https://manageacloud.com',
     test_suite='tests',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
