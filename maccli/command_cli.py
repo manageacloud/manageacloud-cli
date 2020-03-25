@@ -93,6 +93,9 @@ def instance_list():
 
 def instance_ssh(raw_ids, command):
 
+    # TODO move to parameter
+    active_job_limit = 50
+
     if raw_ids == ["all"]:  # run in all instances
         ids = service.instance.list_instances()
     else:
@@ -100,25 +103,75 @@ def instance_ssh(raw_ids, command):
 
     try:
         # array for job list
-        jobs = []
+        jobs = {}
 
+        maccli.logger.debug("Starting threads for command %s" % command)
+        #print("Starting threads for command %s" % command)
+
+        started_count = 0
+        completed_count = 0
+        total_count = len(ids)
         for id in ids:
+            server_name = id["servername"]
+            raw_id = id["id"]
             if command is None:
                 service.instance.ssh_interactive_instance(id['id'])
             else:
                 # define and add job
-                t = threading.Thread(target=_run_cmd_simple,args=(id["servername"], id["id"], command))
-                jobs.append(t)
+                t = threading.Thread(target=_run_cmd_simple,args=(server_name, raw_id, command))
 
-        for j in jobs:
-            j.start()
-        for j in jobs:
-            j.join()
+                maccli.logger.debug("Starting job for %s. Active Jobs: %s." % (server_name, len(jobs)))
+                if not t.is_alive():
+                    started_count += 1
+                    t.start()
+
+                jobs[raw_id] = t
+
+                # check if we are above the limit
+                need_to_sleep = True
+                while len(jobs) >= active_job_limit:
+                    maccli.logger.debug("Job limit reached. Active Jobs: %s." % len(jobs))
+
+                    for key in jobs.keys():
+                        if not jobs[key].is_alive():
+                            completed_count += 1
+                            show("Status: %s/%s/%s" % (completed_count, started_count , total_count))
+                            jobs[key].join()
+                            del jobs[key]
+                            need_to_sleep = False
+                        maccli.logger.debug("Job finished. Active Jobs: %s." % len(jobs))
+
+                    if need_to_sleep:
+                        time.sleep(1)
+
+        # waiting for the existing thread to finish.
+        # if a thread is too slow, we will report it
+        slow_threads = {}
+        while len(jobs) > 0:
+            for key in jobs.keys():
+                if not jobs[key].is_alive():
+                    completed_count += 1
+                    show("Status: %s/%s/%s" % (completed_count, started_count, total_count))
+                    jobs[key].join()
+                    del jobs[key]
+                    if key in slow_threads:
+                        del slow_threads[key]
+                else:
+                    if key in slow_threads:
+                        if slow_threads[key] > 10:
+                            show("Server %s is running the query slow: %s secs" % (key, slow_threads[key]))
+                        slow_threads[key] += 1
+                    else:
+                        slow_threads[key] = 1
+
+            time.sleep(1)
 
     except KeyboardInterrupt:
         show_error("Aborting")
     except Exception as e:
+        tb = traceback.format_exc()
         show_error(e)
+        show_error(tb)
         sys.exit(EXCEPTION_EXIT_CODE)
 
 

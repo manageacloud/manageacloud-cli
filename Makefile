@@ -1,3 +1,8 @@
+# To run the development version
+#    make prepare
+#    source ./venv/bin/activate
+#    python  -m maccli.mac_cli
+
 clean:
 	rm -rf venv
 	find . -name '*.pyc ' -delete
