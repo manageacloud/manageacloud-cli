@@ -44,7 +44,8 @@ def help():
 def login():
     try:
         maccli.view.view_generic.show("")
-        maccli.view.view_generic.show("If you are using Manageacloud SaaS and you don't have credentials, please register at https://manageacloud.com")
+        maccli.view.view_generic.show(
+            "If you are using Manageacloud SaaS and you don't have credentials, please register at https://manageacloud.com")
         maccli.view.view_generic.show("")
         maccli.view.view_generic.show("If you are using Manageacloud Community please set the following variable:")
         maccli.view.view_generic.show("    export MAC=http://my_community_server/api/v1/")
@@ -82,7 +83,7 @@ def no_credentials():
 
 
 def instance_list():
-    #try:
+    # try:
     json = maccli.service.instance.list_instances()
     maccli.view.view_instance.show_instances(json)
 
@@ -92,7 +93,6 @@ def instance_list():
 
 
 def instance_ssh(raw_ids, command):
-
     # TODO move to parameter
     active_job_limit = 50
 
@@ -106,7 +106,6 @@ def instance_ssh(raw_ids, command):
         jobs = {}
 
         maccli.logger.debug("Starting threads for command %s" % command)
-        #print("Starting threads for command %s" % command)
 
         started_count = 0
         completed_count = 0
@@ -118,7 +117,7 @@ def instance_ssh(raw_ids, command):
                 maccli.service.instance.ssh_interactive_instance(id['id'])
             else:
                 # define and add job
-                t = threading.Thread(target=_run_cmd_simple,args=(server_name, raw_id, command))
+                t = threading.Thread(target=_run_cmd_simple, args=(server_name, raw_id, command))
 
                 maccli.logger.debug("Starting job for %s. Active Jobs: %s." % (server_name, len(jobs)))
                 if not t.is_alive():
@@ -132,10 +131,11 @@ def instance_ssh(raw_ids, command):
                 while len(jobs) >= active_job_limit:
                     maccli.logger.debug("Job limit reached. Active Jobs: %s." % len(jobs))
 
-                    for key in jobs.keys():
+                    keys = list(jobs.keys())
+                    for key in keys:
                         if not jobs[key].is_alive():
                             completed_count += 1
-                            show("Status: %s/%s/%s" % (completed_count, started_count , total_count))
+                            show("Status: %s/%s/%s" % (completed_count, started_count, total_count))
                             jobs[key].join()
                             del jobs[key]
                             need_to_sleep = False
@@ -148,7 +148,10 @@ def instance_ssh(raw_ids, command):
         # if a thread is too slow, we will report it
         slow_threads = {}
         while len(jobs) > 0:
-            for key in jobs.keys():
+
+            keys = list(jobs.keys())
+            for key in keys:
+
                 if not jobs[key].is_alive():
                     completed_count += 1
                     show("Status: %s/%s/%s" % (completed_count, started_count, total_count))
@@ -181,20 +184,20 @@ def _run_cmd_simple(server_name, raw_id, command):
     if stdout:
         maccli.view.view_generic.show(stdout)
     if stderr:
+        maccli.view.view_generic.showc(raw_id, RED)
         maccli.view.view_generic.showc(stderr, RED)
-    maccli.view.view_generic.show()
+    #maccli.view.view_generic.show()
 
 
-def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servername, provider, release_raw, release_version_raw,
+def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servername, provider, release_raw,
+                    release_version_raw,
                     branch, hardware, lifespan, environments, hd, port, net):
-
     # allow format release:release_version, ie ubuntu:trusty
     if ":" in release_raw:
         release, release_version = release_raw.split(":", 1)
     else:
         release = release_raw
         release_version = release_version_raw
-
 
     # TODO check if cookbook_tag exists
     # TODO validate bootstrap inputs
@@ -212,10 +215,11 @@ def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servernam
                 show()
                 if len(locations_json):
                     maccli.view.view_location.show_locations(locations_json)
-                    maccli.view.view_instance.show_create_example_with_parameters(cookbook_tag, bootstrap_raw, deployment,
-                                                                           locations_json[0]['id'], servername,
-                                                                           provider, release, release_version,
-                                                                           branch, hardware)
+                    maccli.view.view_instance.show_create_example_with_parameters(cookbook_tag, bootstrap_raw,
+                                                                                  deployment,
+                                                                                  locations_json[0]['id'], servername,
+                                                                                  provider, release, release_version,
+                                                                                  branch, hardware)
 
                 else:
                     type = None
@@ -230,7 +234,7 @@ def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servernam
                 maccli.view.view_instance.show_instance_help()
 
         elif deployment == "production" and hardware is None or \
-                                        deployment == "testing" and provider != "default" and hardware is None:
+                deployment == "testing" and provider != "default" and hardware is None:
             hardwares = maccli.service.provider.list_hardwares(provider, location, release)
             show()
             show("--hardware not found. You must choose the hardware.")
@@ -239,8 +243,10 @@ def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servernam
             show()
             maccli.view.view_hardware.show_hardwares(hardwares)
             if (len(hardwares) > 0):
-                maccli.view.view_instance.show_create_example_with_parameters(cookbook_tag, bootstrap_raw, deployment, location, servername,
-                                                                       provider, release, release_version, branch, hardwares[0]['id'])
+                maccli.view.view_instance.show_create_example_with_parameters(cookbook_tag, bootstrap_raw, deployment,
+                                                                              location, servername,
+                                                                              provider, release, release_version,
+                                                                              branch, hardwares[0]['id'])
         else:
             """ Execute create instance """
 
@@ -265,8 +271,9 @@ def instance_create(cookbook_tag, bootstrap_raw, deployment, location, servernam
                 show_error("Server contains no configuration")
             else:
                 instance = maccli.service.instance.create_instance(cookbook_tag, bootstrap, deployment, location,
-                                                            servername, provider, release, release_version,
-                                                            branch, hardware, lifespan, environments, hd, port, net)
+                                                                   servername, provider, release, release_version,
+                                                                   branch, hardware, lifespan, environments, hd, port,
+                                                                   net)
                 if instance is not None:
                     maccli.view.view_instance.show_instance(instance)
 
@@ -376,10 +383,10 @@ def credentials(provider, clientid, key_raw, force_file):
 
 
 def resouce_get_stdout(infrastructure_name, infrastructure_version, resource_name, key):
-
     try:
-        output = maccli.service.resource.get_resource_value(infrastructure_name, infrastructure_version, resource_name, key)
-        if isinstance(output,str):
+        output = maccli.service.resource.get_resource_value(infrastructure_name, infrastructure_version, resource_name,
+                                                            key)
+        if isinstance(output, str):
             sys.stdout.write(output)
         else:
             print(output)
@@ -460,7 +467,8 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 maccli.view.view_generic.show()
                 maccli.view.view_generic.show()
                 maccli.view.view_generic.show_error(
-                    "There are active instances for infrastructure '%s' and version '%s'" % (root['name'], root['version']))
+                    "There are active instances for infrastructure '%s' and version '%s'" % (
+                    root['name'], root['version']))
                 maccli.view.view_generic.show()
                 maccli.view.view_generic.show()
                 maccli.view.view_infrastructure.show_infrastructure_instances(existing_infrastructures)
@@ -472,7 +480,8 @@ def process_macfile(file, resume, params, quiet, on_failure):
                     "infrastructure using the same version.")
                 maccli.view.view_generic.show("")
                 maccli.view.view_generic.show("To destroy the complete infrastructure:")
-                maccli.view.view_generic.show("    mac infrastructure destroy <infrastructure name> <infrastructure version>")
+                maccli.view.view_generic.show(
+                    "    mac infrastructure destroy <infrastructure name> <infrastructure version>")
                 maccli.view.view_generic.show("")
                 maccli.view.view_generic.show("To view the infrastructure available:")
                 maccli.view.view_generic.show("    mac infrastructure list")
@@ -480,7 +489,6 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 maccli.view.view_generic.show("To view the resources and instances in a infrastructure:")
                 maccli.view.view_generic.show("    mac infrastructure items")
                 maccli.view.view_generic.show("")
-
 
                 exit(7)
 
@@ -498,15 +506,24 @@ def process_macfile(file, resume, params, quiet, on_failure):
             if not quiet:
                 maccli.view.view_generic.clear()
                 maccli.view.view_instance.show_instances(processing_instances)
-                maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, infrastructure_resources_processed)
+                maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures,
+                                                                              infrastructure_resources_processed)
 
             # apply configuration to the instances
-            maccli.facade.macfile.apply_instance_infrastructure_changes(processing_instances, root['name'], root['version'], quiet, infrastructures, infrastructure_resources_processed)
+            maccli.facade.macfile.apply_instance_infrastructure_changes(processing_instances, root['name'],
+                                                                        root['version'], quiet, infrastructures,
+                                                                        infrastructure_resources_processed)
 
             # process resources
             finish = True
             try:
-                processed_resources_part, finish_resources = maccli.facade.macfile.apply_resources(processing_instances, infrastructure_resources_processed, processing_instances, roles, infrastructures, actions, resources, root, quiet)
+                processed_resources_part, finish_resources = maccli.facade.macfile.apply_resources(processing_instances,
+                                                                                                   infrastructure_resources_processed,
+                                                                                                   processing_instances,
+                                                                                                   roles,
+                                                                                                   infrastructures,
+                                                                                                   actions, resources,
+                                                                                                   root, quiet)
                 maccli.logger.debug("Resources processed this run: %s " % processed_resources_part)
                 infrastructure_resources_processed = infrastructure_resources_processed + processed_resources_part
                 maccli.logger.debug("Total resources processed: %s " % infrastructure_resources_processed)
@@ -519,9 +536,11 @@ def process_macfile(file, resume, params, quiet, on_failure):
             # check instances has been processed
             processing_instances = maccli.service.instance.list_by_infrastructure(root['name'], root['version'])
             for instance in processing_instances:
-                if not (instance['status'].startswith("Ready") or instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
+                if not (instance['status'].startswith("Ready") or instance['status'] == CREATION_FAILED or instance[
+                    'status'] == CONFIGURATION_FAILED):
                     finish = False
-                if on_failure is not None and (instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
+                if on_failure is not None and (
+                        instance['status'] == CREATION_FAILED or instance['status'] == CONFIGURATION_FAILED):
                     finish = finish and True
 
             if infrastructure_resources_failed:
@@ -534,7 +553,8 @@ def process_macfile(file, resume, params, quiet, on_failure):
         if not quiet:
             maccli.view.view_generic.clear()
         maccli.view.view_instance.show_instances(instances_processed)
-        maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures, infrastructure_resources_processed)
+        maccli.view.view_infrastructure.show_infrastructure_resources(infrastructures,
+                                                                      infrastructure_resources_processed)
         maccli.view.view_generic.show("")
         maccli.view.view_resource.show_resources(infrastructure_resources_processed)
 
@@ -689,7 +709,8 @@ def infrastructure_destroy(name, version):
 
             for resource in infrastructure['resources']:
                 try:
-                    maccli.facade.macfile.destroy_resource(resource, infrastructure['cloudServers'], infrastructure['resources'])
+                    maccli.facade.macfile.destroy_resource(resource, infrastructure['cloudServers'],
+                                                           infrastructure['resources'])
                 except MacJsonException as e:
                     maccli.view.view_generic.showc("\nError while destroying resource %s\n\n" % resource['name'], RED)
                     maccli.view.view_generic.showc("Error while navigating json! %s\n" % e.message, RED)
@@ -739,7 +760,7 @@ def infrastructure_ssh_keys(name, version, known_host):
                     show(ssh_key['stdout'])
 
     except KeyboardInterrupt:
-       show_error("Aborting")
+        show_error("Aborting")
     except Exception as e:
-       show_error(e)
-       sys.exit(EXCEPTION_EXIT_CODE)
+        show_error(e)
+        sys.exit(EXCEPTION_EXIT_CODE)

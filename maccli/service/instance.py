@@ -13,7 +13,7 @@ import maccli.helper.metadata
 from maccli.helper.exception import InstanceDoesNotExistException, InstanceNotReadyException
 
 
-def list_instances(name_or_ids = None):
+def list_instances(name_or_ids=None):
     """
         List available instances in the account
     """
@@ -57,7 +57,6 @@ def list_by_infrastructure(name, version):
 
 
 def ssh_command_instance(instance_id, cmd):
-
     rc, stdout, stderr = -1, "", ""
     cache_hash = maccli.helper.simplecache.hash_value(cmd)
     cache_key = 'ssh_%s_%s' % (instance_id, cache_hash)
@@ -88,13 +87,18 @@ def ssh_command_instance(instance_id, cmd):
                 tmp_fpath = tempfile.mkstemp()
                 try:
                     with open(tmp_fpath[1], "wb") as f:
-                        f.write(bytes(instance['privateKey'],  encoding='utf8'))
+                        f.write(bytes(instance['privateKey'], encoding='utf8'))
+
+                    # openssh 7.6, it defaults to a new more secure format.
+                    command = "ssh-keygen -f %s -p -N ''" % f.name
+                    maccli.helper.cmd.run(command)
 
                     command = "ssh %s %s@%s -i %s %s" % (ssh_params, instance['user'], instance['ip'], f.name, cmd)
+
                     rc, stdout, stderr = maccli.helper.cmd.run(command)
 
                 finally:
-                    os.remove(tmp_fpath[1])
+                   os.remove(tmp_fpath[1])
             else:
                 """ Authentication with password """
                 command = "ssh %s %s@%s %s" % (ssh_params, instance['user'], instance['ip'], cmd)
@@ -194,7 +198,7 @@ def ssh_interactive_instance(instance_id):
 def gettermsize():
     """ horrible non-portable hack to get the terminal size to transmit
         to the child process spawned by pexpect """
-    (rows, cols) = os.popen("stty size").read().split() # works on Mac OS X, YMMV
+    (rows, cols) = os.popen("stty size").read().split()  # works on Mac OS X, YMMV
     rows = int(rows)
     cols = int(cols)
     return rows, cols
@@ -206,8 +210,10 @@ def create_instance(cookbook_tag, bootstrap, deployment, location, servername, p
     """
         List available instances in the account
     """
-    return maccli.dao.api_instance.create(cookbook_tag, bootstrap, deployment, location, servername, provider, release, release_version,
-                                          branch, hardware, lifespan, environments, hd, port, net, metadata, applyChanges)
+    return maccli.dao.api_instance.create(cookbook_tag, bootstrap, deployment, location, servername, provider, release,
+                                          release_version,
+                                          branch, hardware, lifespan, environments, hd, port, net, metadata,
+                                          applyChanges)
 
 
 def destroy_instance(instanceid):
@@ -293,7 +299,7 @@ def create_instances_for_role(root, infrastructure, roles, infrastructure_key, q
 
     role_raw = roles[infrastructure_role]["instance create"]
     metadata = maccli.helper.metadata.metadata_instance(root, infrastructure_key, infrastructure_role, role_raw,
-                        infrastructure)
+                                                        infrastructure)
     instances = create_tier(role_raw, infrastructure, metadata, quiet)
     roles_created[infrastructure_role] = instances
 

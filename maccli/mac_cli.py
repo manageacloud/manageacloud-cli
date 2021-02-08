@@ -15,8 +15,6 @@ from maccli.helper.exception import InternalError
 from maccli.view.view_generic import show_error
 
 
-#sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-
 # TODO lib aliases is kind of failing ... not sure why
 class AliasedSubParsersAction(argparse._SubParsersAction):
     old_init = staticmethod(argparse._ActionsContainer.__init__)
