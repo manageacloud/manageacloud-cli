@@ -3,7 +3,7 @@ import unittest
 import mock
 from argparse import ArgumentTypeError
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.parser_cli
 
 

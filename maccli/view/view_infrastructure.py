@@ -1,4 +1,3 @@
-from __future__ import print_function
 from prettytable import PrettyTable
 import maccli
 
@@ -84,7 +83,7 @@ def show_infrastructure_resources(infrastructures, infrastructures_resources_pro
             resource_name = infrastructure[0]
             status = "Pending"
             for resource_processed in infrastructures_resources_processed:
-                key = resource_processed.iterkeys().next()
+                key = list(resource_processed.keys())[0]
                 if key == resource_name:
                     rp = resource_processed[key]
                     rc = rp['rc']

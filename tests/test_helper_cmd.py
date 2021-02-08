@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.helper.cmd
 
 #
@@ -37,7 +37,7 @@ class CmdTestCase(unittest.TestCase):
         rc, stdout, stderr = maccli.helper.cmd.run("date invalid_date")
         self.assertEqual(rc, 1)
         self.assertEqual(stdout, "")
-        self.assertEqual(stderr, 'date: invalid date \xe2\x80\x98invalid_date\xe2\x80\x99\n')
+        self.assertEqual(stderr, 'date: invalid date ‘invalid_date’\n')
 
     def test_environment_variables(self):
         rc, stdout, stderr = maccli.helper.cmd.run('MY_ENV=1 env | grep MY_ENV')

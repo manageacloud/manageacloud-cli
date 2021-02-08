@@ -1,12 +1,11 @@
 import unittest
 import sys
-import StringIO
+from io import StringIO
 
 import mock
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.command_cli
-
 
 DEFAULT_DEPLOYMENT = "testing"
 DEFAULT_PROVIDER = "default"
@@ -20,13 +19,12 @@ DEFAULT_NET = ""
 class AuthTestCase(unittest.TestCase):
     def setUp(self):
         self.stdout = sys.stdout
-        sys.stdout = self.buf = StringIO.StringIO()
-        #pass
+        sys.stdout = self.buf = StringIO()
+        # pass
 
     def tearDown(self):
         sys.stdout = self.stdout
-        #pass
-
+        # pass
 
     @mock.patch('maccli.service.instance.list_instances')
     def test_instance_list(self, mock_list_instances):
@@ -34,8 +32,10 @@ class AuthTestCase(unittest.TestCase):
         maccli.command_cli.instance_list()
 
     def test_instance_create_no_args(self):
-        maccli.command_cli.instance_create(None, None, DEFAULT_DEPLOYMENT, None, None, DEFAULT_PROVIDER, DEFAULT_RELEASE, None,
-                                           DEFAULT_BRANCH, None, DEFAULT_LIFESPAN, None, None, DEFAULT_PORT, DEFAULT_NET)
+        maccli.command_cli.instance_create(None, None, DEFAULT_DEPLOYMENT, None, None, DEFAULT_PROVIDER,
+                                           DEFAULT_RELEASE, None,
+                                           DEFAULT_BRANCH, None, DEFAULT_LIFESPAN, None, None, DEFAULT_PORT,
+                                           DEFAULT_NET)
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CREATE_INSTANCE_NO_INPUT.split()), ' '.join(out.split()))
 
@@ -66,7 +66,6 @@ class AuthTestCase(unittest.TestCase):
                                            DEFAULT_PORT, DEFAULT_NET)
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CREATE_INSTANCE_PRODUCTION_NO_HARDWARE.split()), ' '.join(out.split()))
-
 
     @mock.patch('maccli.service.instance.create_instance')
     def test_instance_create_development(self, mock_instance):
@@ -107,7 +106,6 @@ class AuthTestCase(unittest.TestCase):
         out = self.buf.getvalue()
         self.assertEqual(' '.join(OUTPUT_CONFIGURATION_LIST.split()), ' '.join(out.split()))
 
-
     @mock.patch('maccli.view.view_generic.general_help')
     def test_help(self, mock):
         maccli.command_cli.help()
@@ -132,4 +130,3 @@ class AuthTestCase(unittest.TestCase):
     def test_instance_help(self, mock):
         maccli.command_cli.configuration_help()
         self.assertTrue(mock.called)
-

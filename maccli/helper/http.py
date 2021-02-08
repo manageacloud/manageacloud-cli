@@ -1,7 +1,7 @@
-from urlparse import urljoin
+from urllib.parse import urljoin
 from httplib2 import Http
 import json
-from urllib import urlencode
+from urllib.parse import urlencode
 
 from maccli.helper.exception import MacApiError, MacAuthError
 import maccli

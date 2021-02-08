@@ -3,7 +3,7 @@ import unittest
 import mock
 
 import maccli.service.instance
-from mock_data import *
+from tests.mock_data import *
 
 
 DEFAULT_SERVERNAME = "servername"
@@ -57,7 +57,7 @@ class AuthTestCase(unittest.TestCase):
     # @mock.patch('dao.api_instance.credentials')
     # def test_ssh_instance_privateKey(self, mock_credentials, mock_os):
     #     mock_credentials.return_value = MOCK_INSTANCE_CREDENTIALS_PASS_JSON
-    #     service.instance.ssh_instance(DEFAULT_SERVERNAME, DEFAULT_SESSIONID)
+    #     maccli.service.instance.ssh_instance(DEFAULT_SERVERNAME, DEFAULT_SESSIONID)
 
 
 

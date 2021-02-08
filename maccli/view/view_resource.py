@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 import maccli.view.view_generic
 from prettytable import PrettyTable

@@ -1,7 +1,7 @@
-from __future__ import print_function
 from collections import OrderedDict
 import os
 import urllib
+from functools import reduce
 
 import yaml
 import yaml.representer
@@ -90,7 +90,7 @@ def convert_args_to_yaml(args):
     data["infrastructures"] = infrastructures
 
     yaml.add_representer(UnsortableOrderedDict, yaml.representer.SafeRepresenter.represent_dict)
-    return yaml.dump(data, default_flow_style=False)
+    return yaml.dump(data, default_flow_style=False, sort_keys=False)
 
 
 def validate_param(actual, expected, optional=None):
@@ -100,7 +100,7 @@ def validate_param(actual, expected, optional=None):
     else:
         unexpected_optional = unexpected
 
-    if len(unexpected_optional):
+    if _ilen(unexpected_optional):
         error = "Incorrect file format. The following parameters are unexpected:\n"
         for p in unexpected_optional:
             error += " - %s\n" % p
@@ -116,7 +116,7 @@ def validate_param(actual, expected, optional=None):
     else:
         notpresent_optional = notpresent
 
-    if len(notpresent_optional):
+    if _ilen(notpresent_optional):
         error = "Incorrect file format. The following parameters are needed and not present:\n"
         for p in notpresent_optional:
             error += " - %s\n" % p
@@ -157,8 +157,8 @@ def parse_macfile(raw):
     raw_root_keys = raw.keys()
     try:
         validate_param(raw_root_keys, root_params, root_params_optional)
-    except MacParamValidationError, e:
-        show_error(e.message)
+    except MacParamValidationError as e:
+        show_error(e)
         exit(1)
 
     # validate roles
@@ -181,8 +181,8 @@ def parse_macfile(raw):
                     for key_role in raw_role_keys:
                         raw_role = raw['roles'][key_role_root][key_role].keys()
                         validate_param(raw_role, role_params, role_optional_params)
-                except MacParamValidationError, e:
-                    show_error(e.message)
+                except MacParamValidationError as e:
+                    show_error(e)
                     exit(1)
 
                 if 'configuration' in raw['roles'][key_role_root]['instance create'] and 'bootstrap bash' in raw['roles'][key_role_root]['instance create']:
@@ -231,8 +231,8 @@ def parse_macfile(raw):
                     validate_param(raw_infrastructure_keys, infrastructure_root_params_mac, infrastructure_optional_params)
                 else:
                     validate_param(raw_infrastructure_keys, infrastructure_root_params, infrastructure_optional_params)
-            except MacParamValidationError, e:
-                show_error(e.message)
+            except MacParamValidationError as e:
+                show_error(e)
                 exit(1)
 
             actual_roles.append(raw['infrastructures'][key_infrastructure_root]["role"])
@@ -294,7 +294,7 @@ def parse_macfile(raw):
 
     # check the values of infrastructures > default > role
     not_existing_roles = is_unexpected(actual_roles, expected_roles)
-    if len(not_existing_roles):
+    if _ilen(not_existing_roles):
         print("The following roles are used under 'infrastructures' but are never defined:")
         for p in not_existing_roles:
             print(" - %s" % p)
@@ -302,7 +302,7 @@ def parse_macfile(raw):
 
     # check the values of infrastructures > default > role
     not_existing_roles = is_present(actual_roles, expected_roles)
-    if len(not_existing_roles):
+    if _ilen(not_existing_roles):
         print("WARNING! The following roles are defined but never user:")
         for p in not_existing_roles:
             print(" - %s" % p)
@@ -314,3 +314,7 @@ def parse_macfile(raw):
     }
 
     return root, raw['roles'], raw['infrastructures'], raw['actions'], raw['resources']
+
+
+def _ilen(iterable):
+    return reduce(lambda sum, element: sum + 1, iterable, 0)

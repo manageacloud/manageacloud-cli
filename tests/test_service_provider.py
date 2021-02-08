@@ -4,7 +4,7 @@ import mock
 
 import maccli.service.provider
 from maccli.config import RELEASE_ANY
-from mock_data import *
+from tests.mock_data import *
 
 
 DEFAULT_CONFIGURATION = "cookbook_tag"

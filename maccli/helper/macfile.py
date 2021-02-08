@@ -167,7 +167,7 @@ def parse_envs_dict(dict, instances, roles, infrastructures, actions, processed_
     total_processed = True
     for key in dict.keys():
         text_raw = dict[key]
-        if isinstance(text_raw, basestring):
+        if isinstance(text_raw, str):
             text, processed = parse_envs(text_raw, instances, roles, infrastructures, actions, processed_resources)
             total_processed = total_processed and processed
             if processed:

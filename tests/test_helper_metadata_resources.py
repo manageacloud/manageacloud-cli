@@ -3,7 +3,7 @@ import unittest
 import mock
 
 import maccli.helper.metadata
-from mock_data import *
+from tests.mock_data import *
 
 
 class HelperMetadataTestCase(unittest.TestCase):

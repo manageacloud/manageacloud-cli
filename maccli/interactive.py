@@ -3,7 +3,6 @@
 #   Please use with care.
 #
 
-from __future__ import unicode_literals
 import shlex
 from prompt_toolkit.styles import DefaultStyle
 from maccli.helper.exception import InternalError

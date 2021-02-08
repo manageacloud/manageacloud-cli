@@ -1,11 +1,11 @@
 import unittest
 import sys
-import StringIO
+from io import StringIO
 
 import mock
 from maccli.config import MACFILE_ON_FAILURE_DESTROY_ALL, MACFILE_ON_FAILURE_DESTROY_OTHERS
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.facade.macfile
 from maccli.helper.exception import MacParseEnvException
 
@@ -75,7 +75,7 @@ class TestFacadeMacfileTestCase(unittest.TestCase):
     @mock.patch('maccli.service.instance.destroy_instance')
     def test_clean_up_creation_failed_destroy_all(self, mock):
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
         failed =  maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_CREATION_FAILED_JSON, MACFILE_ON_FAILURE_DESTROY_ALL)
         mock.assert_any_call("id1")
         mock.assert_any_call("id2")
@@ -85,7 +85,7 @@ class TestFacadeMacfileTestCase(unittest.TestCase):
     @mock.patch('maccli.service.instance.destroy_instance')
     def test_clean_up_configuration_error_destroy_all(self, mock):
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
         failed =  maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_CONFIGURATION_ERROR_JSON, MACFILE_ON_FAILURE_DESTROY_ALL)
         mock.assert_any_call("id1")
         mock.assert_any_call("id2")
@@ -95,7 +95,7 @@ class TestFacadeMacfileTestCase(unittest.TestCase):
     @mock.patch('maccli.service.instance.destroy_instance')
     def test_clean_up_creation_failed_destroy_others(self, mock):
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
         failed =  maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_CREATION_FAILED_JSON, MACFILE_ON_FAILURE_DESTROY_OTHERS)
         mock.assert_any_call("id1")
         self.assertTrue(failed)
@@ -104,7 +104,7 @@ class TestFacadeMacfileTestCase(unittest.TestCase):
     @mock.patch('maccli.service.instance.destroy_instance')
     def test_clean_up_configuration_error_destroy_others(self, mock):
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
         failed = maccli.facade.macfile.clean_up(MOCK_RESPONSE_INSTANCE_LIST_CONFIGURATION_ERROR_JSON, MACFILE_ON_FAILURE_DESTROY_OTHERS)
         mock.assert_any_call("id1")
         self.assertTrue(failed)

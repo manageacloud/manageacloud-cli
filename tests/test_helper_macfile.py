@@ -2,7 +2,7 @@ import unittest
 import mock
 from maccli.helper.exception import MacParameterNotFound
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.helper.macfile
 
 
@@ -52,7 +52,7 @@ class HelperMacfileTestCase(unittest.TestCase):
         INSTANCES = [{u'status': u'Ready', u'servername': u'4oj-app-3000b0e3', u'lifespan': 3, u'ipv4': u'54.175.105.21', u'type': u'testing', u'id': u'44ojeae228l9d3aemcf4q2rcgk', u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'app_inf', u'environment_raw': [{u'DB_IP': u'127.0.0.1'}, {u'APP_BRANCH': u'master'}], u'version': u'1.0', u'name': u'demo', u'macfile_role_name': u'app'}, u'system': {u'infrastructure': {u'hardware': u't1.micro', u'deployment': u'testing', u'location': u'us-east-1', u'lifespan': 60, u'provider': u'amazon'}, u'role': {u'environment': {u'APP_BRANCH': u'master', u'DB_IP': u'127.0.0.1'}, u'cookbook_tag': u'demo_application', u'block_tags': [{}]}}}}]
         mock_run.return_value = 0, "i-3000b0e3", None
         actual, processed = maccli.helper.macfile.parse_envs(CMD_RAW, INSTANCES, MOCK_PARSE_MACFILE_V2_EXPECTED_ROLES, MOCK_PARSE_MACFILE_V2_EXPECTED_INFRASTRUCTURES, MOCK_PARSE_MACFILE_V2_EXPECTED_ACTIONS, [])
-        self.assertItemsEqual(actual, CMD_CLEAN)
+        self.assertEqual(actual, CMD_CLEAN)
         self.assertTrue(processed)
 
     @mock.patch('maccli.service.instance.ssh_command_instance')

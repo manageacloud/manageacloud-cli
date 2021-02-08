@@ -9,20 +9,20 @@ clean:
 
 prepare:clean
 	set -ex
-	virtualenv venv -p /usr/bin/python2.7
-	venv/bin/pip install -r requirements.txt
+	virtualenv venv -p /usr/bin/python3
+	venv/bin/pip3 install -r requirements.txt
 	#venv/bin/pip install .
 
 test:prepare
-	venv/bin/pip install mock nose
-	venv/bin/python setup.py nosetests
+	venv/bin/pip3 install mock nose
+	venv/bin/python3 setup.py nosetests
 
 publish-pypi:prepare
 	python setup.py sdist upload
 
 build-osx:prepare
-	venv/bin/pip install --upgrade pip
-	venv/bin/pip install pyinstaller
+	venv/bin/pip3 install --upgrade pip
+	venv/bin/pip3 install pyinstaller
 	venv/bin/pyinstaller mac.spec -y
 	mv dist/mac mac
 	mac/mac --version

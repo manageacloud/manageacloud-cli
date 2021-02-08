@@ -103,7 +103,7 @@ def get_resource_value(inf_name, inf_version, resource_name, key):
                 else:
                     value = value[key]
 
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 stdout = value
             else:
                 stdout = json.dumps(value, indent=4)

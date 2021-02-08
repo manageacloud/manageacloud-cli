@@ -23,5 +23,6 @@ def set_value(key, value):
 
 
 def hash_value(value):
-    md5 = hashlib.md5(value)
+    md5 = hashlib.md5()
+    md5.update(value.encode())
     return md5.hexdigest()

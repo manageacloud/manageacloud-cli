@@ -1,11 +1,11 @@
-import StringIO
+from io import StringIO
 import unittest
 
 import mock
 import sys
 
 import maccli.view.view_infrastructure
-from mock_data import *
+from tests.mock_data import *
 
 INFRASTRUCTURES = OrderedDict([('app_inf', OrderedDict([('name', 'app'), ('provider', 'amazon'), ('location', 'us-east-1'), ('hardware', 't1.micro'), ('role', 'app')])), ('build_lb_inf', OrderedDict([('resource', 'build_lb')])), ('register_lb_inf', OrderedDict([('resource', 'register_lb')]))])
 RESOURCES_PROCESSED = [{'build_lb_inf': {'rc': 0, 'stderr': '', 'stdout': '{\n    "DNSName": "my-load-balancer-1110685180.us-east-1.elb.amazonaws.com"\n}\n'}}, {'register_lb_inf': {'rc': 0, 'stderr': '', 'stdout': '{\n    "Instances": [\n        {\n            "InstanceId": "i-d3911600"\n        }\n    ]\n}\n'}}]
@@ -15,8 +15,8 @@ class InfrastructureViewTestCase(unittest.TestCase):
     def setUp(self):
         self.stderr = sys.stderr
         self.stdout = sys.stdout
-        sys.stderr = self.buf = StringIO.StringIO()
-        sys.stdout = self.bufout = StringIO.StringIO()
+        sys.stderr = self.buf = StringIO()
+        sys.stdout = self.bufout = StringIO()
         # pass
 
     def tearDown(self):

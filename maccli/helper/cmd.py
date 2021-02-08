@@ -26,4 +26,4 @@ def run(command):
     stdout, stderr = process.communicate()
     maccli.logger.debug("STDOUT: %s" % stdout)
     maccli.logger.debug("STDERR: %s" % stderr)
-    return rc, stdout, stderr
+    return rc, stdout.decode('utf-8', 'ignore'), stderr.decode('utf-8', 'ignore')

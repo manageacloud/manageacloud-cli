@@ -1,4 +1,4 @@
-import StringIO
+from io import StringIO
 import os
 import unittest
 import sys
@@ -6,7 +6,7 @@ import yaml
 
 import mock
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.service.macfile
 import maccli.helper.macfile
 import maccli.dao.inheritance
@@ -17,7 +17,7 @@ class MacfileServiceTestCase(unittest.TestCase):
 
     def setUp(self):
         #self.stdout = sys.stdout
-        #sys.stdout = self.buf = StringIO.StringIO()
+        #sys.stdout = self.buf = StringIO()
 
         if os.getcwd().endswith("/tests"):
             self.mock_path = "mock"

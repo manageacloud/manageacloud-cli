@@ -1,6 +1,6 @@
 import unittest
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.helper.network
 
 

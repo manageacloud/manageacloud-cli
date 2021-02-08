@@ -5,16 +5,51 @@ import copy
 import argparse
 
 import maccli
-import parser_cli
+import maccli.parser_cli
 import maccli.command_cli
-from maccli.lib.aliases import AliasedSubParsersAction
+#import maccli.lib.
+#from maccli.lib.aliases import AliasedSubParsersAction
 #import maccli.interactive
 
 from maccli.helper.exception import InternalError
 from maccli.view.view_generic import show_error
 
 
-sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+#sys.stdout = codecs.getwriter('utf8')(sys.stdout)
+
+# TODO lib aliases is kind of failing ... not sure why
+class AliasedSubParsersAction(argparse._SubParsersAction):
+    old_init = staticmethod(argparse._ActionsContainer.__init__)
+
+    @staticmethod
+    def _containerInit(self, description, prefix_chars, argument_default, conflict_handler):
+        AliasedSubParsersAction.old_init(self, description, prefix_chars, argument_default, conflict_handler)
+        self.register('action', 'parsers', AliasedSubParsersAction)
+
+    class _AliasedPseudoAction(argparse.Action):
+        def __init__(self, name, aliases, help):
+            dest = name
+            if aliases:
+                dest += ' (%s)' % ','.join(aliases)
+            sup = super(AliasedSubParsersAction._AliasedPseudoAction, self)
+            sup.__init__(option_strings=[], dest=dest, help=help)
+
+    def add_parser(self, name, **kwargs):
+        aliases = kwargs.pop('aliases', [])
+        parser = super(AliasedSubParsersAction, self).add_parser(name, **kwargs)
+
+        # Make the aliases work.
+        for alias in aliases:
+            self._name_parser_map[alias] = parser
+        # Make the help text reflect them, first removing old help entry.
+        if 'help' in kwargs:
+            help = kwargs.pop('help')
+            self._choices_actions.pop()
+            pseudo_action = self._AliasedPseudoAction(name, aliases, help)
+            self._choices_actions.append(pseudo_action)
+
+        return parser
+
 
 
 def initialize_parser():
@@ -28,12 +63,12 @@ def initialize_parser():
     parser.add_argument('--debug', action='store_true', help="Enable debug")
     #parser.add_argument('-i', '--interactive', action='store_true', dest="interactive", help="Interactive session - preview feature")
     subparsers = parser.add_subparsers(title="mac's CLI commands", dest='cmd')
-    parser_cli.add_login_parser(subparsers)
-    parser_cli.add_instance_parser(subparsers)
-    parser_cli.add_resource_parser(subparsers)
-    parser_cli.add_configuration_parser(subparsers)
-    parser_cli.add_infrastructure_parser(subparsers)
-    parser_cli.add_provider_parser(subparsers)
+    maccli.parser_cli.add_login_parser(subparsers)
+    maccli.parser_cli.add_instance_parser(subparsers)
+    maccli.parser_cli.add_resource_parser(subparsers)
+    maccli.parser_cli.add_configuration_parser(subparsers)
+    maccli.parser_cli.add_infrastructure_parser(subparsers)
+    maccli.parser_cli.add_provider_parser(subparsers)
     return parser
 
 

@@ -1,7 +1,7 @@
 import unittest
 from maccli.helper.unsortable import ordered_load, yaml
 
-from mock_data import *
+from tests.mock_data import *
 
 
 class UnsortableTestCase(unittest.TestCase):

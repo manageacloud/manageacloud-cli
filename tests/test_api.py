@@ -3,7 +3,7 @@ import subprocess
 
 import mock
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.dao.api_auth
 
 

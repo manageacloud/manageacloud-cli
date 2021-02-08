@@ -2,7 +2,7 @@ import os
 import tempfile
 import time
 import urllib
-import urlparse
+import urllib.parse
 
 import pexpect
 
@@ -22,7 +22,7 @@ def list_instances(name_or_ids = None):
     if name_or_ids is not None:
 
         # if name_or_ids is string, convert to list
-        if isinstance(name_or_ids, basestring):
+        if isinstance(name_or_ids, str):
             name_or_ids = [name_or_ids]
 
         for instance_raw in instances_raw:
@@ -88,7 +88,7 @@ def ssh_command_instance(instance_id, cmd):
                 tmp_fpath = tempfile.mkstemp()
                 try:
                     with open(tmp_fpath[1], "wb") as f:
-                        f.write(bytes(instance['privateKey']))
+                        f.write(bytes(instance['privateKey'],  encoding='utf8'))
 
                     command = "ssh %s %s@%s -i %s %s" % (ssh_params, instance['user'], instance['ip'], f.name, cmd)
                     rc, stdout, stderr = maccli.helper.cmd.run(command)

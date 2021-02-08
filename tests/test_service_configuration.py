@@ -3,7 +3,7 @@ import unittest
 import mock
 
 import maccli.service.configuration
-from mock_data import *
+from tests.mock_data import *
 
 
 class AuthTestCase(unittest.TestCase):

@@ -4,7 +4,7 @@ import mock
 
 import maccli.service.resource
 from maccli.config import RELEASE_ANY
-from mock_data import *
+from tests.mock_data import *
 
 
 DEFAULT_RESOURCE = {u'name': u'load balancer 01', u'create': {u'cmd': u'aws elb create-load-balancer --load-balancer-name infrastructure.param.name --listeners infrastructure.param.listeners --availability-zones infrastructure.param.availability-zones', u'rc': 0, u'stderr': u'', u'stdout': u'{\n    "DNSName": "my-demo-load-balancer-1589716593.us-east-1.elb.amazonaws.com"\n}\n'}, u'destroy': {u'rc': 0}, u'cmdDestroy': u'aws elb delete-load-balancer --load-balancer-name infrastructure.param.name --region us-east-1', u'cmdCreate': u'aws elb create-load-balancer --load-balancer-name infrastructure.param.name --listeners infrastructure.param.listeners --availability-zones infrastructure.param.availability-zones', u'metadata': {u'infrastructure': {u'macfile_infrastructure_name': u'load balancer 01', u'macfile_infrastructure_params': {u'listeners': u'Protocol=HTTP,LoadBalancerPort=80,InstanceProtocol=HTTP,InstancePort=80', u'region': u'us-east-1', u'name': u'my-demo-load-balancer', u'availability-zones': u'us-east-1b us-east-1c us-east-1d us-east-1e'}, u'version': u'1.0', u'name': u'demo', u'macfile_resource_name': u'elastic_load_balancer'}}}

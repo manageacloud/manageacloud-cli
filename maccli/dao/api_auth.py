@@ -1,5 +1,5 @@
 import os
-import ConfigParser
+import configparser
 
 import base64
 import maccli.helper.http
@@ -15,7 +15,8 @@ def get_auth(username, password):
     :raises: MacApiError
     :returns: str, str -- the Username, ApiKey to use for the given username/email
     """
-    base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
+    credentials_bytes = ('%s:%s' % (username, password)).encode('ascii')
+    base64string = base64.b64encode(credentials_bytes).decode('utf-8', 'ignore').replace('\n', '')
     status_code, json, raw = maccli.helper.http.send_request("GET", "/user/auth", auth=base64string)
     user = username
     apikey = None
@@ -34,8 +35,8 @@ def load_from_file(file="~/.manageacloud"):
     """
     try:
         cfgfile = os.path.expanduser(file)
-        cp = ConfigParser.ConfigParser()
+        cp = configparser.ConfigParser()
         cp.read(cfgfile)
         return cp.get("auth", "user"), cp.get("auth", "apikey")
-    except ConfigParser.Error:
+    except configparser.Error:
         return None, None

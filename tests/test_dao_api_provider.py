@@ -1,10 +1,10 @@
 import unittest
 import sys
-import StringIO
+from io import StringIO
 
 import mock
 
-from mock_data import *
+from tests.mock_data import *
 import maccli.dao.api_provider
 
 
@@ -17,7 +17,7 @@ DEFAULT_LOCATION = "sfo1"
 class AuthTestCase(unittest.TestCase):
     def setUp(self):
         self.stdout = sys.stdout
-        sys.stdout = self.buf = StringIO.StringIO()
+        sys.stdout = self.buf = StringIO()
         # pass
 
     def tearDown(self):

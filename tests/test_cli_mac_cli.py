@@ -1,11 +1,11 @@
-import StringIO
+from io import StringIO
 import unittest
 
 import mock
 import sys
 
 import maccli.mac_cli
-from mock_data import *
+from tests.mock_data import *
 
 
 class MacTestCase(unittest.TestCase):
@@ -28,7 +28,7 @@ class MacTestCase(unittest.TestCase):
     @mock.patch('maccli.command_cli.instance_destroy_help')
     def test_dispatch_cmds_destroy_help(self, mock):
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
         args = MockInstanceDestroy_args('instance', 'destroy', None, None)
         maccli.mac_cli.dispatch_cmds(args)
         self.assertTrue(mock.called)
@@ -42,7 +42,7 @@ class MacTestCase(unittest.TestCase):
     @mock.patch('maccli.command_cli.instance_ssh_help')
     def test_dispatch_cmds_ssh_help(self, mock):
         self.stderr = sys.stderr
-        sys.stderr = StringIO.StringIO()
+        sys.stderr = StringIO()
         args = MockInstanceSSH_args('instance', 'ssh', None, None)
         maccli.mac_cli.dispatch_cmds(args)
         self.assertTrue(mock.called)

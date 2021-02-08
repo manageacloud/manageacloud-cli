@@ -1,4 +1,3 @@
-from __future__ import print_function
 import sys
 
 from prettytable import PrettyTable
@@ -22,7 +21,7 @@ def show_instances(instances):
                 if name and version:
                     type = "%s %s" % (name, version)
             except KeyError:
-                # not dangerous, infrastructure informationis not available
+                # not dangerous, infrastructure information is not available
                 maccli.logger.debug("Key error while getting infrastructure information")
 
             pretty.add_row([instance['servername'], instance['ipv4'], instance['id'], type, status])

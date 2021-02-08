@@ -1,4 +1,4 @@
-import urllib
+from urllib.parse import urlencode
 
 import maccli.helper.http
 
@@ -16,7 +16,7 @@ def search_public_configuration(keywords):
         params = {
             'keyword': keywords
         }
-        querystring = "?" + urllib.urlencode(params, True)
+        querystring = "?" + urlencode(params, True)
 
     status_code, json_response, raw = maccli.helper.http.send_request("GET", "/configuration/search%s" % querystring)
 

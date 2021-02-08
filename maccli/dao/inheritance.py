@@ -125,7 +125,7 @@ def resolve_inheritance(macfile_str, params):
 
 
 def _merge_dictionaries(base, new_values):
-    if isinstance(new_values, basestring):
+    if isinstance(new_values, str):
         total = new_values
     else:
         total = base

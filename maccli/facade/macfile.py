@@ -1,4 +1,3 @@
-from __future__ import print_function
 import time
 import maccli
 
@@ -79,12 +78,12 @@ def parse_instance_envs(env_raws, instances):
     envs_clean = {}
     all_processed = True
     for env in env_raws:
-        key = env.keys()[0]
+        key = list(env.keys())[0]
         val = env[key]
-        if isinstance(val, (int, long)):
+        if isinstance(val, (int)):
             val = str(val)
 
-        if isinstance(val, basestring):
+        if isinstance(val, str):
             if val.endswith(".PUBLIC_IP"):
                 """
                     We substitute the value by the given role
