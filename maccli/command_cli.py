@@ -11,6 +11,9 @@ import urllib
 import urllib.request
 import urllib.parse
 
+# TODO implement progress bar
+#from progressbar import ReverseBar, Percentage, ETA, RotatingMarker, Timer, ProgressBar
+
 import maccli.service.auth
 import maccli.service.instance
 import maccli.service.provider
@@ -110,6 +113,9 @@ def instance_ssh(raw_ids, command):
         started_count = 0
         completed_count = 0
         total_count = len(ids)
+
+        # bar = ProgressBar(maxval=total_count,widgets=[Percentage(), ReverseBar(), ETA(), RotatingMarker(), Timer()]).start()
+
         for id in ids:
             server_name = id["servername"]
             raw_id = id["id"]
@@ -135,6 +141,7 @@ def instance_ssh(raw_ids, command):
                     for key in keys:
                         if not jobs[key].is_alive():
                             completed_count += 1
+                            # bar.update(completed_count)
                             show("Status: %s/%s/%s" % (completed_count, started_count, total_count))
                             jobs[key].join()
                             del jobs[key]
@@ -154,6 +161,7 @@ def instance_ssh(raw_ids, command):
 
                 if not jobs[key].is_alive():
                     completed_count += 1
+                    # bar.update(completed_count)
                     show("Status: %s/%s/%s" % (completed_count, started_count, total_count))
                     jobs[key].join()
                     del jobs[key]
@@ -183,9 +191,11 @@ def _run_cmd_simple(server_name, raw_id, command):
     maccli.view.view_generic.showc("[%s]" % server_name, GREEN)
     if stdout:
         maccli.view.view_generic.show(stdout)
-    if stderr:
+    elif stderr:
         maccli.view.view_generic.showc(raw_id, RED)
         maccli.view.view_generic.showc(stderr, RED)
+    else:
+        maccli.view.view_generic.show("\n")
     #maccli.view.view_generic.show()
 
 
