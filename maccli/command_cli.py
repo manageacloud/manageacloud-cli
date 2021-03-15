@@ -188,7 +188,7 @@ def instance_ssh(raw_ids, command):
 
 def _run_cmd_simple(server_name, raw_id, command):
     rc, stdout, stderr = maccli.service.instance.ssh_command_instance(raw_id, command)
-    maccli.view.view_generic.showc("[%s]" % server_name, GREEN)
+    maccli.view.view_generic.showc("[%s] " % server_name, GREEN)
     if stdout:
         maccli.view.view_generic.show(stdout)
     elif stderr:
