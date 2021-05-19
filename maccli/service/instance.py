@@ -165,7 +165,7 @@ def ssh_interactive_instance(instance_id):
             tmp_fpath = tempfile.mkstemp()
             try:
                 with open(tmp_fpath[1], "wb") as f:
-                    f.write(bytes(instance['privateKey']))
+                    f.write(bytes(instance['privateKey'], encoding='utf8'))
 
                 command = "ssh %s %s@%s -i %s " % (ssh_params, instance['user'], instance['ip'], f.name)
                 os.system(command)
