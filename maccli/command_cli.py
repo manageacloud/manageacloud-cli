@@ -539,7 +539,7 @@ def process_macfile(file, resume, params, quiet, on_failure):
                 maccli.logger.debug("Total resources processed: %s " % infrastructure_resources_processed)
                 finish = finish and finish_resources
             except MacResourceException as e:
-                infrastructure_error_detail = e[1]
+                infrastructure_error_detail = [e.__str__()]
                 infrastructure_resources_failed = True
                 finish = True
 

@@ -5,7 +5,11 @@ BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
 
 def show(string=""):
-    print(string.strip())
+    if type(string) == list:
+        for s in string:
+            print(s)
+    else:
+        print(string.strip())
 
 
 def showc(string, colour=WHITE):

@@ -18,7 +18,7 @@ def search_infrastructure(name, version):
     if version is not None:
         params['version'] = version
 
-    querystring = "?" + urllib.urlencode(params, True)
+    querystring = "?" + urllib.parse.urlencode(params, True)
 
     status_code, json_response, raw = maccli.helper.http.send_request("GET", "/infrastructure%s" % querystring)
 
