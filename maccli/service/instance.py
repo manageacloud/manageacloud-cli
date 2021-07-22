@@ -84,10 +84,11 @@ def ssh_command_instance(instance_id, cmd):
 
         if instance is not None and (instance['privateKey'] or instance['password']):
             if instance['privateKey']:
-                tmp_fpath = tempfile.mkstemp()
+                fd, path = tempfile.mkstemp()
                 try:
-                    with open(tmp_fpath[1], "wb") as f:
+                    with open(path, "wb") as f:
                         f.write(bytes(instance['privateKey'], encoding='utf8'))
+                        f.close()
 
                     # openssh 7.6, it defaults to a new more secure format.
                     command = "ssh-keygen -f %s -p -N ''" % f.name
@@ -98,7 +99,9 @@ def ssh_command_instance(instance_id, cmd):
                     rc, stdout, stderr = maccli.helper.cmd.run(command)
 
                 finally:
-                   os.remove(tmp_fpath[1])
+                    os.close(fd)
+                    os.remove(path)
+
             else:
                 """ Authentication with password """
                 command = "ssh %s %s@%s %s" % (ssh_params, instance['user'], instance['ip'], cmd)
@@ -162,16 +165,18 @@ def ssh_interactive_instance(instance_id):
 
         if instance['privateKey']:
             """ Authentication with private key """
-            tmp_fpath = tempfile.mkstemp()
+            fd, path = tempfile.mkstemp()
             try:
-                with open(tmp_fpath[1], "wb") as f:
+                with open(path, "wb") as f:
                     f.write(bytes(instance['privateKey'], encoding='utf8'))
+                    f.close()
 
                 command = "ssh %s %s@%s -i %s " % (ssh_params, instance['user'], instance['ip'], f.name)
                 os.system(command)
 
             finally:
-                os.remove(tmp_fpath[1])
+                os.close(fd)
+                os.remove(path)
 
         else:
             """ Authentication with password """
