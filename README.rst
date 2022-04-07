@@ -30,24 +30,11 @@ Installation
 Command Line Interface
 ----------------------
 
-You can install the CLI and any required dependency by executing:
+Install vis ``pip3 install``:
 
 .. sourcecode:: bash
 
-    curl -sSL https://manageacloud.com/mac | bash
-
-You can also use ``pip install``:
-
-.. sourcecode:: bash
-
-    pip install mac
-
-Community version of Manageacloud Framework
--------------------------------------------
-
-The community version of Manageacloud includes the server backend and the command line interface.
-Please `read here <https://manageacloud.com/docs/getting-started/install>`_ how to install it.
-
+    pip3 install mac
 
 Examples
 ========
