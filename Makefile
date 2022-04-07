@@ -18,7 +18,8 @@ test:prepare
 	venv/bin/python3 setup.py nosetests
 
 publish-pypi:prepare
-	python setup.py sdist upload
+	# set up the api key at  $HOME/.pypirc (chmod 600)
+	twine upload dist/*
 
 build-osx:prepare
 	venv/bin/pip3 install --upgrade pip
